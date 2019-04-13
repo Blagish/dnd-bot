@@ -1,16 +1,21 @@
 from expressions import d
 
 commands = {}
+variants = []
 
-def handler(triggers):
+def list_(res):
+    if type(res) == type(tuple()):
+        return list(res)
+    return [res]
+
+def handler(name, triggers):
     def dec(f):
         def f2(*args):
             res = f(*args)
-            if type(res) == type(tuple()):
-                return list(res)
-            return [res]
+            return list_(res)
         for i in triggers:
             commands[i] = f2
+        variants.append((name, triggers))
         return f2
     return dec
 
@@ -21,23 +26,26 @@ def detect_command(s):
         return s[i+2:]
     return s
 
-@handler(['hello', 'привет', 'hewwo'])
+@handler('Приветствие', ['hello', 'привет', 'hewwo'])
 def hello(*args):
     return 'hewwo OwO'
 
 
-@handler(['помощь', 'help', 'спаси', 'справка'])
+@handler('Это окно',['помощь', 'help', 'спаси', 'справка'])
 def help(*args):
-    s = '''Справка:
-помощь - помощь
-roll - роллить кубеки'''
+    s = ''
+    for i in variants:
+        s += f'{i[0]} -- '
+        for j in i[1]:
+            s += f'{j}, '
+        s = s[:-2] + '\n'
     return s
 
-@handler(['roll', 'dice', 'кидай', 'кинь'])
+@handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь'])
 def roll(*args):
     return d(args[0])
 
-@handler(['repeat', 'повтори', 'еще', 'ещё'])
+@handler('Повторить запросы (из пересланных сообщений)', ['repeat', 'повтори', 'еще', 'ещё'])
 def repeat(*args):
     print(args)
     s, fwd_msg = args
