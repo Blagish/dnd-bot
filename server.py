@@ -32,11 +32,17 @@ class Server:
     def start(self):
         for event in self.long_poll.listen():   # Слушаем сервер
             if event.type == VkBotEventType.MESSAGE_NEW:
-                output = execute(event.object.text)
-                
-                output_m = message_splitter(output)
-                for m in output_m:
-                    self.send_msg(event.object.peer_id, m)
+                fwd_msg = list(map(lambda x:x['text'], event.object.fwd_messages))
+                if event.object.reply_message:
+                    fwd_msg = [event.object.reply_message['text']]
+                print(fwd_msg)
+                output = execute(event.object.text, fwd_msg)
+                if output:
+                    for message in output:
+                        if message:
+                            output_m = message_splitter(message)
+                            for m in output_m:
+                                self.send_msg(event.object.peer_id, m)
 
     def test(self):
         self.send_msg(121469320, "test test test")
