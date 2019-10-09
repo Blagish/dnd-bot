@@ -20,12 +20,14 @@ def get_spell(name):
     b = soup.find(check_title)
     if b is None:
         print('owo wats this')
-        return
+        return 'owo wats this'
 
     page = urllib.request.urlopen(base_url + b.get('href'))
     soup = BeautifulSoup(page, 'html.parser')
     card = soup.find('div', attrs={'class':'card-body'})   
     result = []
+    result.append(soup.find('a', attrs={'class':'item-link'}).get_text())
+    result.append('')
     for li in card.ul.contents:
         if (li.get('class') in blacklisted_tags) :
             continue
@@ -39,6 +41,6 @@ def get_spell(name):
 
     
 
-print(get_spell('Огонь фей'))
+#print(get_spell('Огонь фей'))
 
 ''
