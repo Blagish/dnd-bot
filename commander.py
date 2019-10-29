@@ -1,4 +1,5 @@
 from expressions import d
+from spells import get_spell
 
 commands = {}
 variants = []
@@ -43,7 +44,13 @@ def help(*args):
 
 @handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь'])
 def roll(*args):
+    print(args)
     return d(args[0])
+
+@handler('Описать заклинание', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
+def cast(*args):
+    print(args)
+    return get_spell(args[0])
 
 @handler('Повторить запросы (из пересланных сообщений)', ['repeat', 'повтори', 'еще', 'ещё'])
 def repeat(*args):
@@ -61,7 +68,8 @@ def execute(s0, fwd_msg):
         s = detect_command(s0)
         command1 = s.split()[0]
         function = commands.get(command1)
+        parameters = ' '.join(s.split()[1:])
         if function:
-            return function(s, fwd_msg)
+            return function(parameters, fwd_msg)
         return None
     return None

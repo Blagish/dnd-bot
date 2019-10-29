@@ -36,7 +36,11 @@ class Server:
                 if event.object.reply_message:
                     fwd_msg = [event.object.reply_message['text']]
                 print(fwd_msg)
-                output = execute(event.object.text, fwd_msg)
+                try:
+                    output = execute(event.object.text, fwd_msg)
+                except Exception as e:
+                    args = list(map(str, e.args))
+                    output = ["Exception {0}: {1}".format(str(type(e)), " ".join(args))]
                 if output:
                     for message in output:
                         if message:
