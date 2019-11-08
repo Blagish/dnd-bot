@@ -54,13 +54,13 @@ def roll(*args):
     return d(args[0])[0]
 
 
-@handler('Кинуть с преимуществом', ['roll a', 'dice a', 'кидай пр', 'кинь пр'])
+@handler('Кинуть с преимуществом', ['roll_a', 'dice_a', 'кидай_пр', 'кинь_пр'])
 def roll(*args):
     print(args)
     return d_adv(args[0])
 
 
-@handler('Кинуть с помехой', ['roll d', 'dice d', 'кидай по', 'кинь по'])
+@handler('Кинуть с помехой', ['roll_d', 'dice_d', 'кидай_по', 'кинь_по'])
 def roll(*args):
     print(args)
     return d_disadv(args[0])
