@@ -1,6 +1,11 @@
 from expressions import d, d_adv, d_disadv
 from spells import get_spell
 
+
+class ZhannaError(ValueError):
+    pass
+
+
 commands = {}
 variants = []
 
@@ -28,7 +33,8 @@ def handler(name, triggers):
 def detect_command(s):
     if s[0] == '[':
         i = s.index(']')
-        return s[i + 2:]
+        end = s[i + 2:]
+        return end
     return s
 
 
@@ -85,11 +91,14 @@ def repeat(*args):
 
 def execute(s0, fwd_msg):
     if s0 != '':
-        s = detect_command(s0)
-        command1 = s.split()[0]
+        try:
+            s = detect_command(s0)
+            command1 = s.split()[0]
+        except IndexError:
+            raise ZhannaError('Жанна')
         function = commands.get(command1)
         parameters = ' '.join(s.split()[1:])
         if function:
             return function(parameters, fwd_msg)
         return None
-    return ['Жанна']
+    return None
