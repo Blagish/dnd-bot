@@ -43,7 +43,7 @@ def d_adv(s):
     a1 = d(s)
     a2 = d(s)
     output = a1[0] + '\n' + a2[0]
-    output += '\nAdvantage: {max(a1[1], a2[1])}'
+    output += f'\nAdvantage: {max(a1[1], a2[1])}'
     return output
 
 
@@ -51,5 +51,5 @@ def d_disadv(s):
     a1 = d(s)
     a2 = d(s)
     output = a1[0] + '\n' + a2[0]
-    output += '\nDisadvantage: {min(a1[1], a2[1])}'
+    output += f'\nDisadvantage: {min(a1[1], a2[1])}'
     return output
