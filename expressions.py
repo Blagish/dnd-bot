@@ -1,13 +1,14 @@
 import re
 from random import randint
 
-
 # pattern = '/roll\s+(?P<num>\d*)d(?P<dice>\d*)\s*\+\s*(?P<mod>\d*)'
 command = 'roll\s+'
-#command = '/roll\s+'
+# command = '/roll\s+'
 dice = '([\+\-]?)\s*(?P<num>\d*)d(?P<dice>\d*)'
 modifiers = '([\+\-])\s*(?P<mod>\d+)(?!d)'
-#s = input()
+
+
+# s = input()
 
 def d(s):
     res = 0
@@ -33,7 +34,7 @@ def d(s):
         mul = 1
         if mod[0] == '-':
             mul = -1
-        res += mul*int(mod[1])
+        res += mul * int(mod[1])
     output += f'\n= {res}'
     return output
 # print(re.findall(modifiers, s))

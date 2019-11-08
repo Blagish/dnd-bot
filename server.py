@@ -9,17 +9,18 @@ from commander import execute
 def random_id():
     return randint(1, 2147483647)
 
+
 def message_splitter(s):
     m = [s]
     while len(m[-1]) > 4095:
         m.append(m[-1][4095:])
         m[-2] = m[-2][:4095]
     return m
-    
+
 
 class Server:
 
-    def __init__(self, api_token, group_id, server_name: str="Empty"):
+    def __init__(self, api_token, group_id, server_name: str = "Empty"):
         self.server_name = server_name
         self.vk = vk_api.VkApi(token=api_token)
         self.long_poll = VkBotLongPoll(self.vk, group_id)
@@ -29,10 +30,11 @@ class Server:
         self.vk_api.messages.send(peer_id=send_id,
                                   message=message,
                                   random_id=random_id())
+
     def start(self):
-        for event in self.long_poll.listen():   # Слушаем сервер
+        for event in self.long_poll.listen():  # Слушаем сервер
             if event.type == VkBotEventType.MESSAGE_NEW:
-                fwd_msg = list(map(lambda x:x['text'], event.object.fwd_messages))
+                fwd_msg = list(map(lambda x: x['text'], event.object.fwd_messages))
                 if event.object.reply_message:
                     fwd_msg = [event.object.reply_message['text']]
                 print(fwd_msg)
