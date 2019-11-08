@@ -36,5 +36,20 @@ def d(s):
             mul = -1
         res += mul * int(mod[1])
     output += f'\n= {res}'
+    return output, res
+
+
+def d_adv(s):
+    a1 = d(s)
+    a2 = d(s)
+    output = a1[0] + '\n' + a2[0]
+    output += '\nAdvantage: {max(a1[1], a2[1])}'
     return output
-# print(re.findall(modifiers, s))
+
+
+def d_disadv(s):
+    a1 = d(s)
+    a2 = d(s)
+    output = a1[0] + '\n' + a2[0]
+    output += '\nDisadvantage: {min(a1[1], a2[1])}'
+    return output

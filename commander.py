@@ -1,4 +1,4 @@
-from expressions import d
+from expressions import d, d_adv, d_disadv
 from spells import get_spell
 
 commands = {}
@@ -51,7 +51,19 @@ def help_list(*args):
 @handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь'])
 def roll(*args):
     print(args)
-    return d(args[0])
+    return d(args[0])[0]
+
+
+@handler('Кинуть с преимуществом', ['roll a', 'dice a', 'кидай пр', 'кинь пр'])
+def roll(*args):
+    print(args)
+    return d_adv(args[0])
+
+
+@handler('Кинуть с помехой', ['roll d', 'dice d', 'кидай по', 'кинь по'])
+def roll(*args):
+    print(args)
+    return d_disadv(args[0])
 
 
 @handler('Описать заклинание', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
