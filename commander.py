@@ -82,7 +82,6 @@ def repeat(*args):
         data.append(execute(msg, []))
     return tuple(data)
 
-#    return d(s)
 
 def execute(s0, fwd_msg):
     if s0 != '':
