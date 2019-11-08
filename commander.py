@@ -94,4 +94,4 @@ def execute(s0, fwd_msg):
         if function:
             return function(parameters, fwd_msg)
         return None
-    return tuple('Жанна')
+    return 'Жанна'
