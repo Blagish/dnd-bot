@@ -85,8 +85,8 @@ def repeat(*args):
     data = []
     for msg in fwd_msg:
         print(msg)
-        data.append(execute(msg, []))
-    return tuple(data)
+        data += execute(msg, [])
+    return data
 
 
 def execute(s0, fwd_msg):
@@ -99,6 +99,8 @@ def execute(s0, fwd_msg):
         function = commands.get(command1)
         parameters = ' '.join(s.split()[1:])
         if function:
-            return function(parameters, fwd_msg)
+            print('executing command', command1, 'with parameter strings', parameters.split(','))
+            res = [function(argstring.strip(), fwd_msg) for argstring in parameters.split(',')]
+            return res
         return None
     return None
