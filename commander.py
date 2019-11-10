@@ -1,4 +1,4 @@
-from expressions import d, d_adv, d_disadv
+from expressions import d
 from spells import get_spell
 
 
