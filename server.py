@@ -10,8 +10,7 @@ def random_id():
     return randint(1, 2147483647)
 
 
-def message_splitter(s):
-    m = [s]
+def message_splitter(m):
     while len(m[-1]) > 4095:
         m.append(m[-1][4095:])
         m[-2] = m[-2][:4095]
@@ -31,21 +30,37 @@ class Server:
                                   message=message,
                                   random_id=random_id())
 
+    def cut_appeal(self, command):
+        if command == '' or command == '/':
+            return None
+        if command[0] == '/':
+            command = command[1:]
+        if command[0] == '[':
+            command = command[command.index(']') + 1:]
+        while command[0] == ' ':
+            command = command[1:]
+        return command
+
     def start(self):
         for event in self.long_poll.listen():  # Слушаем сервер
             if event.type == VkBotEventType.MESSAGE_NEW:
+
                 fwd_msg = list(map(lambda x: x['text'], event.object.fwd_messages))
                 if event.object.reply_message:
                     fwd_msg = [event.object.reply_message['text']]
-                print(fwd_msg)
+
                 output = []
+
                 for command in event.object.text.split(';'):
-                    print("received command", command);
+                    print("received command", command)
                     try:
-                        output += execute(command, fwd_msg)
+                        command = self.cut_appeal(command)
+                        if command:
+                            output += execute(command, fwd_msg)
                     except Exception as e:
-                        args = list(map(str, e.args))
-                        output += ["Exception {0}: {1}".format(str(type(e)), " ".join(args))]
+                        output += ['uwu']
+                        # args = list(map(str, e.args))
+                        # output += ["Exception {0}: {1}".format(str(type(e)), " ".join(args))]
                 if output:
                     for message in output:
                         if message:
