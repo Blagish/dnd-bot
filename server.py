@@ -60,7 +60,6 @@ class Server:
                             output += execute(command, fwd_msg)
                     except Exception as e:
                         output += ['uwu']
-                        pass
                         # args = list(map(str, e.args))
                         # output += ["Exception {0}: {1}".format(str(type(e)), " ".join(args))]
                 if output:

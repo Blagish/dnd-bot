@@ -57,7 +57,7 @@ def cast(*args):
     return get_spell(args[0])
 
 
-@handler('Выводит да или нет', ['чекай, чек, check'])
+@handler('Выводит да или нет', ['чекай', 'чек', 'check'])
 def check(*args):
     res = choice(['ага', 'нет'])
     return res
