@@ -1,10 +1,6 @@
 from expressions import d
 from spells import get_spell
-
-
-class ZhannaError(ValueError):
-    pass
-
+from random import choice
 
 commands = {}
 variants = []
@@ -30,15 +26,7 @@ def handler(name, triggers):
     return dec
 
 
-def detect_command(s):
-    if s[0] == '[':
-        i = s.index(']')
-        end = s[i + 2:]
-        return end
-    return s
-
-
-@handler('Приветствие', ['hello', 'привет', 'hewwo'])
+@handler('Приветствие', ['hello', 'привет', 'hewwo', 'owo'])
 def hello(*args):
     return 'hewwo OwO'
 
@@ -60,7 +48,6 @@ def help_list(*args):
 
 @handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь'])
 def roll(*args):
-    print(args)
     return d(args[0])
 
 
@@ -70,29 +57,30 @@ def cast(*args):
     return get_spell(args[0])
 
 
-@handler('Повторить запросы (из пересланных сообщений)', ['repeat', 'повтори', 'еще', 'ещё'])
-def repeat(*args):
-    print(args)
-    s, fwd_msg = args
-    data = []
-    for msg in fwd_msg:
-        print(msg)
-        data += execute(msg, [])
-    return data
+@handler('Выводит да или нет', ['чекай, чек, check'])
+def check(*args):
+    res = choice(['ага', 'нет'])
+    return res
 
 
-def execute(s0, fwd_msg):
-    if s0 != '':
-        try:
-            s = detect_command(s0)
-            command1 = s.split()[0]
-        except IndexError:
-            raise ZhannaError('Жанна')
-        function = commands.get(command1)
-        parameters = ' '.join(s.split()[1:])
-        if function:
-            print('executing command', command1, 'with parameter strings', parameters.split(','))
-            res = [function(argstring.strip(), fwd_msg) for argstring in parameters.split(',')]
-            return res
-        return None
+# scrapped command
+# @handler('Повторить запросы (из пересланных сообщений)', ['repeat', 'повтори', 'еще', 'ещё'])
+# def repeat(*args):
+#     print(args)
+#     s, fwd_msg = args
+#     data = []
+#     for msg in fwd_msg:
+#         print(msg)
+#         data += execute(msg, [])
+#     return data
+
+
+def execute(s, fwd_msg):
+    command1 = s.split()[0]
+    function = commands.get(command1)
+    parameters = ' '.join(s.split()[1:])
+    if function:
+        print('executing command', command1, 'with parameter strings', parameters.split(','))
+        res = [function(argstring.strip(), fwd_msg) for argstring in parameters.split(',')]
+        return res
     return None
