@@ -10,8 +10,7 @@ def random_id():
     return randint(1, 2147483647)
 
 
-def message_splitter(s):
-    m = [s]
+def message_splitter(m):
     while len(m[-1]) > 4095:
         m.append(m[-1][4095:])
         m[-2] = m[-2][:4095]
