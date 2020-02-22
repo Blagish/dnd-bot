@@ -46,7 +46,7 @@ def help_list(*args):
     return s
 
 
-@handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь'])
+@handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь', 'r'])
 def roll(*args):
     return d(args[0])
 
