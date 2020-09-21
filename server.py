@@ -32,7 +32,9 @@ def message_splitter(m):
 
 
 def send_message(peer_id, message, attachment=""):
-    api.messages.send(access_token=token, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
+    message = message.replace('*', '')  # quick kostyl' because vk
+    message = message.replace('~', '')
+    api.messages.send(access_token=token_vk, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
 
 
 def process(data):
