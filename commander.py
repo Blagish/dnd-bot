@@ -118,12 +118,12 @@ def kuku(*args):
     return 'быбы'
 
 
-def execute(s, fwd_msg):
+def execute(s):
     command1 = s.split()[0]
     function = commands.get(command1)
     parameters = ' '.join(s.split()[1:])
     if function:
         print('executing command', command1, 'with parameter strings', parameters.split(','))
-        res = [function(argstring.strip(), fwd_msg) for argstring in parameters.split(',')]
+        res = [function(argstring.strip()) for argstring in parameters.split(',')]
         return res
     return None
