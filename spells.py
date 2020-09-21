@@ -8,7 +8,7 @@ import urllib
 def get_spell(name):
     def check_title(tag):
         return tag.has_attr('title') and name.lower() in tag.get('title').lower()
-
+    print('found spell', name)
     base_url = "https://dungeon.su/"
     spells_url = "https://dungeon.su/spells/"
     page = urllib.request.urlopen(spells_url)
@@ -33,7 +33,7 @@ def get_spell(name):
         if li.get('class') in blacklisted_tags:
             continue
         if li.get('class') == ['subsection', 'desc']:
-            result.append('Описание:');
+            result.append('Описание:')
             li = li.div
         s = li.get_text()
         result.append(s)
