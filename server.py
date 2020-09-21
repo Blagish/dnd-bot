@@ -1,13 +1,27 @@
-import vk_api.vk_api
-
-from vk_api.bot_longpoll import VkBotLongPoll
-from vk_api.bot_longpoll import VkBotEventType
+import vk
+from config import *
 from random import randint
 from commander import execute
 
 
 def random_id():
     return randint(1, 2147483647)
+
+
+session = vk.Session()
+api = vk.API(session, v=5.95)
+
+
+def cut_appeal(command):
+    if command == '' or command == '/':
+        return None
+    if command[0] == '/':
+        command = command[1:]
+    if command[0] == '[':
+        command = command[command.index(']') + 1:]
+    while command[0] == ' ':
+        command = command[1:]
+    return command.lower()
 
 
 def message_splitter(m):
@@ -17,56 +31,33 @@ def message_splitter(m):
     return m
 
 
-class Server:
+def send_message(peer_id, message, attachment=""):
+    message = message.replace('*', '')  # quick kostyl' because vk
+    message = message.replace('~', '')
+    api.messages.send(access_token=token_vk, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
 
-    def __init__(self, api_token, group_id, server_name: str = "Empty"):
-        self.server_name = server_name
-        self.vk = vk_api.VkApi(token=api_token)
-        self.long_poll = VkBotLongPoll(self.vk, group_id)
-        self.vk_api = self.vk.get_api()
 
-    def send_msg(self, send_id, message):
-        self.vk_api.messages.send(peer_id=send_id,
-                                  message=message,
-                                  random_id=random_id())
+def process(data):
+    #fwd_msg = list(map(lambda x: x['text'], data['object']['fwd_messages']))
+    #        if event.object.reply_message:
+    #            fwd_msg = [event.object.reply_message['text']]
+    output = []
+    output_m = []
+    for command in data.split(';'):
+        print("received command", command)
+        try:
+            command = cut_appeal(command)
+            print("cutted command", command)
+            if command:
+                output += execute(command)
+        except Exception as e:
+            output += [["uwu"]]
+            args = list(map(str, e.args))
+            print("Exception {0}: {1}".format(str(type(e)), " ".join(args)))
+            #
+            # output += ["Exception {0}: {1}".format(str(type(e)), " ".join(args))]
+    for message in output:
+        if message:
+            output_m += message_splitter(message)
 
-    def cut_appeal(self, command):
-        if command == '' or command == '/':
-            return None
-        if command[0] == '/':
-            command = command[1:]
-        if command[0] == '[':
-            command = command[command.index(']') + 1:]
-        while command[0] == ' ':
-            command = command[1:]
-        return command
-
-    def start(self):
-        for event in self.long_poll.listen():  # Слушаем сервер
-            if event.type == VkBotEventType.MESSAGE_NEW:
-
-                fwd_msg = list(map(lambda x: x['text'], event.object.fwd_messages))
-                if event.object.reply_message:
-                    fwd_msg = [event.object.reply_message['text']]
-
-                output = []
-
-                for command in event.object.text.split(';'):
-                    print("received command", command)
-                    try:
-                        command = self.cut_appeal(command)
-                        if command:
-                            output += execute(command, fwd_msg)
-                    except Exception as e:
-                        output += ['uwu']
-                        # args = list(map(str, e.args))
-                        # output += ["Exception {0}: {1}".format(str(type(e)), " ".join(args))]
-                if output:
-                    for message in output:
-                        if message:
-                            output_m = message_splitter(message)
-                            for m in output_m:
-                                self.send_msg(event.object.peer_id, m)
-
-    def test(self):
-        self.send_msg(121469320, "test test test")
+    return output_m

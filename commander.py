@@ -3,7 +3,14 @@ from spells import get_spell
 from random import choice
 
 commands = {}
-variants = []
+help_prompts = []
+
+
+def construct_prompt(tupl):
+    if 'hidden' in tupl[1]:
+        return ''
+    s = f'{tupl[0]} -- ' + ', '.join(tupl[1]) + ';'
+    return s
 
 
 def list_(res):
@@ -20,7 +27,7 @@ def handler(name, triggers):
 
         for i in triggers:
             commands[i] = f2
-        variants.append((name, triggers))
+        help_prompts.append((name, triggers))
         return f2
 
     return dec
@@ -31,22 +38,17 @@ def hello(*args):
     return 'hewwo OwO'
 
 
-@handler('Это окно', ['помощь', 'help', 'спаси', 'справка'])
+@handler('Это окошко', ['помощь', 'help', 'спаси', 'справка', 'хелп'])
 def help_list(*args):
-    s = ''
-    for i in variants:
-        s += f'{i[0]} -- '
-        for j in i[1]:
-            s += f'{j}, '
-        s = s[:-2] + '\n'
-    s += '\nЧтобы кидать дайсы, используйте символ d(d20, 4d6+1). Чтобы кидать с преимуществом или с помехой, ' \
-         'используйте обозначения ad или dd соответственно (ad20, dd20). Разрещается делать несколько бросков за раз,' \
+    s = '\n'.join([construct_prompt(i) for i in help_prompts])
+    s += '\n\nЧтобы кидать дайсы, используйте символ d(d20, 4d6+1). Чтобы кидать с преимуществом, супер-преимуществом (оно же эльфийское) или с помехой, ' \
+         'используйте обозначения ad, ed или dd соответственно (ad20, ed20, dd20). Можно использовать Great Weapon Fighting, Elemental Adept, Reliable Talent или Halfling Lucky указывая параметр перед кубом (gwf d4+1, ea 2d6, rt, hl). Разрешается делать несколько бросков за раз,' \
          ' перечисляя кубы через запятую. Разрешается запускать несколько команд в одном сообщении, разделяя их точкой' \
          ' с запятой. '
     return s
 
 
-@handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь', 'r'])
+@handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь', 'r', 'р', 'к', 'k'])
 def roll(*args):
     return d(args[0])
 
@@ -63,6 +65,25 @@ def check(*args):
     return res
 
 
+@handler('Поблагодарить за хороший рандом', ['спасибо', 'спс', 'сепс', 'thank', 'thanks', 'thx'])
+def thanks(*args):
+    res = choice(['Пожалуйста!', 'Рада помочь!', 'Всегда пожалуйста', 'Стараюсь :)'])
+    # res = choice(['пожалуйста', 'рад помочь', 'всегда пожалуйста', 'стараюсь'])
+    return res
+
+
+@handler('Поинтересоваться почему все идет не так', ['слыш', 'слышь', 'э', 'каво', 'чево', 'всмысле', 'wut', 'слiш', 'bruh', 'брух'])
+def anger(*args):
+    res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!',
+                  'Это все кубики, правда!'])
+    return res
+
+
+#@handler('Consider donating?', ['donate', 'донат'])
+#def donate(*args):
+#    return 'Consider donating? Разрабам надо кушать. Ну хотя бы на чашечку кофе.'
+
+
 # scrapped command
 # @handler('Повторить запросы (из пересланных сообщений)', ['repeat', 'повтори', 'еще', 'ещё'])
 # def repeat(*args):
@@ -72,15 +93,37 @@ def check(*args):
 #     for msg in fwd_msg:
 #         print(msg)
 #         data += execute(msg, [])
-#     return data
+#     return dat
 
 
-def execute(s, fwd_msg):
+@handler('Портент', ['портент', 'portent', 'hidden'])
+def portent(*args):
+    data = ['no']
+    if args[0]:
+        data = args[0].split()
+    mode = 'r'
+    if data[0] == 'new':
+        mode = 'w'
+    with open('portent.txt', mode=mode) as file:
+        if mode == 'r':
+            s = file.readline()
+        else:
+            file.write(' '.join(data[1:]))
+            s = 'Портент записан'
+    return s
+
+
+@handler('Куку', ['куку', 'hidden'])
+def kuku(*args):
+    return 'быбы'
+
+
+def execute(s):
     command1 = s.split()[0]
     function = commands.get(command1)
     parameters = ' '.join(s.split()[1:])
     if function:
         print('executing command', command1, 'with parameter strings', parameters.split(','))
-        res = [function(argstring.strip(), fwd_msg) for argstring in parameters.split(',')]
+        res = [function(argstring.strip()) for argstring in parameters.split(',')]
         return res
     return None
