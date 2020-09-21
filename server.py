@@ -38,12 +38,12 @@ def send_message(peer_id, message, attachment=""):
 
 
 def process(data):
-    fwd_msg = list(map(lambda x: x['text'], data['object']['fwd_messages']))
+    #fwd_msg = list(map(lambda x: x['text'], data['object']['fwd_messages']))
     #        if event.object.reply_message:
     #            fwd_msg = [event.object.reply_message['text']]
     output = []
     output_m = []
-    for command in data['object']['text'].split(';'):
+    for command in data.split(';'):
         print("received command", command)
         try:
             command = cut_appeal(command)

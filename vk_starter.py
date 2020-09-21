@@ -22,7 +22,7 @@ def processing():
         return confirmation_token
     elif data['type'] == 'message_new':
         peer_id = data['object']['peer_id']
-        output = server.process(data)
+        output = server.process(data['object']['text'])
 
         for message in output:
             server.send_message(peer_id, message)
