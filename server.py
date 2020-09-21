@@ -49,7 +49,7 @@ def process(data):
             command = cut_appeal(command)
             print("cutted command", command)
             if command:
-                output += execute(command, fwd_msg)
+                output += execute(command)
         except Exception as e:
             output += [["uwu"]]
             args = list(map(str, e.args))
