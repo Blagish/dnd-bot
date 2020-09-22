@@ -18,7 +18,16 @@ def get_spell(name):
     name = name.lower()
     print(name)
 
-    b = soup.find(check_title)
+    results = soup.find_all(check_title)
+    diff = 1e9
+    b = None
+    for tag in results:
+        print(tag.get('title').lower())
+        title = tag.get('title').lower()
+        if len(title) - len(name) < diff:
+            diff = len(title) - len(name)
+            b = tag
+
     if b is None:
         print('owo wats this')
         return 'owo wats this'
