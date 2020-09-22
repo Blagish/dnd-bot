@@ -22,8 +22,13 @@ def get_spell(name):
     diff = 1e9
     b = None
     for tag in results:
-        print(tag.get('title').lower())
+        print('title is ' + tag.get('title').lower())
         title = tag.get('title').lower()
+        parts = title.split(' (')
+        if name[0] in 'йцукенгшщзхъфывапролджэячсмитьбю':
+            title = parts[0]
+        else:
+            title = parts[1]
         if len(title) - len(name) < diff:
             diff = len(title) - len(name)
             b = tag
