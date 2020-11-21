@@ -25,10 +25,12 @@ def cut_appeal(command):
     return command.lower()
 
 
+MAX_MESSAGE_LENGTH = 1999
+
 def message_splitter(m):
-    while len(m[-1]) > 4095:
-        m.append(m[-1][4095:])
-        m[-2] = m[-2][:4095]
+    while len(m[-1]) > MAX_MESSAGE_LENGTH:
+        m.append(m[-1][MAX_MESSAGE_LENGTH:])
+        m[-2] = m[-2][:MAX_MESSAGE_LENGTH]
     return m
 
 
