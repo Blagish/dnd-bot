@@ -1,4 +1,5 @@
 import vk
+import git
 from config import *
 from random import randint
 from commander import execute
