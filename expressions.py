@@ -12,7 +12,7 @@ dice = r'''([\+\-]?)     # check sign
         (?:          # find either
         (?P<num>\d*)    # number of dice to roll
         |             # or
-        (?P<adv>[aed])   # whether the roll is made with advantage
+        (?P<adv>[aedk])   # whether the roll is made with advantage
         )
         d               # any roll must contain a 'd' character
         (?P<dice>\d+)   # and the type of dice to roll
@@ -52,6 +52,7 @@ def d(s):
     s = s.replace('а', 'a')
     s = s.replace('е', 'e')
     s = s.replace('д', 'd')
+    s = s.replace('к', 'k')
     s = s.replace('гвф', 'gwf')
     s = s.replace('еа', 'ea')
     s = s.replace('рт', 'rt')
@@ -119,11 +120,15 @@ def d(s):
                         r = max(r1, r2)
                     elif roll[ADV] in 'dд':
                         r = min(r1, r2)
-                    else:
+                    elif roll[ADV] in 'eе':
                         r3 = roll_dice(dice_num)
                         r = max(r1, r2, r3)
                         dice_res = f'**{r1}**|**{r2}**|**{r3}**'
-
+                    elif roll[ADV] in 'кk':
+                        r3 = roll_dice(dice_num)
+                        r4 = roll_dice(dice_num)
+                        r = max(r1, r2, r3, r4)
+                        dice_res = f'**{r1}**|**{r2}**|**{r3}**|**{r4}**'
                 output += f'[{dice_res}] '
                 res += sign * r
         #print('s:', s)
