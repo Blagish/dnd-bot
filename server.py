@@ -1,5 +1,4 @@
-import vk
-from config import *
+#import vk
 from random import randint
 from commander import execute
 
@@ -8,8 +7,8 @@ def random_id():
     return randint(1, 2147483647)
 
 
-session = vk.Session()
-api = vk.API(session, v=5.95)
+#session = vk.Session()
+#api = vk.API(session, v=5.95)
 
 
 def cut_appeal(command):
@@ -26,6 +25,7 @@ def cut_appeal(command):
 
 MAX_MESSAGE_LENGTH = 1999
 
+
 def message_splitter(m):
     while len(m[-1]) > MAX_MESSAGE_LENGTH:
         m.append(m[-1][MAX_MESSAGE_LENGTH:])
@@ -33,16 +33,13 @@ def message_splitter(m):
     return m
 
 
-def send_message(peer_id, message, attachment=""):
-    message = message.replace('*', '')  # quick kostyl' because vk
-    message = message.replace('~', '')
-    api.messages.send(access_token=token_vk, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
+#def send_message(peer_id, message, attachment=""):
+#    message = message.replace('*', '')  # quick kostyl' because vk
+#    message = message.replace('~', '')
+#    api.messages.send(access_token=token_vk, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
 
 
 def process(data):
-    #fwd_msg = list(map(lambda x: x['text'], data['object']['fwd_messages']))
-    #        if event.object.reply_message:
-    #            fwd_msg = [event.object.reply_message['text']]
     output = []
     output_m = []
     for command in data.split(';'):
