@@ -98,3 +98,13 @@ class CompareOperation(Operation):
             res = self.ops[0].calculate() <= self.ops[1].calculate()
         return int(res)
 
+
+class IfOperation(Operation):
+    def calculate(self):
+        condition = self.ops[0].calculate()
+        if condition:
+            return self.ops[1].calculate()
+        return self.ops[2].calculate()
+
+    def __str__(self):
+        return f'({self.ops[0]} {self.value[0]} {self.ops[1]} {self.value[1]} {self.ops[2]})'

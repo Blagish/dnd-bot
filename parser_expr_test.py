@@ -19,6 +19,8 @@ t_LESSER = r'\<'
 t_EQUAL = r'\='
 t_BIGGEREQUAL = r'\>\='
 t_LESSEREQUAL = r'\<\='
+t_IF = '\?'
+t_ELSE = '\:'
 t_ARG = r'gwf|ea|rt|st'
 t_ignore = ' \n\t'
 
@@ -35,6 +37,6 @@ def parse(expression):
     return result
 
 
-a = parse('10 >= 10')
+a = parse('d20+9 > 20? d8+3 : 0')
 print(a)
 print(a.calculate())

@@ -19,12 +19,14 @@ tokens = (
     'EQUAL',   # =
     'BIGGEREQUAL',  # >=
     'LESSEREQUAL',  # <=
+    'IF',  # ?
+    'ELSE',  # :
     'ARG',  # gwf, ea, rt, st, etc.
 )
 
 precedence = (
     ('left', 'FOR'),
-    ('left', 'ADD', 'SUB'),
+    ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
     ('right', 'DIE')
 )
@@ -36,6 +38,11 @@ def p_top_group(p):
     """expression : LBRACKET expression RBRACKET"""
 #    p[0] = (p[2][0], f'({p[2][1]})')
     p[0] = p[2]
+
+
+def p_top_if(p):
+    """expression : expression IF expression ELSE expression"""
+    p[0] = IfOperation(p[1], p[3], p[5], value=(p[2], p[4]))
 
 
 def p_top_compare(p):
