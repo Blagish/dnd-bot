@@ -30,4 +30,4 @@ def parse(expression):
     return result
 
 
-print(parse('2*(d4+10)'))
+print(parse('3d8 + d6 + 4'))
