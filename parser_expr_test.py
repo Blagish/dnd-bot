@@ -9,11 +9,11 @@ t_DIV = r'\/'
 t_VAL = r'[0-9]+'
 t_LEFTB = r'\('
 t_RIGHTB = r'\)'
+t_COMMA = r'\,'
+t_FOR = r'x'
 t_DIE = r'd'
-t_ADVDIE = r'ad'
-t_DISDIE = r'dd'
-t_ELFDIE = r'ed'
-t_KRISDIE = r'kd'
+t_MAX = r'max'
+t_MIN = r'min'
 t_ARG = r'gwf|ea|rt|st'
 t_ignore = ' \n\t'
 
@@ -30,4 +30,4 @@ def parse(expression):
     return result
 
 
-print(parse('3d8 + d6 + 4'))
+print(parse('3x(d20+3)'))

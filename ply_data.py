@@ -1,4 +1,5 @@
 from random import randint
+
 tokens = (
     'ADD',  # +
     'SUB',  # -
@@ -7,15 +8,16 @@ tokens = (
     'VAL',  # 0123
     'LEFTB',  # (
     'RIGHTB',  # )
+    'COMMA',  # ,
+    'FOR',   # x
     'DIE',  # d
-    'ADVDIE',  # ad
-    'DISDIE',  # dd
-    'ELFDIE',  # ed
-    'KRISDIE',  # kd
+    'MAX',  # max
+    'MIN',  # min
     'ARG',  # gwf, ea, rt, st, etc.
 )
 
 precedence = (
+    ('left', 'FOR'),
     ('left', 'ADD', 'SUB'),
     ('left', 'MUL', 'DIV'),
     ('right', 'DIE')
@@ -27,6 +29,28 @@ names = {}
 def p_top_group(p):
     """expression : LEFTB expression RIGHTB"""
     p[0] = (p[2][0], f'({p[2][1]})')
+
+
+def p_top_minmax(p):
+    """expression : MAX LEFTB expression RIGHTB
+    | MIN LEFTB expression RIGHTB"""
+    func = max if p[1] == 'max' else min
+    p[0] = (func(p[3][0]), f'{p[1]}({p[3][1]})')
+
+def p_top_for(p):
+    """expression : expression FOR LEFTB expression RIGHTB"""
+    times = p[1][0]
+    p[0] = ((p[4][0],)*times, f'{times}x({(p[4][1],)*times})')
+
+
+def p_top_comma(p):
+    """expression : expression COMMA expression"""
+    left, right = p[1][0], p[3][0]
+    if type(left) != type(tuple()):
+        left = (left,)
+    if type(right) != type(tuple()):
+        right = (right,)
+    p[0] = ((left+right), f'{p[1][1]}, {p[3][1]}')
 
 
 def p_top_full(p):
