@@ -35,6 +35,6 @@ def parse(expression):
     return result
 
 
-a = parse('10 > 8')
+a = parse('10 >= 10')
 print(a)
 print(a.calculate())

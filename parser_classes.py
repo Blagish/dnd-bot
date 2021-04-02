@@ -13,7 +13,7 @@ class Operation:
         str_ = '('
         for i in self.ops:
             str_ += f'{i} {self.value} '
-        return str_[:-3]+')'
+        return str_[:-(2+len(self.value))]+')'
 
     def calculate(self):
         pass
@@ -93,8 +93,8 @@ class CompareOperation(Operation):
         elif self.value == '=':
             res = self.ops[0].calculate() > self.ops[1].calculate()
         elif self.value == '>=':
-            res = self.ops[0].calculate() > self.ops[1].calculate()
+            res = self.ops[0].calculate() >= self.ops[1].calculate()
         elif self.value == '<=':
-            res = self.ops[0].calculate() < self.ops[1].calculate()
+            res = self.ops[0].calculate() <= self.ops[1].calculate()
         return int(res)
 
