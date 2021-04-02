@@ -74,14 +74,27 @@ class CommaOperation(Operation):
 
 class MinMaxOperation(Operation):
     def calculate(self):
-        if self.value == 'max':
-            return max(self.ops[0].calculate())
-        elif self.value == 'min':
-            return min(self.ops[0].calculate())
+        func = max if self.value == 'max' else min
+        return func(self.ops[0].calculate())
 
     def __str__(self):
         str_ = f'{self.value}('
         for i in self.ops:
             str_ += f'{i}, '
         return str_[:-2]+')'
+
+
+class CompareOperation(Operation):
+    def calculate(self):
+        if self.value == '>':
+            res = self.ops[0].calculate() > self.ops[1].calculate()
+        elif self.value == '<':
+            res = self.ops[0].calculate() < self.ops[1].calculate()
+        elif self.value == '=':
+            res = self.ops[0].calculate() > self.ops[1].calculate()
+        elif self.value == '>=':
+            res = self.ops[0].calculate() > self.ops[1].calculate()
+        elif self.value == '<=':
+            res = self.ops[0].calculate() < self.ops[1].calculate()
+        return int(res)
 

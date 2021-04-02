@@ -7,13 +7,18 @@ t_SUB = r'-'
 t_MUL = r'\*'
 t_DIV = r'\/'
 t_VAL = r'[0-9]+'
-t_LEFTB = r'\('
-t_RIGHTB = r'\)'
+t_LBRACKET = r'\('
+t_RBRACKET = r'\)'
 t_COMMA = r'\,'
 t_FOR = r'x'
 t_DIE = r'd'
 t_MAX = r'max'
 t_MIN = r'min'
+t_BIGGER = r'\>'
+t_LESSER = r'\<'
+t_EQUAL = r'\='
+t_BIGGEREQUAL = r'\>\='
+t_LESSEREQUAL = r'\<\='
 t_ARG = r'gwf|ea|rt|st'
 t_ignore = ' \n\t'
 
@@ -30,6 +35,6 @@ def parse(expression):
     return result
 
 
-a = parse('max(2x(d20))')
+a = parse('10 > 8')
 print(a)
 print(a.calculate())

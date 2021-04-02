@@ -7,13 +7,18 @@ tokens = (
     'MUL',  # *
     'DIV',  # /
     'VAL',  # 0123
-    'LEFTB',  # (
-    'RIGHTB',  # )
+    'LBRACKET',  # (
+    'RBRACKET',  # )
     'COMMA',  # ,
     'FOR',   # x
     'DIE',  # d
     'MAX',  # max
     'MIN',  # min
+    'BIGGER',  # >
+    'LESSER',  # <
+    'EQUAL',   # =
+    'BIGGEREQUAL',  # >=
+    'LESSEREQUAL',  # <=
     'ARG',  # gwf, ea, rt, st, etc.
 )
 
@@ -28,34 +33,34 @@ names = {}
 
 
 def p_top_group(p):
-    """expression : LEFTB expression RIGHTB"""
+    """expression : LBRACKET expression RBRACKET"""
 #    p[0] = (p[2][0], f'({p[2][1]})')
     p[0] = p[2]
 
 
+def p_top_compare(p):
+    """expression : expression BIGGER expression
+    | expression LESSER expression
+    | expression EQUAL expression
+    | expression LESSEREQUAL expression
+    | expression BIGGEREQUAL expression"""
+    p[0] = CompareOperation(p[1], p[3], value=p[2])
+
+
 def p_top_minmax(p):
-    """expression : MAX LEFTB expression RIGHTB
-    | MIN LEFTB expression RIGHTB"""
-#    func = max if p[1] == 'max' else min
-#    p[0] = (func(p[3][0]), f'{p[1]}({p[3][1]})')
+    """expression : MAX LBRACKET expression RBRACKET
+    | MIN LBRACKET expression RBRACKET"""
     p[0] = MinMaxOperation(p[3], value=p[1])
 
 
 def p_top_for(p):
-    """expression : expression FOR LEFTB expression RIGHTB"""
-#    times = p[1][0]
-#    p[0] = ((p[4][0],)*times, f'{times}x({(p[4][1],)*times})')
+    """expression : expression FOR LBRACKET expression RBRACKET"""
     p[0] = CommaOperation(*[p[4]]*p[1].ops[0])
 
 
 def p_top_comma(p):
     """expression : expression COMMA expression"""
     left, right = p[1], p[3]
-#    if type(left) != type(tuple()):
-#        left = (left,)
-#    if type(right) != type(tuple()):
-#        right = (right,)
-#    p[0] = ((left+right), f'{p[1][1]}, {p[3][1]}')
     p[0] = CommaOperation(left, right)
 
 
