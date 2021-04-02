@@ -38,14 +38,14 @@ def p_top_minmax(p):
     | MIN LEFTB expression RIGHTB"""
 #    func = max if p[1] == 'max' else min
 #    p[0] = (func(p[3][0]), f'{p[1]}({p[3][1]})')
-    p[0] = Operation(value=p[1], right=p[3])
+    p[0] = MinMaxOperation(p[3], value=p[1])
 
 
 def p_top_for(p):
     """expression : expression FOR LEFTB expression RIGHTB"""
 #    times = p[1][0]
 #    p[0] = ((p[4][0],)*times, f'{times}x({(p[4][1],)*times})')
-    p[0] = MultipleOperations(*[p[4]]*p[1])
+    p[0] = CommaOperation(*[p[4]]*p[1].ops[0])
 
 
 def p_top_comma(p):
@@ -56,7 +56,7 @@ def p_top_comma(p):
 #    if type(right) != type(tuple()):
 #        right = (right,)
 #    p[0] = ((left+right), f'{p[1][1]}, {p[3][1]}')
-    p[0] = Operation(value=p[1], left=left, right=right)
+    p[0] = CommaOperation(left, right)
 
 
 def p_top_full(p):
@@ -70,13 +70,13 @@ def p_top_full(p):
 
 def p_top_var(p):
     """expression : VAL"""
-    p[0] = Var((p[1]))
+    p[0] = Var(int(p[1]))
 
 
 def p_top_die(p):
     """expression : DIE expression"""
     right = p[2]
-    p[0] = DiceOperation(1, right, value=p[1])
+    p[0] = DiceOperation(Var(1), right, value=p[1])
 
 
 def p_top_dice(p):

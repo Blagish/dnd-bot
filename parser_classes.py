@@ -20,11 +20,14 @@ class Operation:
 
 
 class Var(Operation):
+    def calculate(self):
+        return int(self.ops[0])
+
     def __str__(self):
         return str(self.ops[0])
 
-    def calculate(self):
-        return int(self.ops[0])
+    def __gt__(self, other):
+        return self.ops[0] > other.ops[0]
 
 
 class BasicMathOperation(Operation):
@@ -53,14 +56,32 @@ class DiceOperation(Operation):
         return s
 
 
-class MultipleOperations:
-    ops = []
+class CommaOperation(Operation):
+    def __init__(self, *ops, value=','):
+        super().__init__(*ops, value=value)
+        self.ops = []
+        for op in ops:
+            if op.value == ',':
+                self.ops += list(op.ops)
+            else:
+                self.ops.append(op)
+        self.ops = tuple(self.ops)
+        self.value = value
 
-    def __init__(self, *ops):
-        self.ops = [*ops]
+    def calculate(self):
+        return tuple(map(lambda x: x.calculate(), self.ops))
+
+
+class MinMaxOperation(Operation):
+    def calculate(self):
+        if self.value == 'max':
+            return max(self.ops[0].calculate())
+        elif self.value == 'min':
+            return min(self.ops[0].calculate())
 
     def __str__(self):
-        s = '('
+        str_ = f'{self.value}('
         for i in self.ops:
-            s += f'{i}, '
-        return s[:-2]+')'
+            str_ += f'{i}, '
+        return str_[:-2]+')'
+

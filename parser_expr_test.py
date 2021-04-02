@@ -30,6 +30,6 @@ def parse(expression):
     return result
 
 
-a = parse('2d4+100')
+a = parse('max(2x(d20))')
 print(a)
 print(a.calculate())
