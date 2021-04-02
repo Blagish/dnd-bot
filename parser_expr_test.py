@@ -30,4 +30,6 @@ def parse(expression):
     return result
 
 
-print(parse('3x(d20+3)'))
+a = parse('2d4+100')
+print(a)
+print(a.calculate())
