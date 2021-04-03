@@ -22,8 +22,8 @@ t_SUM = r'sum'
 t_BIGGER = r'\>'
 t_LESSER = r'\<'
 t_EQUAL = r'\='
-t_BIGGEREQUAL = r'\>\='
-t_LESSEREQUAL = r'\<\='
+t_BIGGEREQUAL = r'\>\=|\=\>'
+t_LESSEREQUAL = r'\<\=|\=\<'
 t_IF = '\?'
 t_ELSE = '\:'
 t_ARG = r'gwf|ea|rt|st'
@@ -42,6 +42,6 @@ def parse(expression):
     return result
 
 
-a = parse('6x(map((sum(it) - min(it)):[4x(d6)]))')
+a = parse('d20+9 > 20? d8+3 : 0')
 print(a)
 print(a.calculate())
