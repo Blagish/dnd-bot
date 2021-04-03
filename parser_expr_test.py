@@ -7,13 +7,18 @@ t_SUB = r'-'
 t_MUL = r'\*'
 t_DIV = r'\/'
 t_VAL = r'[0-9]+'
+t_VAR = r'it'
 t_LBRACKET = r'\('
 t_RBRACKET = r'\)'
+t_SLBRACKET = r'\['
+t_SRBRACKET = r'\]'
 t_COMMA = r'\,'
 t_FOR = r'x'
 t_DIE = r'd'
 t_MAX = r'max'
 t_MIN = r'min'
+t_MAP = r'map'
+t_SUM = r'sum'
 t_BIGGER = r'\>'
 t_LESSER = r'\<'
 t_EQUAL = r'\='
@@ -37,6 +42,6 @@ def parse(expression):
     return result
 
 
-a = parse('d20+9 > 20? d8+3 : 0')
+a = parse('6x(map((sum(it) - min(it)):[4x(d6)]))')
 print(a)
 print(a.calculate())
