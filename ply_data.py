@@ -7,6 +7,7 @@ tokens = (
     'MUL',  # *
     'DIV',  # /
     'VAL',  # 0123
+    'COMMENT',  # any letters
     'LBRACKET',  # (
     'RBRACKET',  # )
     'SLBRACKET',  # [
@@ -33,7 +34,7 @@ precedence = (
     ('left', 'FOR'),
     ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
-    ('right', 'DIE')
+    ('right', 'DIE'),
 )
 
 classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
@@ -95,6 +96,11 @@ def p_math(p):
 def p_val(p):
     """expression : VAL"""
     p[0] = Val(int(p[1]))
+
+
+def p_val_comment(p):
+    """expression : VAL COMMENT"""
+    p[0] = Val(int(p[1]), p[2])
 
 
 def p_die(p):

@@ -8,6 +8,7 @@ t_MUL = r'\*'
 t_DIV = r'\/'
 t_VAL = r'[0-9]+'
 t_VAR = r'it'
+t_COMMENT = r'q'#r'[a-zA-Zа-яА-ЯёЁ]+'
 t_LBRACKET = r'\('
 t_RBRACKET = r'\)'
 t_SLBRACKET = r'\['
@@ -42,6 +43,6 @@ def parse(expression):
     return result
 
 
-a = parse('d20+9 > 20? d8+3 : 0')
+a = parse('2d6>5')
 print(a)
 print(a.calculate())
