@@ -8,6 +8,7 @@ t_MUL = r'\*'
 t_DIV = r'\/'
 t_VAL = r'[0-9]+'
 t_VAR = r'it'
+t_COMMENT = r'[a-zA-Zа-яА-ЯёЁ][a-zA-Zа-яА-ЯёЁ]+'
 t_LBRACKET = r'\('
 t_RBRACKET = r'\)'
 t_SLBRACKET = r'\['
@@ -22,8 +23,8 @@ t_SUM = r'sum'
 t_BIGGER = r'\>'
 t_LESSER = r'\<'
 t_EQUAL = r'\='
-t_BIGGEREQUAL = r'\>\='
-t_LESSEREQUAL = r'\<\='
+t_BIGGEREQUAL = r'\>\=|\=\>'
+t_LESSEREQUAL = r'\<\=|\=\<'
 t_IF = '\?'
 t_ELSE = '\:'
 t_ARG = r'gwf|ea|rt|st'
@@ -42,6 +43,6 @@ def parse(expression):
     return result
 
 
-a = parse('6x(map((sum(it) - min(it)):[4x(d6)]))')
+a = parse('2d6 fire')
 print(a)
 print(a.calculate())
