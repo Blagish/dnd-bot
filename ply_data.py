@@ -35,6 +35,7 @@ precedence = (
     ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
     ('right', 'DIE'),
+    ('right', 'COMMENT')
 )
 
 classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
@@ -111,6 +112,15 @@ def p_die(p):
 def p_dice(p):
     """expression : expression DIE expression"""
     p[0] = DiceOperation(p[1], p[3])
+
+def p_die_comment(p):
+    """expression : DIE expression COMMENT"""
+    p[0] = DiceOperation(Val(1), p[2], p[3])
+
+
+def p_dice_comment(p):
+    """expression : expression DIE expression COMMENT"""
+    p[0] = DiceOperation(p[1], p[3], p[4])
 
 
 def p_var(p):

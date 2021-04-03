@@ -83,13 +83,15 @@ class DiceOperation(Operation):
         die = self.ops[1].calculate(args)[0]
         die_size = die.ops[0]
         type = die.ops[1]
+        if len(self.ops) > 2:
+            type = self.ops[2]
         res_str = ''
         s = 0
         for i in range(rolls):
             roll = randint(1, die_size)
             s += roll
             res_str += f'[{roll}] + '
-        return Val(s, type), res_str[:-3]
+        return Val(s, type), res_str[:-2]+type
 
 
 class CommaOperation(Operation):
