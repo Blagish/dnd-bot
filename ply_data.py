@@ -32,6 +32,7 @@ tokens = (
 
 precedence = (
     ('left', 'FOR'),
+    ('left', 'MIN', 'MAX', 'SUM'),
     ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
     ('right', 'DIE'),
@@ -112,6 +113,7 @@ def p_die(p):
 def p_dice(p):
     """expression : expression DIE expression"""
     p[0] = DiceOperation(p[1], p[3])
+
 
 def p_die_comment(p):
     """expression : DIE expression COMMENT"""

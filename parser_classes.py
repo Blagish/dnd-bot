@@ -148,7 +148,7 @@ class Greater(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Val(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Bool(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Lesser(Operation):
@@ -156,7 +156,7 @@ class Lesser(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Val(first[0] < second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Bool(first[0] < second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class GreaterEquals(Operation):
@@ -164,7 +164,7 @@ class GreaterEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Val(first[0] >= second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Bool(first[0] >= second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class LesserEquals(Operation):
@@ -172,7 +172,7 @@ class LesserEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Val(first[0] <= second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Bool(first[0] <= second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Equals(Operation):
@@ -180,7 +180,7 @@ class Equals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Val(first[0] == second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Bool(first[0] == second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class NotEquals(Operation):
@@ -188,7 +188,7 @@ class NotEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Val(first[0] != second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Bool(first[0] != second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class IfOperation(Operation):
@@ -248,6 +248,13 @@ class SumFunction(Operation):
         return f'(sum of {self.ops[0]})'
 
 
+class CountFunction(Operation):
+    value = 'count'
+
+    def calculate(self, args=None):
+        pass
+
+
 class Tuple(Operation):  # todo output
     value = ''
 
@@ -283,6 +290,11 @@ class Val(Operation):
         if type1 and type2:
             return CommaOperation(self, other)
         return Val(num1 + num2, max(type1, type2))
+
+    def __radd__(self, other):  # for sum function only
+        num1, type1 = self.ops
+        num2 = other
+        return Val(num1 + num2, type1)
 
     def __sub__(self, other):
         num1, type1 = self.ops
@@ -335,3 +347,85 @@ class Val(Operation):
             return 1
         return 0
 
+
+class Bool(Operation):
+    def __init__(self, *ops):
+        super().__init__(*ops)
+        if self.ops[0]:
+            self.ops = (1, 'True')
+        else:
+            self.ops = (0, 'False')
+
+    def calculate(self, args=None):
+        if args is None:
+            args = []
+        return self, self.ops[1]
+
+    def __str__(self):
+        return self.ops[1]
+
+    def __repr__(self):
+        return self.ops[1]
+
+#    def __add__(self, other):
+#        num1, type1 = self.ops
+#        num2, type2 = other.ops
+#        if type1 and type2:
+#            return CommaOperation(self, other)
+#        return Val(num1 + num2, max(type1, type2))
+#
+#    def __radd__(self, other):  # for sum function only
+#        num1, type1 = self.ops
+#        num2 = other
+#        return Val(num1 + num2, type1)
+#
+#    def __sub__(self, other):
+#        num1, type1 = self.ops
+#        num2, type2 = other.ops
+#        if type1 and type2:
+ #           raise SyntaxError("как я тебе один тип урона из другого вычту, додик")
+#        return Val(num1 - num2, max(type1, type2))
+#
+#    def __mul__(self, other):
+#        num1, type1 = self.ops
+#        num2, type2 = other.ops
+#        if type1 and type2:
+#            raise SyntaxError("я не умею перемножать типы урона, додик")
+#        return Val(num1 * num2, max(type1, type2))
+#
+#    def __truediv__(self, other):
+#        num1, type1 = self.ops
+#        num2, type2 = other.ops
+#        if type1 and type2:
+#            raise SyntaxError("я не умею делить типы урона, додик")
+#        return Val(num1 / num2, max(type1, type2))
+#
+    def __lt__(self, other):
+        if self.ops[0] < other.ops[0]:
+            return 1
+        return 0
+
+    def __le__(self, other):
+        if self.ops[0] <= other.ops[0]:
+            return 1
+        return 0
+
+    def __eq__(self, other):
+        if self.ops[0] == other.ops[0]:
+            return 1
+        return 0
+
+    def __ne__(self, other):
+        if self.ops[0] != other.ops[0]:
+            return 1
+        return 0
+
+    def __gt__(self, other):
+        if self.ops[0] > other.ops[0]:
+            return 1
+        return 0
+
+    def __ge__(self, other):
+        if self.ops[0] >= other.ops[0]:
+            return 1
+        return 0
