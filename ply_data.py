@@ -15,6 +15,10 @@ tokens = (
     'COMMA',  # ,
     'FOR',  # x
     'DIE',  # d
+    'ADVDIE',  # ad
+    'DISDIE',  # dd
+    'ELFDIE',  # ed
+    'QUADIE',  # dd
     'MAX',  # max
     'MIN',  # min
     'SUM',  # sum
@@ -35,7 +39,8 @@ precedence = (
     ('left', 'MIN', 'MAX', 'SUM'),
     ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
-    ('right', 'DIE'),
+    ('right', 'ADVDIE', 'DISDIE', 'ELFDIE', "QUADIE"),
+    ('left', 'DIE'),
     ('right', 'COMMENT')
 )
 
@@ -43,6 +48,9 @@ classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
            '<': Lesser, '<=': LesserEquals, '=<': LesserEquals, '=': Equals,
            '+': Addition, '-': Subtraction, '*': Multiplication, '/': Division,
            'min': MinFunction, 'max': MaxFunction, 'sum': SumFunction}
+
+dices = {'d': DiceOperation, 'ad': AdvantageDiceOperation, 'dd': DisadvantageDiceOperation,
+         'ed': ElfAdvantageDiceOperation, 'kd': QuadAdvantageDiceOperation}
 
 
 def p_group(p):
@@ -106,13 +114,21 @@ def p_val_comment(p):
 
 
 def p_die(p):
-    """expression : DIE expression"""
-    p[0] = DiceOperation(Val(1), p[2])
+    """expression : DIE expression
+    | ADVDIE expression
+    | DISDIE expression
+    | ELFDIE expression
+    | QUADIE expression"""
+    p[0] = dices[p[1]](Val(1), p[2])
 
 
 def p_dice(p):
-    """expression : expression DIE expression"""
-    p[0] = DiceOperation(p[1], p[3])
+    """expression : expression DIE expression
+    | expression ADVDIE expression
+    | expression DISDIE expression
+    | expression ELFDIE expression
+    | expression QUADIE expression"""
+    p[0] = dices[p[2]](p[1], p[3])
 
 
 def p_die_comment(p):

@@ -16,6 +16,10 @@ t_SRBRACKET = r'\]'
 t_COMMA = r'\,'
 t_FOR = r'x'
 t_DIE = r'd'
+t_ADVDIE = r'ad'
+t_DISDIE = r'dd'
+t_ELFDIE = r'ed'
+t_QUADIE = r'kd'
 t_MAX = r'max'
 t_MIN = r'min'
 t_MAP = r'map'
@@ -43,6 +47,6 @@ def parse(expression):
     return result
 
 
-a = parse('6x(d10>=5)')
+a = parse('ad20+dd20+ed20+kd20')
 print(a)
 print(a.calculate())
