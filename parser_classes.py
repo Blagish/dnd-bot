@@ -88,10 +88,62 @@ class DiceOperation(Operation):
         res_str = ''
         s = 0
         for i in range(rolls):
-            roll = randint(1, die_size)
+            roll, ress = self.get_result(die_size)
             s += roll
-            res_str += f'[{roll}] + '
+            res_str += ress
         return Val(s, type), res_str[:-2]+type
+
+    @staticmethod
+    def get_result(die_size):
+        roll = randint(1, die_size)
+        return roll, f'[{roll}] + '
+
+
+class AdvantageDiceOperation(DiceOperation):
+    value = 'ad'
+
+    @staticmethod
+    def get_result(die_size):
+        roll1 = randint(1, die_size)
+        roll2 = randint(1, die_size)
+        roll = max(roll1, roll2)
+        return roll, f'a[{roll1}|{roll2}] + '
+
+
+class DisadvantageDiceOperation(DiceOperation):
+    value = 'dd'
+
+    @staticmethod
+    def get_result(die_size):
+        roll1 = randint(1, die_size)
+        roll2 = randint(1, die_size)
+        roll = min(roll1, roll2)
+        return roll, f'd[{roll1}|{roll2}] + '
+
+
+class ElfAdvantageDiceOperation(DiceOperation):
+    value = 'ed'
+
+    @staticmethod
+    def get_result(die_size):
+        roll1 = randint(1, die_size)
+        roll2 = randint(1, die_size)
+        roll3 = randint(1, die_size)
+        roll = max(roll1, roll2, roll3)
+        return roll, f'e[{roll1}|{roll2}|{roll3}] + '
+
+
+class QuadAdvantageDiceOperation(DiceOperation):
+    value = 'kd'
+
+    @staticmethod
+    def get_result(die_size):
+        roll1 = randint(1, die_size)
+        roll2 = randint(1, die_size)
+        roll3 = randint(1, die_size)
+        roll4 = randint(1, die_size)
+        roll = max(roll1, roll2, roll3, roll4)
+        return roll, f'a[{roll1}|{roll2}|{roll3}|{roll4}] + '
 
 
 class CommaOperation(Operation):
