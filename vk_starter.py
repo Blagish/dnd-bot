@@ -1,9 +1,25 @@
+from random import randint
 from flask import Flask, request, json
 from config import *
 import server
+import vk
 
 
 app = Flask(__name__)
+
+session = vk.Session()
+api = vk.API(session, v=5.95)
+
+
+def random_id():
+    return randint(1, 2147483647)
+
+
+def send_message(peer_id, message, attachment=""):
+    message = message.replace('*', '')  # quick kostyl' because vk
+    message = message.replace('~', '')
+    api.messages.send(access_token=token_vk, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
+
 
 
 @app.route('/')

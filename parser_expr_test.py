@@ -40,13 +40,10 @@ def t_error(t):
     t.lexer.skip(1)
 
 
+lex.lex()
+parser = yacc.yacc()
+
+
 def parse(expression):
-    lex.lex()
-    parser = yacc.yacc()
     result = parser.parse(expression)
     return result
-
-
-a = parse('ad20+dd20+ed20+kd20')
-print(a)
-print(a.calculate())
