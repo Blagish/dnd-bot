@@ -200,7 +200,9 @@ class Greater(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
+        print(first)
+        print(second)
+        return Val(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Lesser(Operation):
@@ -208,7 +210,7 @@ class Lesser(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] < second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] < second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class GreaterEquals(Operation):
@@ -216,7 +218,7 @@ class GreaterEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] >= second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] >= second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class LesserEquals(Operation):
@@ -224,7 +226,7 @@ class LesserEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] <= second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] <= second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Equals(Operation):
@@ -232,7 +234,7 @@ class Equals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] == second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] == second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class NotEquals(Operation):
@@ -240,7 +242,7 @@ class NotEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] != second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] != second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class IfOperation(Operation):
@@ -283,10 +285,17 @@ class Map(Operation):  # todo output
     value = 'map'
 
     def calculate(self, args=None):
-        return tuple([self.ops[0].calculate(i) for i in self.ops[1].calculate()])
+        values = self.ops[1].calculate()
+        print(values)
+        ress1, ress2 = [], []
+        for i in range(len(values[0])):
+            res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
+            ress1.append(res1)
+            ress2.append(res2)
+        return tuple(ress1), tuple(ress2)
 
     def __str__(self):
-        return f'({self.ops[0]} mapped to {self.ops[1]}'
+        return f'checking ({self.ops[0]} for {self.ops[1]}'
 
 
 class SumFunction(Operation):
