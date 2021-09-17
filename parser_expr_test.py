@@ -47,3 +47,9 @@ parser = yacc.yacc()
 def parse(expression):
     result = parser.parse(expression)
     return result
+
+
+def d2(expression):
+    res = parse(expression)
+    s = f'Прочитано: {res}\nОтвет: {res.calculate()}'
+    return s

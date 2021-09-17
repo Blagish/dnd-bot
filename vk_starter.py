@@ -41,6 +41,6 @@ def processing():
         output = server.process(data['object']['text'])
 
         for message in output:
-            server.send_message(peer_id, message)
+            send_message(peer_id, message)
 
         return 'ok'
