@@ -7,6 +7,7 @@ t_SUB = r'-'
 t_MUL = r'\*'
 t_DIV = r'\/'
 t_VAL = r'[0-9]+'
+t_DOT = r'\.'
 t_VAR = r'it'
 t_COMMENT = r'q'#r'[a-zA-Zа-яА-ЯёЁ][a-zA-Zа-яА-ЯёЁ]+'
 t_LBRACKET = r'\('
@@ -50,6 +51,13 @@ def parse(expression):
 
 
 def d2(expression):
+    expression = expression.replace('х', 'x')
+    expression = expression.replace('а', 'a')
+    expression = expression.replace('е', 'e')
+    expression = expression.replace('д', 'd')
+    expression = expression.replace('к', 'k')
     res = parse(expression)
-    s = f'Прочитано: {res}\nОтвет: {res.calculate()}'
-    return s
+    ans, sol = res.calculate()
+    if type(sol) == type(tuple()):
+        sol = ', '.join(sol)
+    return sol, ans

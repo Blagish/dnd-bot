@@ -58,6 +58,7 @@ class Division(Operation):
             next_part = self.ops[i].calculate(args)
             res /= next_part[0]
             res_str += f'{self.value} '+str(next_part[1])
+        res.simplify()
         return res, res_str
 
 
@@ -72,6 +73,7 @@ class Multiplication(Operation):
             next_part = self.ops[i].calculate(args)
             res *= next_part[0]
             res_str += f'{self.value} '+str(next_part[1])
+        res.simplify()
         return res, res_str
 
 
@@ -91,12 +93,12 @@ class DiceOperation(Operation):
             roll, ress = self.get_result(die_size)
             s += roll
             res_str += ress
-        return Val(s, type), res_str[:-2]+type
+        return Val(s, type), res_str[:-3]+type
 
     @staticmethod
     def get_result(die_size):
         roll = randint(1, die_size)
-        return roll, f'[{roll}] + '
+        return roll, f'[**{roll}**] + '
 
 
 class AdvantageDiceOperation(DiceOperation):
@@ -200,7 +202,9 @@ class Greater(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
+        print(first)
+        print(second)
+        return Val(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Lesser(Operation):
@@ -208,7 +212,7 @@ class Lesser(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] < second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] < second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class GreaterEquals(Operation):
@@ -216,7 +220,7 @@ class GreaterEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] >= second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] >= second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class LesserEquals(Operation):
@@ -224,7 +228,7 @@ class LesserEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] <= second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] <= second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Equals(Operation):
@@ -232,7 +236,7 @@ class Equals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] == second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] == second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class NotEquals(Operation):
@@ -240,7 +244,7 @@ class NotEquals(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        return Bool(first[0] != second[0]), f'{first[1]} {self.value} {second[1]}'
+        return Val(first[0] != second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class IfOperation(Operation):
@@ -249,7 +253,7 @@ class IfOperation(Operation):
     def calculate(self, args=None):
         condition = self.ops[0].calculate(args)
         s = condition[1]
-        if condition[0]:
+        if condition[0].ops[0]:
             s += ' - истинно, результат = '
             calced = self.ops[1].calculate(args)
             return calced[0], s+calced[1]
@@ -283,10 +287,17 @@ class Map(Operation):  # todo output
     value = 'map'
 
     def calculate(self, args=None):
-        return tuple([self.ops[0].calculate(i) for i in self.ops[1].calculate()])
+        values = self.ops[1].calculate()
+        # print(values)
+        ress1, ress2 = [], []
+        for i in range(len(values[0])):
+            res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
+            ress1.append(res1)
+            ress2.append(res2)
+        return tuple(ress1), values[1]
 
     def __str__(self):
-        return f'({self.ops[0]} mapped to {self.ops[1]}'
+        return f'checking ({self.ops[0]} for {self.ops[1]}'
 
 
 class SumFunction(Operation):
@@ -329,6 +340,14 @@ class Val(Operation):
         if self.ops[1]:
             return self, f'{self.ops[0]} {self.ops[1]}'
         return self, f'{self.ops[0]}'
+
+    def simplify(self):
+        num = self.ops[0]
+        if int(num) == num:
+            self.ops = (int(num), self.ops[1])
+        else:
+            self.ops = (round(num, 5), self.ops[1])
+
 
     def __str__(self):
         return str(self.ops[0])
