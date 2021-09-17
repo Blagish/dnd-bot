@@ -1,7 +1,7 @@
 from expressions import d
-from spells import get_spell
+from spells import get_spell_dungeon_su
 from random import choice
-from parser_expr_test import parse as d2
+from parser_expr_test import d2
 
 commands = {}
 help_prompts = []
@@ -73,7 +73,7 @@ def huy(*args):
 @handler('Описать заклинание', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
 def cast(*args):
     print(args)
-    return get_spell(args[0])
+    return get_spell_dungeon_su(args[0])
 
 
 @handler('Выводит да или нет', ['чекай', 'чек', 'check'])
