@@ -1,14 +1,4 @@
-#import vk
-from random import randint
 from commander import execute
-
-
-def random_id():
-    return randint(1, 2147483647)
-
-
-#session = vk.Session()
-#api = vk.API(session, v=5.95)
 
 
 def cut_appeal(command):
@@ -33,12 +23,6 @@ def message_splitter(m):
     return m
 
 
-#def send_message(peer_id, message, attachment=""):
-#    message = message.replace('*', '')  # quick kostyl' because vk
-#    message = message.replace('~', '')
-#    api.messages.send(access_token=token_vk, peer_id=str(peer_id), message=message, attachment=attachment, random_id=random_id())
-
-
 def process(data):
     output = []
     output_m = []
@@ -50,7 +34,6 @@ def process(data):
             if command:
                 output += execute(command)
         except Exception as e:
-            output += [["uwu"]]
             args = list(map(str, e.args))
             print("Exception {0}: {1}".format(str(type(e)), " ".join(args)))
             #
