@@ -251,7 +251,7 @@ class IfOperation(Operation):
     def calculate(self, args=None):
         condition = self.ops[0].calculate(args)
         s = condition[1]
-        if condition[0]:
+        if condition[0].ops[0]:
             s += ' - истинно, результат = '
             calced = self.ops[1].calculate(args)
             return calced[0], s+calced[1]
