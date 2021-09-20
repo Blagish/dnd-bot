@@ -96,7 +96,7 @@ class DiceOperation(Operation):
     @staticmethod
     def get_result(die_size):
         roll = randint(1, die_size)
-        return roll, f'[{roll}] + '
+        return roll, f'[**{roll}**] + '
 
 
 class AdvantageDiceOperation(DiceOperation):

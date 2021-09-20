@@ -76,7 +76,7 @@ def macros(*args):
         except IndexError:
             return 'Ошибка: не хватает значений.'
         sol, ans = d2(full)
-        s = f'Кидаю\n-> {sol}\n= {true_command[1].format(ans)}'
+        s = f'Кидаю\n-> {sol}\n{true_command[1].format(ans)}'
         return s
     return f'Ошибка: макрос "{command}" не найден.'
 
