@@ -58,6 +58,5 @@ def d2(expression):
     res = parse(expression)
     ans, sol = res.calculate()
     if type(sol) == type(tuple()):
-        sol = '('+', '.join(sol)+')'
-    s = f'Кидаю\n-> {sol}\n= {ans}'
-    return s
+        sol = ', '.join(sol)
+    return sol, ans
