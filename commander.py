@@ -1,10 +1,13 @@
-from expressions import d
+import json
+
 from spells import get_spell_dungeon_su
 from random import choice
 from parser_expr_test import d2
 
 commands = {}
 help_prompts = []
+with open('macros.json', 'r', encoding='utf-8') as file:
+    macri = json.loads(file.read())
 
 
 def construct_prompt(tupl):
@@ -42,8 +45,11 @@ def hello(*args):
 @handler('Это окошко', ['помощь', 'help', 'спаси', 'справка', 'хелп'])
 def help_list(*args):
     s = '\n'.join([construct_prompt(i) for i in help_prompts])
-    s += '\n\nЧтобы кидать дайсы, используйте символ d(d20, 4d6+1). Чтобы кидать с преимуществом, супер-преимуществом (оно же эльфийское) или с помехой, ' \
-         'используйте обозначения ad, ed или dd соответственно (ad20, ed20, dd20). Можно использовать Great Weapon Fighting, Elemental Adept, Reliable Talent или Halfling Lucky указывая параметр перед кубом (gwf d4+1, ea 2d6, rt, hl). Разрешается делать несколько бросков за раз,' \
+    s += '\n\nЧтобы кидать дайсы, используйте символ d(d20, 4d6+1). Чтобы кидать с преимуществом, супер-преимуществом ' \
+         '(оно же эльфийское) или с помехой, ' \
+         'используйте обозначения ad, ed или dd соответственно (ad20, ed20, dd20). ПОКА НЕЛЬЗЯ использовать Great ' \
+         'Weapon Fighting, Elemental Adept, Reliable Talent или Halfling Lucky указывая параметр перед кубом (gwf ' \
+         'd4+1, ea 2d6, rt, hl). Разрешается делать несколько бросков за раз,' \
          ' перечисляя кубы через запятую. Разрешается запускать несколько команд в одном сообщении, разделяя их точкой' \
          ' с запятой. '
     return s
@@ -62,12 +68,22 @@ def help_beta(*args):
 
 @handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь', 'r', 'р', 'к', 'k'])
 def roll(*args):
-    return d(args[0])
-
-
-@handler('Дайсы 2', ['хуй', 'hidden'])
-def huy(*args):
     return d2(args[0])
+
+
+@handler('Макрос', ['macros', 'macroll', 'mc', 'мк', 'макрос', 'макролл'])
+def macros(*args):
+    arg = args[0].split()
+    command = arg.pop(0)
+    true_command = macri.get(command)
+    if true_command is not None:
+        try:
+            full = true_command.format(*arg)
+            print(full)
+        except IndexError:
+            return 'Ошибка: не хватает значений.'
+        return d2(full)
+    return f'Ошибка: макрос "{command}" не найден.'
 
 
 @handler('Описать заклинание', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
@@ -89,15 +105,16 @@ def thanks(*args):
     return res
 
 
-@handler('Поинтересоваться почему все идет не так', ['слыш', 'слышь', 'э', 'каво', 'чево', 'всмысле', 'wut', 'слiш', 'bruh', 'брух'])
+@handler('Поинтересоваться почему все идет не так',
+         ['слыш', 'слышь', 'э', 'каво', 'чево', 'всмысле', 'wut', 'слiш', 'bruh', 'брух'])
 def anger(*args):
     res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!',
                   'Это все кубики, правда!'])
     return res
 
 
-#@handler('Consider donating?', ['donate', 'донат'])
-#def donate(*args):
+# @handler('Consider donating?', ['donate', 'донат'])
+# def donate(*args):
 #    return 'Consider donating? Разрабам надо кушать. Ну хотя бы на чашечку кофе.'
 
 

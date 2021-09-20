@@ -50,6 +50,14 @@ def parse(expression):
 
 
 def d2(expression):
+    expression = expression.replace('х', 'x')
+    expression = expression.replace('а', 'a')
+    expression = expression.replace('е', 'e')
+    expression = expression.replace('д', 'd')
+    expression = expression.replace('к', 'k')
     res = parse(expression)
-    s = f'Прочитано: {res}\nОтвет: {res.calculate()}'
+    ans, sol = res.calculate()
+    if type(sol) == type(tuple()):
+        sol = '('+', '.join(sol)+')'
+    s = f'Кидаю\n-> {sol}\n= {ans}'
     return s

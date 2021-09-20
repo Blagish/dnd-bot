@@ -91,7 +91,7 @@ class DiceOperation(Operation):
             roll, ress = self.get_result(die_size)
             s += roll
             res_str += ress
-        return Val(s, type), res_str[:-2]+type
+        return Val(s, type), res_str[:-3]+type
 
     @staticmethod
     def get_result(die_size):
@@ -286,13 +286,13 @@ class Map(Operation):  # todo output
 
     def calculate(self, args=None):
         values = self.ops[1].calculate()
-        print(values)
+        # print(values)
         ress1, ress2 = [], []
         for i in range(len(values[0])):
             res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
             ress1.append(res1)
             ress2.append(res2)
-        return tuple(ress1), tuple(ress2)
+        return tuple(ress1), values[1]
 
     def __str__(self):
         return f'checking ({self.ops[0]} for {self.ops[1]}'
