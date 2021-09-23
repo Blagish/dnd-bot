@@ -60,7 +60,7 @@ def help_list(*args):
 @handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь', 'r', 'р', 'к', 'k'])
 def roll(*args):
     sol, ans = d2(args[0])
-    s = f'Кидаю\n-> {sol}\n= {ans}'
+    s = f'Кидаю\n-> {sol}\n= **{ans}**'
     return s
 
 
