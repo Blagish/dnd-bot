@@ -7,6 +7,7 @@ tokens = (
     'MUL',  # *
     'DIV',  # /
     'VAL',  # 0123
+    'DOT',  # .
     'COMMENT',  # any letters
     'LBRACKET',  # (
     'RBRACKET',  # )
@@ -111,6 +112,16 @@ def p_val(p):
 def p_val_comment(p):
     """expression : VAL COMMENT"""
     p[0] = Val(int(p[1]), p[2])
+
+
+def p_float_val(p):
+    """expression : VAL DOT VAL"""
+    p[0] = Val(float(f'{p[1]}.{p[3]}'))
+
+
+def p_float_val_comment(p):
+    """expression : VAL DOT VAL COMMENT"""
+    p[0] = Val(float(f'{p[1]}.{p[3]}'), p[4])
 
 
 def p_die(p):

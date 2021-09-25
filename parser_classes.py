@@ -58,6 +58,7 @@ class Division(Operation):
             next_part = self.ops[i].calculate(args)
             res /= next_part[0]
             res_str += f'{self.value} '+str(next_part[1])
+        res.simplify()
         return res, res_str
 
 
@@ -72,6 +73,7 @@ class Multiplication(Operation):
             next_part = self.ops[i].calculate(args)
             res *= next_part[0]
             res_str += f'{self.value} '+str(next_part[1])
+        res.simplify()
         return res, res_str
 
 
@@ -338,6 +340,14 @@ class Val(Operation):
         if self.ops[1]:
             return self, f'{self.ops[0]} {self.ops[1]}'
         return self, f'{self.ops[0]}'
+
+    def simplify(self):
+        num = self.ops[0]
+        if int(num) == num:
+            self.ops = (int(num), self.ops[1])
+        else:
+            self.ops = (round(num, 5), self.ops[1])
+
 
     def __str__(self):
         return str(self.ops[0])
