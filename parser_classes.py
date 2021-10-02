@@ -1,6 +1,14 @@
 from random import randint
 
 
+def strfy(x):
+    if type(x) == list:
+        res_str = '(' + ', '.join(x) + ')'
+    else:
+        res_str = str(x)
+    return res_str
+
+
 class Operation:
     verbose = True
     ops = None
@@ -12,7 +20,7 @@ class Operation:
     def __str__(self):
         str_ = '('
         for i in self.ops:
-            str_ += f'{i} {self.value} '
+            str_ += f'{i} {self.value}'
         return str_[:-(2+len(self.value))]+')'
 
     def calculate(self, args=None):
@@ -25,11 +33,11 @@ class Addition(Operation):
     def calculate(self, args=None):
         res_tuple = self.ops[0].calculate(args)
         res = res_tuple[0]
-        res_str = str(res_tuple[1])+' '
+        res_str = strfy(res_tuple[1])
         for i in range(1, len(self.ops)):
             next_part = self.ops[i].calculate(args)
             res += next_part[0]
-            res_str += f'{self.value} '+str(next_part[1])
+            res_str += f' {self.value} '+strfy(next_part[1])
         return res, res_str
 
 
@@ -39,11 +47,11 @@ class Subtraction(Operation):
     def calculate(self, args=None):
         res_tuple = self.ops[0].calculate(args)
         res = res_tuple[0]
-        res_str = str(res_tuple[1])+' '
+        res_str = strfy(res_tuple[1])
         for i in range(1, len(self.ops)):
             next_part = self.ops[i].calculate(args)
             res -= next_part[0]
-            res_str += f'{self.value} '+str(next_part[1])
+            res_str += f' {self.value} '+strfy(next_part[1])
         return res, res_str
 
 
@@ -53,11 +61,11 @@ class Division(Operation):
     def calculate(self, args=None):
         res_tuple = self.ops[0].calculate(args)
         res = res_tuple[0]
-        res_str = str(res_tuple[1])+' '
+        res_str = strfy(res_tuple[1])
         for i in range(1, len(self.ops)):
             next_part = self.ops[i].calculate(args)
             res /= next_part[0]
-            res_str += f'{self.value} '+str(next_part[1])
+            res_str += f' {self.value} '+strfy(next_part[1])
         res.simplify()
         return res, res_str
 
@@ -68,11 +76,11 @@ class Multiplication(Operation):
     def calculate(self, args=None):
         res_tuple = self.ops[0].calculate(args)
         res = res_tuple[0]
-        res_str = str(res_tuple[1])+' '
+        res_str = strfy(res_tuple[1])
         for i in range(1, len(self.ops)):
             next_part = self.ops[i].calculate(args)
             res *= next_part[0]
-            res_str += f'{self.value} '+str(next_part[1])
+            res_str += f' {self.value} '+strfy(next_part[1])
         res.simplify()
         return res, res_str
 
@@ -93,7 +101,7 @@ class DiceOperation(Operation):
             roll, ress = self.get_result(die_size)
             s += roll
             res_str += ress
-        return Val(s, type), res_str[:-3]+type
+        return Val(s, type), (res_str[:-2]+type).strip()
 
     @staticmethod
     def get_result(die_size):
@@ -145,11 +153,13 @@ class QuadAdvantageDiceOperation(DiceOperation):
         roll3 = randint(1, die_size)
         roll4 = randint(1, die_size)
         roll = max(roll1, roll2, roll3, roll4)
-        return roll, f'a[{roll1}|{roll2}|{roll3}|{roll4}] + '
+        return roll, f'k[{roll1}|{roll2}|{roll3}|{roll4}] + '
 
 
-class CommaOperation(Operation):
+class CommaOperation(Operation):  # на данный момент есть два разных типа коммаоперейшн. один - посчитанный, второй -
+    # нет. в первом опс это слагаемые, во втором - уже сам ответ. надо это исправить
     value = ','
+    types = dict()
 
     def __init__(self, *ops):
         super().__init__(*ops)
@@ -162,11 +172,63 @@ class CommaOperation(Operation):
         self.ops = tuple(self.ops)
 
     def calculate(self, args=None):
-        calced = tuple(map(lambda x: x.calculate(args), self.ops))
-        return tuple(zip(*calced))
+        elems1 = []
+        elems2 = []
+        for i in range(len(self.ops)):
+            val, text = self.ops[i].calculate(args)
+            elems1.append(val)
+            elems2.append(text)
+            self.types.setdefault(val.ops[1], []).append(i)
+        self.ops = [elems1, elems2]
+        return self, self.ops[1]
+
+    def simplify(self):
+        pass
+
+    def __str__(self):
+        return str(tuple(self.ops[0]))
 
     def __repr__(self):
         return self.__str__()
+
+    def __add__(self, other):
+        if other.value == 'val':
+            num, type1 = other.ops
+            if self.types.get(type1) is None:
+                self.ops[0].append(other)
+                self.ops[1].append(str(other))
+                self.types[type1] = [len(self.ops[0])-1]
+            else:
+                index = self.types.get(type1)[0]
+                self.ops[0][index] += other
+                self.ops[1][index] += f' + {other}'
+        return self
+
+    def __sub__(self, other):
+        if other.value == 'val':
+            num, type1 = other.ops
+            if self.types.get(type1) is None:
+                new_num = Val(-num, type1)
+                self.ops[0].append(new_num)
+                self.ops[1].append(str(new_num))
+                self.types[type1] = [len(self.ops[0])-1]
+            else:
+                index = self.types.get(type1)[0]
+                self.ops[0][index] -= other
+                self.ops[1][index] += f' - {other}'
+        return self
+
+    def __mul__(self, other):
+        if other.value == 'val':
+            for i in range(len(self.ops[0])):
+                self.ops[0][i] *= other
+        return self
+
+    def __truediv__(self, other):
+        if other.value == 'val':
+            for i in range(len(self.ops[0])):
+                self.ops[0][i] /= other
+        return self
 
 
 class MinFunction(Operation):
@@ -240,7 +302,7 @@ class Equals(Operation):
 
 
 class NotEquals(Operation):
-    value = '!='
+    value = '≠'
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
@@ -287,8 +349,8 @@ class Map(Operation):  # todo output
     value = 'map'
 
     def calculate(self, args=None):
-        values = self.ops[1].calculate()
-        # print(values)
+        values = self.ops[1].calculate()[0].ops
+        print(values)
         ress1, ress2 = [], []
         for i in range(len(values[0])):
             res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
@@ -329,6 +391,7 @@ class Tuple(Operation):  # todo output
 
 
 class Val(Operation):
+    value = 'val'
     def __init__(self, *ops):
         super().__init__(*ops)
         if len(self.ops) == 1:
@@ -350,41 +413,74 @@ class Val(Operation):
 
 
     def __str__(self):
-        return str(self.ops[0])
+        return f'{self.ops[0]} {self.ops[1]}'.strip()
 
     def __repr__(self):
-        return str(self.ops[0])
+        return f'{self.ops[0]} {self.ops[1]}'.strip()
 
     def __add__(self, other):
+        if other.value == ',':
+            return other.__add__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
         if type1 and type2:
-            return CommaOperation(self, other)
+            if type1 == type2:
+                return Val(num1 + num2, type1)
+            return CommaOperation(self, other).calculate()[0]
         return Val(num1 + num2, max(type1, type2))
 
-    def __radd__(self, other):  # for sum function only
+    def __radd__(self, other):
         num1, type1 = self.ops
-        num2 = other
+        if type(other) == int:
+            return Val(other + num1, type1)
+        if other.value == ',':
+            return other.__add__(self)
+        num2, type2 = other.ops
         return Val(num1 + num2, type1)
 
     def __sub__(self, other):
+        if other.value == '-':
+            return other.__sub__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
         if type1 and type2:
+            if type1 == type2:
+                return Val(num1 - num2, type1)
+            raise SyntaxError("как я тебе один тип урона из другого вычту, додик")
+        return Val(num1 - num2, max(type1, type2))
+
+    def __rsub__(self, other):
+        num1, type1 = self.ops
+        if type(other) == int:
+            return Val(other - num1, type1)
+        if other.value == '-':
+            return other.__sub__(self)
+        num2, type2 = other.ops
+        if type1 and type2:
+            if type1 == type2:
+                return Val(num1 - num2, type1)
             raise SyntaxError("как я тебе один тип урона из другого вычту, додик")
         return Val(num1 - num2, max(type1, type2))
 
     def __mul__(self, other):
+        if other.value == ',':
+            return other.__mul__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
         if type1 and type2:
+            if type1 == type2:
+                return Val(num1 * num2, type1)
             raise SyntaxError("я не умею перемножать типы урона, додик")
         return Val(num1 * num2, max(type1, type2))
 
     def __truediv__(self, other):
+        if other.value == ',':
+            return other.__truediv__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
         if type1 and type2:
+            if type1 == type2:
+                return Val(num1 / num2, type1)
             raise SyntaxError("я не умею делить типы урона, додик")
         return Val(num1 / num2, max(type1, type2))
 

@@ -1,6 +1,9 @@
 from random import randint
 from parser_classes import *
 
+function_keywords = {'max': 'MAX', 'min': 'MIN', 'sum': 'SUM', 'map': 'MAP',
+                     'x': 'FOR', 'd': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
+                     'ed': 'ELFDIE', 'kd': 'QUADIE', 'it': 'VAR'}
 tokens = (
     'ADD',  # +
     'SUB',  # -
@@ -8,46 +11,50 @@ tokens = (
     'DIV',  # /
     'VAL',  # 0123
     'DOT',  # .
-    'COMMENT',  # any letters
+    'MAX',  # max
+    'MIN',  # min
+    'SUM',  # sum
+    'MAP',  # map
     'LBRACKET',  # (
     'RBRACKET',  # )
     'SLBRACKET',  # [
     'SRBRACKET',  # ]
     'COMMA',  # ,
+    'SEMICOLON',  # ;
     'FOR',  # x
     'DIE',  # d
     'ADVDIE',  # ad
     'DISDIE',  # dd
     'ELFDIE',  # ed
-    'QUADIE',  # dd
-    'MAX',  # max
-    'MIN',  # min
-    'SUM',  # sum
+    'QUADIE',  # kd
     'BIGGER',  # >
     'LESSER',  # <
     'EQUAL',  # =
+    'NOTEQUAL1',  # ≠
+    'NOTEQUAL2',  # !=
     'BIGGEREQUAL',  # >= or =>
     'LESSEREQUAL',  # <= or =<
     'IF',  # ?
     'ELSE',  # :
     'VAR',  # it
-    'MAP',  # map
     'ARG',  # gwf, ea, rt, st, etc.
+    'COMMENT'  # any letters
 )
 
 precedence = (
+    ('left', 'COMMENT'),
     ('left', 'FOR'),
-    ('left', 'MIN', 'MAX', 'SUM'),
+    ('left', 'MIN', 'MAX', 'SUM', 'MAP', 'VAR'),
     ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
     ('right', 'ADVDIE', 'DISDIE', 'ELFDIE', "QUADIE"),
-    ('left', 'DIE'),
-    ('right', 'COMMENT')
+    ('left', 'DIE')
 )
 
 classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
            '<': Lesser, '<=': LesserEquals, '=<': LesserEquals, '=': Equals,
            '+': Addition, '-': Subtraction, '*': Multiplication, '/': Division,
+           '≠': NotEquals, '!=': NotEquals,
            'min': MinFunction, 'max': MaxFunction, 'sum': SumFunction}
 
 dices = {'d': DiceOperation, 'ad': AdvantageDiceOperation, 'dd': DisadvantageDiceOperation,
@@ -75,7 +82,9 @@ def p_compare(p):
     | expression LESSER expression
     | expression EQUAL expression
     | expression LESSEREQUAL expression
-    | expression BIGGEREQUAL expression"""
+    | expression BIGGEREQUAL expression
+    | expression NOTEQUAL1 expression
+    | expression NOTEQUAL2 expression"""
     p[0] = classes[p[2]](p[1], p[3])
 
 
