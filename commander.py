@@ -117,23 +117,6 @@ def anger(*args):
     return res
 
 
-# @handler('Consider donating?', ['donate', 'донат'])
-# def donate(*args):
-#    return 'Consider donating? Разрабам надо кушать. Ну хотя бы на чашечку кофе.'
-
-
-# scrapped command
-# @handler('Повторить запросы (из пересланных сообщений)', ['repeat', 'повтори', 'еще', 'ещё'])
-# def repeat(*args):
-#     print(args)
-#     s, fwd_msg = args
-#     data = []
-#     for msg in fwd_msg:
-#         print(msg)
-#         data += execute(msg, [])
-#     return dat
-
-
 @handler('Портент', ['портент', 'portent', 'hidden'])
 def portent(*args):
     data = ['no']
@@ -161,7 +144,7 @@ def execute(s):
     function = commands.get(command1)
     parameters = ' '.join(s.split()[1:])
     if function:
-        print('executing command', command1, 'with parameter strings', parameters.split(','))
-        res = [function(argstring.strip()) for argstring in parameters.split(',')]
+        print('executing command', command1, 'with parameter strings', parameters)
+        res = [function(parameters.strip())]
         return res
     return None
