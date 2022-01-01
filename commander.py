@@ -1,11 +1,12 @@
 import json
 
 from spells import get_spell_dungeon_su
-from random import choice
+from random import choice, randint
 from parser_expr_test import d2
 
 commands = {}
 help_prompts = []
+fate_die = ('[-]', '[ ]', '[+]')
 with open('macros.json', 'r', encoding='utf-8') as file:
     macri = json.loads(file.read())
 
@@ -61,6 +62,22 @@ def help_list(*args):
 def roll(*args):
     sol, ans = d2(args[0])
     s = f'Кидаю\n-> {sol}\n= **{ans}**'
+    return s
+
+
+@handler('Кинуть куб Фейта', ['f', 'ф', 'fate', 'фейт'])
+def fate(*args):
+    mod = args[0]
+    if mod[0] != '+':
+        return 'Ошибка: модификатор не найден'
+    mod = int(mod[1:])
+    s = 'Кидаю\n-> **'
+    res = 0
+    for i in range(4):
+        d = randint(-1, 1)
+        s += fate_die[d+1]
+        res += d
+    s += f'** + {mod}\n= **{res+mod}**'
     return s
 
 
