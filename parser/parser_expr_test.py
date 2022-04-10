@@ -77,4 +77,4 @@ def d2(expression):
         sol = '('+', '.join(sol)+')'
     return sol, ans
 
-print(d2('sum(map((it-2):4x(d3)))+3'))
+# print(d2('sum(map((it-2):4x(d3)))+3'))

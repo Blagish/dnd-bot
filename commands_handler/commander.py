@@ -1,8 +1,8 @@
 import json
 
-from spells import get_spell_dungeon_su
+from ..game_data import get_spell_dnd_su, get_info_pf2
 from random import choice, randint
-from parser_expr_test import d2
+from ..parser import d2
 
 commands = {}
 help_prompts = []
@@ -11,15 +11,15 @@ with open('macros.json', 'r', encoding='utf-8') as file:
     macri = json.loads(file.read())
 
 
-def construct_prompt(tupl):
-    if 'hidden' in tupl[1]:
+def construct_prompt(data):
+    if 'hidden' in data[1]:
         return ''
-    s = f'{tupl[0]} -- ' + ', '.join(tupl[1]) + ';'
+    s = f'{data[0]} -- ' + ', '.join(data[1]) + ';'
     return s
 
 
 def list_(res):
-    if type(res) == type(tuple()):
+    if isinstance(res, tuple):
         return list(res)
     return [res]
 
@@ -75,9 +75,9 @@ def fate(*args):
     res = 0
     for i in range(4):
         d = randint(-1, 1)
-        s += fate_die[d+1]
+        s += fate_die[d + 1]
         res += d
-    s += f'** + {mod}\n= **{res+mod}**'
+    s += f'** + {mod}\n= **{res + mod}**'
     return s
 
 
@@ -107,10 +107,16 @@ def macros_list(*args):
     return s
 
 
-@handler('Описать заклинание', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
+@handler('Описать заклинание (D&D 5e)', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
 def cast(*args):
     print(args)
-    return get_spell_dungeon_su(args[0])
+    return get_spell_dnd_su(args[0])
+
+
+@handler('Описать что-то из Pathefinder 2e', ['pf', 'пф'])
+def pf2_info(*args):
+    print(args)
+    return get_info_pf2(args[0])
 
 
 @handler('Выводит да или нет', ['чекай', 'чек', 'check'])

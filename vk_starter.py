@@ -1,7 +1,7 @@
 from random import randint
 from flask import Flask, request, json
 from config import *
-import server
+from commands_handler import server
 import vk
 
 

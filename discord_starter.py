@@ -1,7 +1,7 @@
 import discord
 import os
 from random import randint, choice
-import server
+from commands_handler import server
 
 
 client = discord.Client()
@@ -10,6 +10,7 @@ danika_react = ['а?', 'Я тут!', 'Меня звали?', 'Что-то нуж
 yeno = ['Ага', 'Неа']
 
 discord_id = os.environ.get('DISCORD_ID')
+
 
 @client.event
 async def on_message(message):
