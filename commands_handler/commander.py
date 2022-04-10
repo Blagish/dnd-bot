@@ -113,7 +113,7 @@ def cast(*args):
     return get_spell_dnd_su(args[0])
 
 
-@handler('Описать что-то из Pathefinder 2e', ['pf', 'пф'])
+@handler('Описать что-то из Pathfinder 2e', ['pf', 'пф', 'pf2', 'пф2'])
 def pf2_info(*args):
     print(args)
     return get_info_pf2(args[0])

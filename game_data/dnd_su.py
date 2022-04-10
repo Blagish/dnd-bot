@@ -5,7 +5,6 @@ from urllib.request import urlopen
 blacklisted_tags = ['translate-by']
 
 
-
 def get_spell(name):
     print('found spell', name)
     base_url = "https://dnd.su/"

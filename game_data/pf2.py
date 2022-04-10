@@ -1,61 +1,53 @@
-from bs4 import BeautifulSoup
-from urllib.request import Request
-from urllib.request import urlopen
-import csv
+import requests
 import re
-
-csv_data = {}
-with open('RadGridExport.csv') as pf2_data: # на будущее: при обновлении бд заменять буквы в deja vu на нормальные
-    next(pf2_data)
-    reader = csv.reader(pf2_data)
-    for rows in reader:
-        print(rows[0])
-        link, name = re.findall(r'href="(Spells.aspx\?ID=\d+)">([\w\s\'\-,]+)<', rows[0])[0]
-        print(link, name)
-        csv_data[name.lower()] = link
+from bs4 import BeautifulSoup
 
 
 def get_info(name):
-    def check_title(name_from_db):
-        if name in name_from_db or name in name_from_db.replace("'", '') or name in name_from_db.replace(",", ''):
-            return True
+    search_url = 'https://pf2easy.com/php/search.php'
+    thing_url = 'https://pf2easy.com/index.php'
+    response = requests.post(search_url, {'name': name})
+    soup = BeautifulSoup(response.text, 'html.parser')
+    results = soup.find_all('button')
 
-    base_url = 'https://2e.aonprd.com/'
-    results = list(filter(check_title, csv_data.keys()))
-    diff = 1e9
     if len(results) == 0:
         print('owo wats this')
         return 'owo wats this'
 
-    possible_result = None
-    for poss_result in results:
-        if len(poss_result) - len(name) < diff:
-            diff = len(poss_result) - len(name)
-            possible_result = poss_result
+    ans_text = ''
+    ans = results[0]
+    if len(results) > 1:
+        ans_type = ans.find('small').text
+        ans_name = ans.find('strong').text
+        ans_text += f'Нашла больше одного варианта ответа. Использую ближайший:{ans_type} под названием {ans_name}.\n\n'
+    res_id = ans.find('input').attrs['value']
+    data = requests.get(thing_url + f'?id={res_id}')
+    soup = BeautifulSoup(data.text, 'html.parser')
+    name = soup.find_all('h1')[-1].text
+    level = soup.find('h2').text
+    ans_text += f'{name}; {level}\n'
+    traits = soup.find('section', attrs={'class': 'traits'})
+    if traits is not None:
+        traits_text = traits.get_text('|').split('|')
+        ans_text += 'Traits: [' + '], ['.join(traits_text) + ']\n'
 
-    if possible_result is None:
-        print('owo wats this')
-        return 'owo wats this'
+    details = soup.find('section', attrs={'class': 'details'})
+    addon = False
+    if details is not None:
+        if 'addon' not in details.attrs['class']:
+            all_details = details.find_all('p')
+            for d in all_details:
+                text = d.text
+                if 'Cast' in text:
+                    action = soup.find('i', attrs={'class': 'pf2'}).attrs['title']
+                    strings = [i for i in d.strings]
+                    strings[2] = f'{action}: '
+                    text = ''.join(strings)
+                ans_text += text + '\n'
+        else:
+            addon = True # добавить потом типа таблицы в общем да как в архетипах.
+    content = soup.find_all('section', attrs={'class': 'content'})
+    for c in content:
+        ans_text += c.text + '\n\n'
 
-    url = base_url + csv_data[possible_result]
-    page = urlopen(url)
-    soup = BeautifulSoup(page, 'html.parser')
-
-
-#     url = base_url + b.get('href')
-#     print(url)
-#     page = urllib.request.urlopen(url)
-#
-#     soup = BeautifulSoup(page, 'html.parser')
-#     card = soup.find('span', attrs={'id': 'ctl00_MainContent_DetailedOutput'})
-#     return soup
-#     result = [soup.find('a', attrs={'class': 'item-link'}).get_text(), '']
-#     for li in card.ul.contents:
-#         if li.get('class') in blacklisted_tags:
-#             continue
-#         if li.get('class') == ['subsection', 'desc']:
-#             result.append('Описание:')
-#             li = li.div
-#         s = li.get_text()
-#         result.append(s)
-#     return '\n'.join(result)
+    return ans_text
