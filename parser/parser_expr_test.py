@@ -1,4 +1,4 @@
-from ply_data import *
+from .ply_data import *
 import ply.lex as lex
 import ply.yacc as yacc
 
@@ -76,5 +76,3 @@ def d2(expression):
     if type(sol) == list:
         sol = '('+', '.join(sol)+')'
     return sol, ans
-
-print(d2('sum(map((it-2):4x(d3)))+3'))

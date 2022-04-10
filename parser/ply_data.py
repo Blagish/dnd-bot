@@ -1,5 +1,5 @@
 from random import randint
-from parser_classes import *
+from .parser_classes import *
 
 function_keywords = {'max': 'MAX', 'min': 'MIN', 'sum': 'SUM', 'map': 'MAP',
                      'x': 'FOR', 'd': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
@@ -118,6 +118,11 @@ def p_val(p):
     p[0] = Val(int(p[1]))
 
 
+def p_minus_val(p):
+    """expression : SUB VAL"""
+    p[0] = Val(-int(p[2]))
+
+
 def p_val_comment(p):
     """expression : VAL COMMENT"""
     p[0] = Val(int(p[1]), p[2])
@@ -126,6 +131,11 @@ def p_val_comment(p):
 def p_float_val(p):
     """expression : VAL DOT VAL"""
     p[0] = Val(float(f'{p[1]}.{p[3]}'))
+
+
+def p_minus_float_val(p):
+    """expression : SUB VAL DOT VAL"""
+    p[0] = Val(-float(f'{p[2]}.{p[4]}'))
 
 
 def p_float_val_comment(p):

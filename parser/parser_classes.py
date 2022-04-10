@@ -392,6 +392,7 @@ class Tuple(Operation):  # todo output
 
 class Val(Operation):
     value = 'val'
+
     def __init__(self, *ops):
         super().__init__(*ops)
         if len(self.ops) == 1:
@@ -410,7 +411,6 @@ class Val(Operation):
             self.ops = (int(num), self.ops[1])
         else:
             self.ops = (round(num, 5), self.ops[1])
-
 
     def __str__(self):
         return f'{self.ops[0]} {self.ops[1]}'.strip()
