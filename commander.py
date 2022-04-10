@@ -1,8 +1,8 @@
 import json
 
-from ..game_data import get_spell_dnd_su, get_info_pf2
+from game_data import get_spell_dnd_su, get_info_pf2
 from random import choice, randint
-from ..parser import d2
+from parser import d2
 
 commands = {}
 help_prompts = []

@@ -1,7 +1,7 @@
 import discord
 import os
 from random import randint, choice
-from commands_handler import process
+import server
 
 
 client = discord.Client()
@@ -19,7 +19,7 @@ async def on_message(message):
     text = message.content
     print(text)
     if text[0] == '/':
-        output = process(text)
+        output = server.process(text)
         for msg in output:
             await message.channel.send(msg)
     elif discord_id in text:

@@ -1,4 +1,4 @@
-from .commander import execute
+from commander import execute
 
 
 def cut_appeal(command):
