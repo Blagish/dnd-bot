@@ -1,4 +1,4 @@
-from ply_data import *
+from .ply_data import *
 import ply.lex as lex
 import ply.yacc as yacc
 
