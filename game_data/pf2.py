@@ -51,11 +51,11 @@ def get_info(name):
 
     name = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
-    ans_text += f'> **{name}** *({level})*\n'
+    ans_text += f'**{name}** *({level})*\n'
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
-        ans_text += '**Traits:** [' + '], ['.join(traits_text) + ']\n'
+        ans_text += '> **Traits:** [' + '], ['.join(traits_text) + ']\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
@@ -67,7 +67,7 @@ def get_info(name):
                     action = soup.find('i', attrs={'class': 'pf2'}).attrs['title']
                     text = [i for i in d.strings]
                     text[2] = f'*{action}*, '
-                text[0] = f'**{text[0]}:**'
+                text[0] = f'> **{text[0]}:**'
                 ans_text += ''.join(text) + '\n'
         else:
             addon = True # добавить потом типа таблицы в общем да как в архетипах.
