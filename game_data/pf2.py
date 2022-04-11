@@ -1,28 +1,38 @@
 import requests
 from bs4 import BeautifulSoup
 
+ACTIONS = {'action1': ':one:',
+           'action2': ':two:',
+           'action3': ':three:',
+           'actionF': ':free:',
+           'Reaction': ':leftwards_arrow_with_hook:'}
 
-def parse_content(element, text):
+
+def parse_content(element):
     if isinstance(element, str):
-        text += element
-        return text
+        return element
+    if element.name == 'i':
+        action_class = element.attrs['class'][1]
+        return ACTIONS[action_class]
     if element.text == '':
-        return text
-    if element.attrs.get('data-toggle') is not None:
-        text += f'__{element.text}__'
-        return text
-    if element.name == 'em':
-        text += f'*{element.text}*'
-        return text
-    if element.name == 'strong':
-        text += f'**{element.text}**'
-        return text
+        return ''
+
+    style1 = style2 = ''
+    text = ''
+    if element.name == 'p':
+        style2 = '\n'
+    elif element.attrs.get('data-toggle') is not None:
+        style1 = style2 = '__'
+    elif element.name == 'em':
+        style1 = style2 = '*'
+    elif element.name == 'strong':
+        style1 = style2 = '**'
 
     if element.name == 'li':
         text += '\n- '
     for child in element.children:
-        text = parse_content(child, text)
-    return text
+        text += parse_content(child)
+    return f'{style1}{text}{style2}'
 
 
 def get_info(name):
@@ -55,28 +65,24 @@ def get_info(name):
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
-        ans_text += '> **Traits:** [' + '], ['.join(traits_text) + ']\n'
+        ans_text += '> **Traits** [' + '], ['.join(traits_text) + ']\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
         if 'addon' not in details.attrs['class']:
-            all_details = details.find_all('p')
-            for d in all_details:
-                text = [i for i in d.strings]
-                if 'Cast' in text or 'Cast ' in text:
-                    action = soup.find('i', attrs={'class': 'pf2'}).attrs['title']
-                    text = [i for i in d.strings]
-                    text[2] = f'*{action}*, '
-                text[0] = f'> **{text[0]}:**'
-                ans_text += ''.join(text) + '\n'
+            details_text = '> ' + parse_content(details).replace('\n**', '\n> **')
+            ans_text += details_text
         else:
             addon = True # добавить потом типа таблицы в общем да как в архетипах.
 
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
-        ans_text += parse_content(content, '')+'\n\n'
+        ans_text += parse_content(content)+'\n'
 
     if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
         for content_extra in contents_extra:
-            ans_text += parse_content(content_extra, '')+'\n\n'
+            ans_text += parse_content(content_extra)+'\n'
 
     return ans_text
+
+
+print(get_info('necklace of fireballs'))
