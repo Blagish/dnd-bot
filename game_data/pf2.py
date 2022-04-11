@@ -6,6 +6,8 @@ def parse_content(element, text):
     if isinstance(element, str):
         text += element
         return text
+    if element.text == '':
+        return text
     if element.attrs.get('data-toggle') is not None:
         text += f'__{element.text}__'
         return text
