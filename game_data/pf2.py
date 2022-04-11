@@ -1,5 +1,4 @@
 import requests
-import re
 from bs4 import BeautifulSoup
 
 
@@ -19,35 +18,42 @@ def get_info(name):
     if len(results) > 1:
         ans_type = ans.find('small').text
         ans_name = ans.find('strong').text
-        ans_text += f'Нашла больше одного варианта ответа. Использую ближайший:{ans_type} под названием {ans_name}.\n\n'
+        if ans_name != name:
+            ans_text += f'Нашла больше одного варианта ответа. Использую ближайший:{ans_type} под названием {ans_name}.\n\n'
+        elif results[1].find('strong') == name:
+            ans_text += f'Нашла больше одного варианта ответа с идентичным именем.\n\n'
     res_id = ans.find('input').attrs['value']
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
-    name = soup.find_all('h1')[-1].text
-    level = soup.find('h2').text
-    ans_text += f'{name}; {level}\n'
-    traits = soup.find('section', attrs={'class': 'traits'})
-    if traits is not None:
-        traits_text = traits.get_text('|').split('|')
-        ans_text += 'Traits: [' + '], ['.join(traits_text) + ']\n'
 
-    details = soup.find('section', attrs={'class': 'details'})
+    name = soup.find_all('h1')[-1].text.title()
+    level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
+    ans_text += f'> **{name}** *({level})*\n'
+
+    if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
+        traits_text = traits.get_text('|').split('|')
+        ans_text += '**Traits:** [' + '], ['.join(traits_text) + ']\n'
+
     addon = False
-    if details is not None:
+    if (details := soup.find('section', attrs={'class': 'details'})) is not None:
         if 'addon' not in details.attrs['class']:
             all_details = details.find_all('p')
             for d in all_details:
-                text = d.text
-                if 'Cast' in text:
+                text = [i for i in d.strings]
+                if 'Cast' in text or 'Cast ' in text:
                     action = soup.find('i', attrs={'class': 'pf2'}).attrs['title']
-                    strings = [i for i in d.strings]
-                    strings[2] = f'{action}: '
-                    text = ''.join(strings)
-                ans_text += text + '\n'
+                    text = [i for i in d.strings]
+                    text[2] = f'*{action}*, '
+                text[0] = f'**{text[0]}:**'
+                ans_text += ''.join(text) + '\n'
         else:
             addon = True # добавить потом типа таблицы в общем да как в архетипах.
-    content = soup.find_all('section', attrs={'class': 'content'})
-    for c in content:
-        ans_text += c.text + '\n\n'
 
+    if (content := soup.find('section', attrs={'class': 'content'})) is not None:
+        ans_text += content.text + '\n\n'
+
+    if (content_extra := soup.find('section', attrs={'class': ['content', 'extra']})) is not None:
+        ans_text += content_extra.text + '\n\n'
+
+    # content extra
     return ans_text

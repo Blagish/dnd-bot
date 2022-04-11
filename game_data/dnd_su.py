@@ -45,7 +45,7 @@ def get_spell(name):
         if li.get('class') in blacklisted_tags:
             continue
         if li.get('class') == ['subsection', 'desc']:
-            result.append('Описание:')
+            result.append('**Описание:**')
             li = li.div
         s = li.get_text()
         result.append(s)
