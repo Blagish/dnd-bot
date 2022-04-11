@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
+
 ACTIONS = {'action1': ':one:',
            'action2': ':two:',
            'action3': ':three:',
@@ -19,17 +21,16 @@ def parse_content(element):
 
     style1 = style2 = ''
     text = ''
-    if element.name == 'p':
+    if element.name in tags_with_new_strings:
         style2 = '\n'
+        if element.name == 'li':
+            style1 = '- '
     elif element.attrs.get('data-toggle') is not None:
         style1 = style2 = '__'
     elif element.name == 'em':
         style1 = style2 = '*'
     elif element.name == 'strong':
         style1 = style2 = '**'
-
-    if element.name == 'li':
-        text += '\n- '
     for child in element.children:
         text += parse_content(child)
     return f'{style1}{text}{style2}'
@@ -85,4 +86,5 @@ def get_info(name):
     return ans_text
 
 
-print(get_info('necklace of fireballs'))
+if __name__ == '__main__':
+    print(get_info('chromatic wall'))
