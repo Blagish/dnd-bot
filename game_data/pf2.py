@@ -75,7 +75,8 @@ def get_info(name):
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
         ans_text += parse_content(content, '')+'\n\n'
 
-    if (content_extra := soup.find('section', attrs={'class': ['content extra']})) is not None:
-        ans_text += parse_content(content_extra, '')+'\n\n'
+    if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
+        for content_extra in contents_extra:
+            ans_text += parse_content(content_extra, '')+'\n\n'
 
     return ans_text
