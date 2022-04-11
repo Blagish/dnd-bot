@@ -2,6 +2,27 @@ import requests
 from bs4 import BeautifulSoup
 
 
+def parse_content(element, text):
+    if isinstance(element, str):
+        text += element
+        return text
+    if element.attrs.get('data-toggle') is not None:
+        text += f'__{element.text}__'
+        return text
+    if element.name == 'em':
+        text += f'*{element.text}*'
+        return text
+    if element.name == 'strong':
+        text += f'**{element.text}**'
+        return text
+
+    if element.name == 'li':
+        text += '\n- '
+    for child in element.children:
+        text = parse_content(child, text)
+    return text
+
+
 def get_info(name):
     search_url = 'https://pf2easy.com/php/search.php'
     thing_url = 'https://pf2easy.com/index.php'
@@ -50,10 +71,9 @@ def get_info(name):
             addon = True # добавить потом типа таблицы в общем да как в архетипах.
 
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
-        ans_text += content.text + '\n\n'
+        ans_text += parse_content(content, '')+'\n\n'
 
-    if (content_extra := soup.find('section', attrs={'class': ['content', 'extra']})) is not None:
-        ans_text += content_extra.text + '\n\n'
+    if (content_extra := soup.find('section', attrs={'class': ['content extra']})) is not None:
+        ans_text += parse_content(content_extra, '')+'\n\n'
 
-    # content extra
     return ans_text
