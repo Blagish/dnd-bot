@@ -18,8 +18,13 @@ MAX_MESSAGE_LENGTH = 1999
 
 def message_splitter(m):
     while len(m[-1]) > MAX_MESSAGE_LENGTH:
-        m.append(m[-1][MAX_MESSAGE_LENGTH:])
-        m[-2] = m[-2][:MAX_MESSAGE_LENGTH]
+        # try to cut by enters first
+        if (enter := m[-1].rfind('\n')) != -1:
+            m.append(m[-1][enter:])
+            m[-2] = m[-2][:enter]
+        else:
+            m.append(m[-1][MAX_MESSAGE_LENGTH:])
+            m[-2] = m[-2][:MAX_MESSAGE_LENGTH]
     return m
 
 
