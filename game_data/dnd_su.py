@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from urllib.request import Request
 from urllib.request import urlopen
 
 blacklisted_tags = ['translate-by']
