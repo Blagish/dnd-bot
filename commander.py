@@ -68,16 +68,20 @@ def roll(*args):
 @handler('Кинуть куб Фейта', ['f', 'ф', 'fate', 'фейт'])
 def fate(*args):
     mod = args[0]
-    if mod[0] != '+':
+    if mod == '':
+        mod = '+0'
+    if (sign := mod[0]) not in ('+', '-'):
         return 'Ошибка: модификатор не найден'
     mod = int(mod[1:])
+    if sign == '-':
+        mod = -mod
     s = 'Кидаю\n-> **'
     res = 0
     for i in range(4):
         d = randint(-1, 1)
         s += fate_die[d + 1]
         res += d
-    s += f'** + {mod}\n= **{res + mod}**'
+    s += f'** {sign} {abs(mod)}\n= **{res + mod}**'
     return s
 
 
