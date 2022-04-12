@@ -67,7 +67,7 @@ def roll(*args):
 
 @handler('Кинуть куб Фейта', ['f', 'ф', 'fate', 'фейт'])
 def fate(*args):
-    mod = args[0]
+    mod = args[0].replace(' ', '')
     if mod == '':
         mod = '+0'
     if (sign := mod[0]) not in ('+', '-'):
