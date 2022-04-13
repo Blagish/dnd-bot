@@ -8,8 +8,8 @@ cogs = (Dice, Talking, Macros)
 def setup(bot):
     for cog in cogs:
         try:
-            print(f'loading {cog.__name__}...')
+            print(f'loading command extension {cog.__name__}...')
             bot.add_cog(cog(bot))
         except Exception as e:
             print(f'error loading {cog.__name__}: {e}')
-    print('extensions loading finished :)')
+    print('command extensions loading finished :)')
