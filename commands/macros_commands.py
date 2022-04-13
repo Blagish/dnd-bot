@@ -31,9 +31,3 @@ class MacrosCommands(commands.Cog):
             data = self.macri[m]
             s += f'{m}: {data[2]} Аналог команды {data[0]}.\n'
         await ctx.send(s)
-
-
-async def setup(bot):
-    print('loading MacrosCommands...')
-    bot.add_cog(MacrosCommands(bot))
-

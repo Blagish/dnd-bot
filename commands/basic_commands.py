@@ -12,9 +12,3 @@ class BasicCommands(commands.Cog):
     @commands.command(name='куку', hidden=True)
     async def kuku(self, ctx):
         return ctx.send('быбы')
-
-
-async def setup(bot):
-    print('loading BasicCommands...')
-    bot.add_cog(BasicCommands(bot))
-
