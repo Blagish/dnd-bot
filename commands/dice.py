@@ -1,4 +1,6 @@
 from random import randint
+
+import discord
 from discord.ext import commands
 from parser import d2
 from game_data import get_spell_dnd_su, get_info_pf2
@@ -19,7 +21,10 @@ class Dice(commands.Cog, name='Кубы кубы'):
 
     @roll.before_invoke
     async def before_roll(self, ctx):
-        print(f'Roll! {ctx.author.name}: {ctx.message.content} on {ctx.channel.name}')
+        name = 'their DMs'
+        if isinstance(ctx.channel, discord.GroupChannel):
+            name = ctx.channel.name
+        print(f'Roll! {ctx.author.name}: {ctx.message.content} at {ctx.channel.name}')
 
     @roll.after_invoke
     async def after_roll(self, ctx):
