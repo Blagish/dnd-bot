@@ -23,11 +23,3 @@ class Gaming(commands.Cog, name='Гейминг'):
     def choose_a_game(self):
         return choice(self.games)
 
-
-def setup(bot):
-    try:
-        print(f'loading task extension {Gaming.__name__}...')
-        bot.add_cog(Gaming(bot))
-    except Exception as e:
-        print(f'error loading {Gaming.__name__}: {e}')
-    print('task extensions loading finished :)')
