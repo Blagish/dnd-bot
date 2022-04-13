@@ -15,7 +15,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     @commands.command(name='куку', hidden=True)
     async def kuku(self, ctx):
         """Ку ку?"""
-        return ctx.send('быбы')
+        await ctx.send('быбы')
 
     @commands.command(name='спасибо', aliases=['спс', 'thanks', 'thx'])
     async def thanks(self, ctx):

@@ -17,6 +17,14 @@ class Dice(commands.Cog, name='Кубы кубы'):
         s = f'Кидаю\n-> {sol}\n= **{ans}**'
         await ctx_send(ctx, s)
 
+    @roll.before_invoke
+    async def before_roll(self, ctx):
+        print(f'Roll! {ctx.author.name}: {ctx.message.content} on {ctx.channel.name}')
+
+    @roll.after_invoke
+    async def after_roll(self, ctx):
+        pass
+
     @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
     async def spell_dnd5(self, ctx, *, spell_name):
         """Узнать о заклинании из D&D 5e. Как на русском, так и на английском."""
