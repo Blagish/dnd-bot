@@ -16,7 +16,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         s = f'Кидаю\n-> {sol}\n= **{ans}**'
         await ctx.send(s)
 
-    @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд'])
+    @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
     async def spell_dnd5(self, ctx, *, arg):
         """узнать о заклинании из D&D 5e"""
         await ctx.send(get_spell_dnd_su(arg))
