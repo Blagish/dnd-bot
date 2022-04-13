@@ -15,6 +15,7 @@ bot.load_extension('commands')
 
 
 class MyHelpCommand(commands.MinimalHelpCommand):
+    """хелп"""
     async def send_pages(self):
         destination = self.get_destination()
         e = discord.Embed(color=discord.Color.blurple(), description='')
@@ -23,7 +24,7 @@ class MyHelpCommand(commands.MinimalHelpCommand):
         await destination.send(embed=e)
 
 
-bot.help_command = MyHelpCommand()
+bot.help_command = MyHelpCommand(aliases=['хелп'])
 
 
 @bot.event
