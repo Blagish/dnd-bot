@@ -18,14 +18,14 @@ async def hello(ctx):
 # help
 
 
-@bot.commands('roll', aliases=['r', 'р' 'k', 'к'])
+@bot.command('roll', aliases=['r', 'р' 'k', 'к'])
 async def roll(ctx, *, arg):
     sol, ans = d2(arg)
     s = f'Кидаю\n-> {sol}\n= **{ans}**'
     await ctx.send(s)
 
 
-@bot.commands('fate', aliases=['f', 'ф', 'фейт'])
+@bot.command('fate', aliases=['f', 'ф', 'фейт'])
 async def fate(ctx, *, arg):
     mod = arg.replace(' ', '')
     if mod == '':
@@ -45,7 +45,7 @@ async def fate(ctx, *, arg):
     await ctx.send(s)
 
 
-@bot.commands('макрос', aliases=['macros', 'mc', 'мк'])
+@bot.command('макрос', aliases=['macros', 'mc', 'мк'])
 async def macros(ctx, command, *, arg):
     true_command = macri.get(command)
     if true_command is not None:
@@ -60,7 +60,7 @@ async def macros(ctx, command, *, arg):
     await ctx.send(f'Ошибка: макрос "{command}" не найден.')
 
 
-@bot.commands('mchelp', aliases=['мкхелп'])
+@bot.command('mchelp', aliases=['мкхелп'])
 async def macros_list(ctx):
     s = ''
     for m in macri:
@@ -69,23 +69,23 @@ async def macros_list(ctx):
     await ctx.send(s)
 
 
-@bot.commands('spell', aliases=['закл', 'спелл'])
+@bot.command('spell', aliases=['закл', 'спелл'])
 async def spell_dnd5(ctx, *, arg):
     await ctx.send(get_spell_dnd_su(arg))
 
 
-@bot.commands('pf2', aliases=['pf', 'пф', 'пф2'])
+@bot.command('pf2', aliases=['pf', 'пф', 'пф2'])
 async def info_pf2(ctx, *, arg):
     await ctx.send(get_info_pf2(arg))
 
 
-@bot.commands('спасибо', aliases=['спс', 'thanks', 'thx'])
+@bot.command('спасибо', aliases=['спс', 'thanks', 'thx'])
 async def thanks(ctx):
     res = choice(['Пожалуйста!', 'Рада помочь!', 'Всегда пожалуйста', 'Стараюсь :)'])
     await ctx.send(res)
 
 
-@bot.commands('слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
+@bot.command('слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
 async def anger(ctx):
     res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!'])
     await ctx.send(res)
