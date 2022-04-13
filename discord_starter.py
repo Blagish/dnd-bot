@@ -11,7 +11,7 @@ discord_id = os.environ.get('DISCORD_ID')
 
 bot = commands.Bot(command_prefix=command_prefix)
 bot.load_extension('commands')
-bot.load_extension('tasks')
+bot.load_extension('tasks.gaming')
 
 bot.help_command = MyHelpCommand(sort_commands=False, commands_heading='(команды):',
                                  aliases_heading='Варианты:', no_category='Просто')
