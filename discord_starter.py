@@ -1,10 +1,7 @@
 import discord
 import os
 from random import randint, choice
-import server
-
-
-client = discord.Client()
+from commander import bot
 
 danika_react = ['а?', 'Я тут!', 'Меня звали?', 'Что-то нужно?']
 yeno = ['Ага', 'Неа']
@@ -12,17 +9,13 @@ yeno = ['Ага', 'Неа']
 discord_id = os.environ.get('DISCORD_ID')
 
 
-@client.event
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return None
     text = message.content
     print(text)
-    if text[0] == '/':
-        output = server.process(text)
-        for msg in output:
-            await message.channel.send(msg)
-    elif discord_id in text:
+    if discord_id in text:
         await message.channel.send(choice(danika_react+[':eyes: '*randint(1, 3)]))
     elif 'даник' in text.lower():
         if '?' in text:
@@ -30,4 +23,4 @@ async def on_message(message):
         elif randint(1, 10) == 10:
             await message.channel.send(choice(danika_react))
 
-client.run(os.environ.get('DISCORD_TOKEN'))
+bot.run(os.environ.get('DISCORD_TOKEN'))
