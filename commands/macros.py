@@ -14,7 +14,7 @@ class Macros(commands.Cog, name='Макросы'):
     async def macros(self, ctx, *arg):
         """Использовать макрос кидания кубов. В бета-тестировании, пока есть макросы для City of Mist и Prowlers & Paragons"""
         command = arg[0]
-        arg = ''.join(arg[1:])
+        arg = [''.join(arg[1:])]
         true_command = self.macri.get(command)
         if true_command is not None:
             try:
