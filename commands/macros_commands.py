@@ -7,7 +7,7 @@ from parser import d2
 class MacrosCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        with open('macros.json', 'r', encoding='utf-8') as file:
+        with open('commands/macros.json', 'r', encoding='utf-8') as file:
             self.macri = json.loads(file.read())
 
     @commands.command(name='макрос', aliases=['macros', 'mc', 'мк'])
