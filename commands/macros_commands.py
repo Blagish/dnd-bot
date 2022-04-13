@@ -33,3 +33,7 @@ class MacrosCommands(commands.Cog):
         await ctx.send(s)
 
 
+async def setup(bot):
+    print('loading MacrosCommands...')
+    bot.add_cog(MacrosCommands(bot))
+

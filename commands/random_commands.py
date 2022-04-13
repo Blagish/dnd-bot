@@ -15,3 +15,8 @@ class RandomCommands(commands.Cog):
     async def anger(self, ctx):
         res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!'])
         await ctx.send(res)
+
+
+async def setup(bot):
+    print('loading RandomCommands...')
+    bot.add_cog(RandomCommands(bot))

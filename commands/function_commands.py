@@ -41,3 +41,8 @@ class FunctionCommands(commands.Cog):
     @commands.command(name='pf2', aliases=['pf', 'пф', 'пф2'])
     async def info_pf2(self, ctx, *, arg):
         await ctx.send(get_info_pf2(arg))
+
+
+async def setup(bot):
+    print('loading FunctionCommands...')
+    bot.add_cog(FunctionCommands(bot))

@@ -13,3 +13,8 @@ class BasicCommands(commands.Cog):
     async def kuku(self, ctx):
         return ctx.send('быбы')
 
+
+async def setup(bot):
+    print('loading BasicCommands...')
+    bot.add_cog(BasicCommands(bot))
+
