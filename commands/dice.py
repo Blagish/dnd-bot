@@ -10,26 +10,28 @@ class Dice(commands.Cog, name='Кубы кубы'):
         self.fate_die = ('[-]', '[ ]', '[+]')
 
     @commands.command(name='куб', aliases=['r', 'р' 'k', 'к', 'roll', 'ролл'])
-    async def roll(self, ctx, *, arg):
-        """кидаю кубы, прибавляю модификаторы~"""
-        sol, ans = d2(arg)
+    async def roll(self, ctx, *, string):
+        """Кидаю кубы, прибавляю модификаторы~ Можно использовать сложение, вычитание, умножение, деление. Кубы с
+        преимуществом - ad, с помехой - dd. Можно использовать скобки, короче, реально охуенный парсер, два года его
+        писала """
+        sol, ans = d2(string)
         s = f'Кидаю\n-> {sol}\n= **{ans}**'
         await ctx.send(s)
 
     @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
-    async def spell_dnd5(self, ctx, *, arg):
-        """узнать о заклинании из D&D 5e"""
-        await ctx.send(get_spell_dnd_su(arg))
+    async def spell_dnd5(self, ctx, *, spell_name):
+        """Узнать о заклинании из D&D 5e. Как на русском, так и на английском."""
+        await ctx.send(get_spell_dnd_su(spell_name))
 
     @commands.command(name='пф', aliases=['pf', 'пф2', 'pf2'])
-    async def info_pf2(self, ctx, *, arg):
-        """узнать о любой вещи из Pathfinder 2e"""
-        await ctx.send(get_info_pf2(arg))
+    async def info_pf2(self, ctx, *, thing_name):
+        """Узнать о любой вещи из Pathfinder 2e. На английском."""
+        await ctx.send(get_info_pf2(thing_name))
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
-    async def fate(self, ctx, *, arg):
-        """бросок четырех кубов системы Fate"""
-        mod = arg.replace(' ', '')
+    async def fate(self, ctx, *, mod):
+        """Бросок четырех кубов системы Fate. Модификатор указывается по типу +3 или -1."""
+        mod = mod.replace(' ', '')
         if mod == '':
             mod = '+0'
         if (sign := mod[0]) not in ('+', '-'):

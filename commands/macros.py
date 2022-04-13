@@ -12,7 +12,7 @@ class Macros(commands.Cog, name='Макросы'):
 
     @commands.command(name='макрос', aliases=['macros', 'mc', 'мк'])
     async def macros(self, ctx, *, arg):
-        """использовать макрос кидания кубов"""
+        """Использовать макрос кидания кубов. В бета-тестировании, пока есть макросы для City of Mist и Prowlers & Paragons"""
         command = arg.split(' ')[0]
         arg = arg[arg.find(' ')+1:]
         true_command = self.macri.get(command)
@@ -29,7 +29,7 @@ class Macros(commands.Cog, name='Макросы'):
 
     @commands.command(name='мкхелп', aliases=['mchelp'])
     async def macros_list(self, ctx):
-        """список доступных макросов"""
+        """Выводит список доступных макросов."""
         s = ''
         for m in self.macri:
             data = self.macri[m]
