@@ -1,16 +1,17 @@
 MAX_MESSAGE_LENGTH = 1999
 
 
-def message_splitter(m):
-    while len(m[-1]) > MAX_MESSAGE_LENGTH:
-        # try to cut by enters first
-        enter = m[-1].rfind('\n')
+async def ctx_send(ctx, message):
+    messages = [message]
+    while len(messages[-1]) > MAX_MESSAGE_LENGTH:
+        messages = []
+        enter = message.rfind('\n')
         while enter >= MAX_MESSAGE_LENGTH:
-            enter = m[-1].rfind('\n', 0, enter)
-        if enter != -1:
-            m.append(m[-1][enter:])
-            m[-2] = m[-2][:enter]
-        else:
-            m.append(m[-1][MAX_MESSAGE_LENGTH:])
-            m[-2] = m[-2][:MAX_MESSAGE_LENGTH]
-    return m
+            enter = message.rfind('\n', 0, enter)
+        if enter == -1:
+            enter = MAX_MESSAGE_LENGTH
+        messages.append(messages[-1][enter:])
+        messages[-2] = messages[-2][:enter]
+
+    for m in messages:
+        await ctx.send(m)
