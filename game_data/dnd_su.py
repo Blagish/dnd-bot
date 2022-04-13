@@ -5,7 +5,7 @@ blacklisted_tags = ['translate-by']
 
 
 def get_spell(name):
-    print('found spell', name)
+    print('dnd: looking for', name)
     base_url = "https://dnd.su/"
     spells_url = "https://dnd.su/spells/"
     page = urlopen(spells_url)
@@ -18,7 +18,6 @@ def get_spell(name):
     diff = 1e9
 
     if len(results) == 0:
-        print('owo wats this')
         return 'owo wats this'
 
     for tag in results:
@@ -33,7 +32,6 @@ def get_spell(name):
             possible_result = tag
 
     if possible_result is None:
-        print('owo wats this')
         return 'owo wats this'
 
     page = urlopen(base_url + possible_result.get('href'))

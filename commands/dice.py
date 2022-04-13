@@ -24,7 +24,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         name = 'their DMs'
         if isinstance(ctx.channel, discord.GroupChannel):
             name = ctx.channel.name
-        print(f'Roll! {ctx.author.name}: {ctx.message.content} at {ctx.channel.name}')
+        print(f'Roll! {ctx.author.name}: {ctx.message.content} at {name}')
 
     @roll.after_invoke
     async def after_roll(self, ctx):
