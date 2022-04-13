@@ -1,13 +1,13 @@
 from discord.ext import commands, tasks
-from discord import Game
+import discord
 from random import choice
 
 
-class Gaming(commands.Cog):
+class Gaming(commands.Cog, name='Гейминг'):
     def __init__(self, bot):
         self.bot = bot
-        self.games = ('D&D 5e', 'Pathfinder 2e', 'Fate', 'City of Mist', 'Prowlers & Paragons', 'Minecraft')
         self.game = None
+        self.games = ('D&D 5e', 'Pathfinder 2e', 'Fate', 'City of Mist', 'Prowlers & Paragons', 'Minecraft')
         self.start_new_game.start()
 
     def cog_unload(self):
@@ -16,7 +16,7 @@ class Gaming(commands.Cog):
     @tasks.loop(hours=8)
     async def start_new_game(self):
         game_title = self.choose_a_game()
-        self.game = Game(game_title)
+        self.game = discord.Game(game_title)
         print(f'Starting playing {game_title}')
         await self.bot.change_presence(activity=self.game)
 
