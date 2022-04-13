@@ -27,5 +27,6 @@ async def on_message(message):
             await message.channel.send(choice(yeno))
         elif randint(1, 8) == 1:
             await message.channel.send(choice(danika_react))
+    await bot.process_commands(message)  # maybe make a real listener later and remove this
 
 bot.run(os.environ.get('DISCORD_TOKEN'))

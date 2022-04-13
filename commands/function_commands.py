@@ -7,7 +7,7 @@ from game_data import get_spell_dnd_su, get_info_pf2
 class FunctionCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.fate_die = fate_die = ('[-]', '[ ]', '[+]')
+        self.fate_die = ('[-]', '[ ]', '[+]')
 
     @commands.command(name='roll', aliases=['r', 'р' 'k', 'к'])
     async def roll(self, ctx, *, arg):
