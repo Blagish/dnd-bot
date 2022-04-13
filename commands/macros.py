@@ -11,10 +11,10 @@ class Macros(commands.Cog, name='Макросы'):
             self.macri = json.loads(file.read())
 
     @commands.command(name='макрос', aliases=['macros', 'mc', 'мк'])
-    async def macros(self, ctx, *, arg):
+    async def macros(self, ctx, *arg):
         """Использовать макрос кидания кубов. В бета-тестировании, пока есть макросы для City of Mist и Prowlers & Paragons"""
-        command = arg.split(' ')[0]
-        arg = arg[arg.find(' ')+1:]
+        command = arg[0]
+        arg = ''.join(arg[1:])
         true_command = self.macri.get(command)
         if true_command is not None:
             try:
