@@ -26,7 +26,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         """узнать о любой вещи из Pathfinder 2e"""
         await ctx.send(get_info_pf2(arg))
 
-    @commands.command(name='фейт', aliases=['f', 'ф', 'фейт', 'fate'])
+    @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *, arg):
         """бросок четырех кубов системы Fate"""
         mod = arg.replace(' ', '')
