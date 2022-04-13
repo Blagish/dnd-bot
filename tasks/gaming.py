@@ -8,6 +8,10 @@ class Gaming(commands.Cog):
         self.bot = bot
         self.games = ('D&D 5e', 'Pathfinder 2e', 'Fate', 'City of Mist', 'Prowlers & Paragons', 'Minecraft')
         self.game = None
+        self.start_new_game.start()
+
+    def cog_unload(self):
+        self.start_new_game.cancel()
 
     @tasks.loop(hours=8)
     async def start_new_game(self):
