@@ -6,19 +6,18 @@ from random import choice
 class Gaming(commands.Cog, name='Гейминг'):
     def __init__(self, bot):
         self.bot = bot
-        self.game = None
         self.games = ('D&D 5e', 'Pathfinder 2e', 'Fate', 'City of Mist', 'Prowlers & Paragons', 'Minecraft')
+        self.start_new_game.before_loop(self.bot.wait_until_ready())
         self.start_new_game.start()
 
     def cog_unload(self):
         self.start_new_game.cancel()
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(hours=6.0)
     async def start_new_game(self):
         game_title = self.choose_a_game()
-        self.game = discord.Game(name=game_title)
+        await self.bot.change_presence(activity=discord.Game(name=game_title))
         print(f'Starting playing {game_title}')
-        await self.bot.change_presence(activity=self.game)
 
     def choose_a_game(self):
         return choice(self.games)
