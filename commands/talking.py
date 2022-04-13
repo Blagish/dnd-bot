@@ -10,7 +10,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     async def hello(self, ctx):
         """Привет :)"""
         res = choice(['Привет!', 'Привет :)', 'Hewwo', ' Hewwo :)', 'Привееееет :)'])
-        await ctx.send('hewwo OwO')
+        await ctx.send(res)
 
     @commands.command(name='куку', hidden=True)
     async def kuku(self, ctx):

@@ -29,8 +29,10 @@ class Dice(commands.Cog, name='Кубы кубы'):
         await ctx.send(get_info_pf2(thing_name))
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
-    async def fate(self, ctx, *, mod):
-        """Бросок четырех кубов системы Fate. Модификатор указывается по типу +3 или -1."""
+    async def fate(self, ctx, *mod):
+        """Бросок четырех кубов системы Fate. Модификатор указывается по типу +3 или -1. Пустой аргумент равнозначен
+        +0. """
+        mod = ''.join(mod)
         mod = mod.replace(' ', '')
         if mod == '':
             mod = '+0'
