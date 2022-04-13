@@ -16,8 +16,9 @@ class Gaming(commands.Cog, name='Гейминг'):
     @tasks.loop(hours=8)
     async def start_new_game(self):
         game_title = self.choose_a_game()
-        self.game = discord.Game(game_title)
+        self.game = discord.Game(name=game_title)
         print(f'Starting playing {game_title}')
+        print(type(self.bot), self.bot)
         await self.bot.change_presence(activity=self.game)
 
     def choose_a_game(self):
