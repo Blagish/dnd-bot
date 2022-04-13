@@ -4,14 +4,17 @@ import json
 from parser import d2
 
 
-class MacrosCommands(commands.Cog):
+class Macros(commands.Cog, name='Макросы'):
     def __init__(self, bot):
         self.bot = bot
         with open('commands/macros.json', 'r', encoding='utf-8') as file:
             self.macri = json.loads(file.read())
 
     @commands.command(name='макрос', aliases=['macros', 'mc', 'мк'])
-    async def macros(self, ctx, command, *, arg):
+    async def macros(self, ctx, *, arg):
+        """использовать макрос кидания кубов"""
+        command = arg.split(' ')[0]
+        arg = arg[arg.find(' ')+1:]
         true_command = self.macri.get(command)
         if true_command is not None:
             try:
@@ -24,8 +27,9 @@ class MacrosCommands(commands.Cog):
             await ctx.send(s)
         await ctx.send(f'Ошибка: макрос "{command}" не найден.')
 
-    @commands.command(name='mchelp', aliases=['мкхелп'])
+    @commands.command(name='мкхелп', aliases=['mchelp'])
     async def macros_list(self, ctx):
+        """список доступных макросов"""
         s = ''
         for m in self.macri:
             data = self.macri[m]

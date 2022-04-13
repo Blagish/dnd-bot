@@ -1,9 +1,8 @@
-from .basic_commands import BasicCommands
-from .function_commands import FunctionCommands
-from .macros_commands import MacrosCommands
-from .random_commands import RandomCommands
+from .dice import Dice
+from .macros import Macros
+from .talking import Talking
 
-cogs = (BasicCommands, FunctionCommands, MacrosCommands, RandomCommands)
+cogs = (Dice, Talking, Macros)
 
 
 def setup(bot):

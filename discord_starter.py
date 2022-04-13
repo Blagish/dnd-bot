@@ -1,4 +1,5 @@
 from discord.ext import commands
+import discord
 import os
 from random import randint, choice
 from bot_config import command_prefix
@@ -10,7 +11,6 @@ yeno = ['Ага', 'Неа']
 discord_id = os.environ.get('DISCORD_ID')
 
 bot = commands.Bot(command_prefix=command_prefix)
-
 bot.load_extension('commands')
 
 
