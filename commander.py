@@ -11,21 +11,21 @@ with open('macros.json', 'r', encoding='utf-8') as file:
     macri = json.loads(file.read())
 
 
-@bot.command('hello', aliases=['привет', 'hewwo', 'owo'])
+@bot.command(name='hello', aliases=['привет', 'hewwo', 'owo'])
 async def hello(ctx):
     await ctx.send('hewwo OwO')
 
 # help
 
 
-@bot.command('roll', aliases=['r', 'р' 'k', 'к'])
+@bot.command(name='roll', aliases=['r', 'р' 'k', 'к'])
 async def roll(ctx, *, arg):
     sol, ans = d2(arg)
     s = f'Кидаю\n-> {sol}\n= **{ans}**'
     await ctx.send(s)
 
 
-@bot.command('fate', aliases=['f', 'ф', 'фейт'])
+@bot.command(name='fate', aliases=['f', 'ф', 'фейт'])
 async def fate(ctx, *, arg):
     mod = arg.replace(' ', '')
     if mod == '':
@@ -45,7 +45,7 @@ async def fate(ctx, *, arg):
     await ctx.send(s)
 
 
-@bot.command('макрос', aliases=['macros', 'mc', 'мк'])
+@bot.command(name='макрос', aliases=['macros', 'mc', 'мк'])
 async def macros(ctx, command, *, arg):
     true_command = macri.get(command)
     if true_command is not None:
@@ -60,7 +60,7 @@ async def macros(ctx, command, *, arg):
     await ctx.send(f'Ошибка: макрос "{command}" не найден.')
 
 
-@bot.command('mchelp', aliases=['мкхелп'])
+@bot.command(name='mchelp', aliases=['мкхелп'])
 async def macros_list(ctx):
     s = ''
     for m in macri:
@@ -69,28 +69,28 @@ async def macros_list(ctx):
     await ctx.send(s)
 
 
-@bot.command('spell', aliases=['закл', 'спелл'])
+@bot.command(name='spell', aliases=['закл', 'спелл'])
 async def spell_dnd5(ctx, *, arg):
     await ctx.send(get_spell_dnd_su(arg))
 
 
-@bot.command('pf2', aliases=['pf', 'пф', 'пф2'])
+@bot.command(name='pf2', aliases=['pf', 'пф', 'пф2'])
 async def info_pf2(ctx, *, arg):
     await ctx.send(get_info_pf2(arg))
 
 
-@bot.command('спасибо', aliases=['спс', 'thanks', 'thx'])
+@bot.command(name='спасибо', aliases=['спс', 'thanks', 'thx'])
 async def thanks(ctx):
     res = choice(['Пожалуйста!', 'Рада помочь!', 'Всегда пожалуйста', 'Стараюсь :)'])
     await ctx.send(res)
 
 
-@bot.command('слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
+@bot.command(name='слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
 async def anger(ctx):
     res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!'])
     await ctx.send(res)
 
 
-@bot.command('куку', hidden=True)
+@bot.command(name='куку', hidden=True)
 async def kuku(ctx):
     return ctx.send('быбы')
