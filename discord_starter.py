@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 import os
 from random import randint, choice
@@ -9,8 +10,10 @@ yeno = ['Ага', 'Неа']
 
 discord_id = os.environ.get('DISCORD_ID')
 
-bot = commands.Bot(command_prefix=command_prefix)
+bot = commands.Bot(command_prefix=command_prefix,
+                   activity=discord.Activity(type=discord.ActivityType.listening, name='/help'))
 bot.load_extension('commands')
+bot.load_extension('tasks')
 
 bot.help_command = MyHelpCommand(sort_commands=False, commands_heading='(команды):',
                                  aliases_heading='Варианты:', no_category='Просто')
