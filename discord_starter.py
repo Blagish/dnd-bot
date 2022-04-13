@@ -17,8 +17,12 @@ bot.help_command = MyHelpCommand(sort_commands=False, commands_heading='кома
 
 
 @bot.command(name='хелп', aliases=['помощь'], hidden=True)
-async def help_rus(ctx, arg):
-    await ctx.send_help(arg)
+async def help_rus(ctx, *arg):
+    if arg:
+        arg = ' '.join(arg)
+        await ctx.send_help(arg)
+    else:
+        await ctx.send_help()
 
 
 @bot.event
