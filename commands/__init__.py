@@ -6,7 +6,7 @@ from .random_commands import RandomCommands
 cogs = (BasicCommands, FunctionCommands, MacrosCommands, RandomCommands)
 
 
-async def setup(bot):
+def setup(bot):
     for cog in cogs:
         try:
             print(f'loading {cog.__name__}...')
