@@ -25,7 +25,8 @@ class Macros(commands.Cog, name='Макросы'):
             sol, ans = d2(full)
             s = f'Кидаю\n-> {sol}\n{true_command[1].format(ans)}'
             await ctx.send(s)
-        await ctx.send(f'Ошибка: макрос "{command}" не найден.')
+        else:
+            await ctx.send(f'Ошибка: макрос "{command}" не найден.')
 
     @commands.command(name='мкхелп', aliases=['mchelp'])
     async def macros_list(self, ctx):
