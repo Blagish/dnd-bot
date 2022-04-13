@@ -37,6 +37,7 @@ def parse_content(element):
 
 
 def get_info(name):
+    print('pf: looking for', name)
     search_url = 'https://pf2easy.com/php/search.php'
     thing_url = 'https://pf2easy.com/index.php'
     response = requests.post(search_url, {'name': name})
@@ -44,7 +45,6 @@ def get_info(name):
     results = soup.find_all('button')
 
     if len(results) == 0:
-        print('owo wats this')
         return 'owo wats this'
 
     ans_text = ''

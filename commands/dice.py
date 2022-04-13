@@ -1,4 +1,6 @@
 from random import randint
+
+import discord
 from discord.ext import commands
 from parser import d2
 from game_data import get_spell_dnd_su, get_info_pf2
@@ -16,6 +18,17 @@ class Dice(commands.Cog, name='Кубы кубы'):
         sol, ans = d2(string)
         s = f'Кидаю\n-> {sol}\n= **{ans}**'
         await ctx_send(ctx, s)
+
+    @roll.before_invoke
+    async def before_roll(self, ctx):
+        name = 'their DMs'
+        if isinstance(ctx.channel, discord.GroupChannel):
+            name = ctx.channel.name
+        print(f'Roll! {ctx.author.name}: {ctx.message.content} at {name}')
+
+    @roll.after_invoke
+    async def after_roll(self, ctx):
+        pass
 
     @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
     async def spell_dnd5(self, ctx, *, spell_name):
