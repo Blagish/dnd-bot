@@ -1,73 +1,33 @@
 import json
-
+from discord.ext import commands
 from game_data import get_spell_dnd_su, get_info_pf2
 from random import choice, randint
 from parser import d2
+from bot_config import command_prefix
 
-commands = {}
-help_prompts = []
+bot = commands.Bot(command_prefix)
 fate_die = ('[-]', '[ ]', '[+]')
 with open('macros.json', 'r', encoding='utf-8') as file:
     macri = json.loads(file.read())
 
 
-def construct_prompt(data):
-    if 'hidden' in data[1]:
-        return ''
-    s = f'{data[0]} -- ' + ', '.join(data[1]) + ';'
-    return s
+@bot.commands(['hello', 'привет', 'hewwo', 'owo'])
+async def hello(ctx):
+    await ctx.send('hewwo OwO')
+
+# help
 
 
-def list_(res):
-    if isinstance(res, tuple):
-        return list(res)
-    return [res]
-
-
-def handler(name, triggers):
-    def dec(f):
-        def f2(*args):
-            res = f(*args)
-            return list_(res)
-
-        for i in triggers:
-            commands[i] = f2
-        help_prompts.append((name, triggers))
-        return f2
-
-    return dec
-
-
-@handler('Приветствие', ['hello', 'привет', 'hewwo', 'owo'])
-def hello(*args):
-    return 'hewwo OwO'
-
-
-@handler('Это окошко', ['помощь', 'help', 'спаси', 'справка', 'хелп'])
-def help_list(*args):
-    s = '\n'.join([construct_prompt(i) for i in help_prompts])
-    s += '''\n\nЧтобы кидать дайсы, используйте символ d (как в d20, 4d6+1). Чтобы кидать с преимуществом, 
-    супер-преимуществом (оно же эльфийское) или с помехой, используйте обозначения ad, ed или dd соответственно 
-    (ad20, ed20, dd20). Доступны: основные математические операции, кубы, преимущество, помеха, эльфийский, 
-    четверной. Сравнение выражений знаками больше и т.д. Проверка выражения на истинность. Например: 
-    d20+10 > 20 ? d6+3 : 0, то есть выполнится первое если истина и второе если ложь. Использование скобок. Использование 
-    нескольких команд разом: 5x(d20+10), скобки пока обязательны, можно использовать только число как коэффициент. 
-    Использование математических функций sum, min, max, map. Разрушается делать несколько бросков за раз, перечисляя 
-    команды кубов через запятую. Разрешается запускать несколько команд в одно сообщении, разделяя их точкой с 
-    запятой. '''
-    return s
-
-
-@handler('Кинуть дайсы', ['roll', 'dice', 'кидай', 'кинь', 'r', 'р', 'к', 'k'])
-def roll(*args):
-    sol, ans = d2(args[0])
+@bot.commands(['roll', 'r', 'р' 'k', 'к'])
+async def roll(ctx, *, arg):
+    sol, ans = d2(arg)
     s = f'Кидаю\n-> {sol}\n= **{ans}**'
-    return s
+    await ctx.send(s)
 
 
-@handler('Кинуть куб Фейта', ['f', 'ф', 'fate', 'фейт'])
-def fate(*args):
-    mod = args[0].replace(' ', '')
+@bot.commands(['f', 'ф', 'fate', 'фейт'])
+async def fate(ctx, *, arg):
+    mod = arg.replace(' ', '')
     if mod == '':
         mod = '+0'
     if (sign := mod[0]) not in ('+', '-'):
@@ -82,13 +42,11 @@ def fate(*args):
         s += fate_die[d + 1]
         res += d
     s += f'** {sign} {abs(mod)}\n= **{res + mod}**'
-    return s
+    await ctx.send(s)
 
 
-@handler('Макрос', ['macros', 'macroll', 'mc', 'мк', 'макрос', 'макролл'])
-def macros(*args):
-    arg = args[0].split()
-    command = arg.pop(0)
+@bot.commands(['macros', 'mc', 'мк', 'макрос'])
+async def macros(ctx, command, *, arg):
     true_command = macri.get(command)
     if true_command is not None:
         try:
@@ -98,80 +56,41 @@ def macros(*args):
             return 'Ошибка: не хватает значений.'
         sol, ans = d2(full)
         s = f'Кидаю\n-> {sol}\n{true_command[1].format(ans)}'
-        return s
-    return f'Ошибка: макрос "{command}" не найден.'
+        await ctx.send(s)
+    await ctx.send(f'Ошибка: макрос "{command}" не найден.')
 
 
-@handler('Доступные макросы', ['macroshelp', 'helpmacrost', 'макросхелп', 'хелпмакрос'])
-def macros_list(*args):
+@bot.commands(['мкхелп', 'mchelp'])
+async def macros_list(ctx):
     s = ''
     for m in macri:
         data = macri[m]
         s += f'{m}: {data[2]} Аналог команды {data[0]}.\n'
-    return s
+    await ctx.send(s)
 
 
-@handler('Описать заклинание (D&D 5e)', ['spell', 'spells', 'cast', 'закл', 'заклинание', 'спелл'])
-def cast(*args):
-    print(args)
-    return get_spell_dnd_su(args[0])
+@bot.commands(['spell', 'закл', 'spell'])
+async def spell_dnd5(ctx, *, arg):
+    await ctx.send(get_spell_dnd_su(arg))
 
 
-@handler('Описать что-то из Pathfinder 2e', ['pf', 'пф', 'pf2', 'пф2'])
-def pf2_info(*args):
-    print(args)
-    return get_info_pf2(args[0])
+@bot.commands(['pf', 'пф', 'pf2', 'пф2'])
+async def info_pf2(ctx, *, arg):
+    await ctx.send(get_info_pf2(arg))
 
 
-@handler('Выводит да или нет', ['чекай', 'чек', 'check'])
-def check(*args):
-    res = choice(['ага', 'нет'])
-    return res
-
-
-@handler('Поблагодарить за хороший рандом', ['спасибо', 'спс', 'сепс', 'thank', 'thanks', 'thx'])
-def thanks(*args):
+@bot.commands(['спасибо', 'спс', 'thanks', 'thx'])
+async def thanks(ctx):
     res = choice(['Пожалуйста!', 'Рада помочь!', 'Всегда пожалуйста', 'Стараюсь :)'])
-    # res = choice(['пожалуйста', 'рад помочь', 'всегда пожалуйста', 'стараюсь'])
-    return res
+    await ctx.send(res)
 
 
-@handler('Поинтересоваться почему все идет не так',
-         ['слыш', 'слышь', 'э', 'каво', 'чево', 'всмысле', 'wut', 'слiш', 'bruh', 'брух'])
-def anger(*args):
-    res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!',
-                  'Это все кубики, правда!'])
-    return res
+@bot.commands(['слыш', 'слышь', 'э', 'слiш', 'bruh', 'брух'])
+async def anger(ctx):
+    res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!'])
+    await ctx.send(res)
 
 
-@handler('Портент', ['портент', 'portent', 'hidden'])
-def portent(*args):
-    data = ['no']
-    if args[0]:
-        data = args[0].split()
-    mode = 'r'
-    if data[0] == 'new':
-        mode = 'w'
-    with open('portent.txt', mode=mode) as file:
-        if mode == 'r':
-            s = file.readline()
-        else:
-            file.write(' '.join(data[1:]))
-            s = 'Портент записан'
-    return s
-
-
-@handler('Куку', ['куку', 'hidden'])
-def kuku(*args):
-    return 'быбы'
-
-
-def execute(s):
-    command1 = s.split()[0]
-    function = commands.get(command1)
-    parameters = ' '.join(s.split()[1:])
-    if function:
-        print('executing command', command1, 'with parameter strings', parameters)
-        res = [function(parameters.strip())]
-        return res
-    return None
+@bot.command('куку', hidden=True)
+async def kuku(ctx):
+    return ctx.send('быбы')
