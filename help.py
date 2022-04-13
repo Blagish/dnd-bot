@@ -2,8 +2,7 @@ from discord.ext import commands
 import discord
 
 
-class MyHelpCommand(commands.MinimalHelpCommand, sort_commands=False, commands_heading='команды',
-                    aliases_heading='Другие варианты', no_category='Просто'):
+class MyHelpCommand(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
         e = discord.Embed(color=discord.Color.blurple(), description='')
