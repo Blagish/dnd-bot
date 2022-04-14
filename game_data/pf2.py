@@ -85,11 +85,12 @@ def get_info(name):
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
         card_data['description'] = parse_content(content)
 
-    embed_card = Embed.from_dict(card_data)
-
     if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
         for content_extra in contents_extra:
-            embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
+            card_data['description'] += parse_content(content_extra)
+            # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
+
+    embed_card = Embed.from_dict(card_data)
 
     return embed_card
 
