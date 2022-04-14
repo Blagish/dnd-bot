@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from discord import Embed
+from discord import Embed, Colour
 
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
@@ -46,7 +46,7 @@ def get_info(name):
     results = soup.find_all('button')
 
     if len(results) == 0:
-        return 'owo wats this'
+        return Embed(title="OwO, what's this?", description='(по вашему запросу ничего не найдено)', color=Colour.red())
 
     ans = results[0]
     # if len(results) > 1:
@@ -60,7 +60,7 @@ def get_info(name):
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
 
-    card_data = {}
+    card_data = {'color': Colour.blurple()}
 
     source = soup.find('div', attrs={'class': 'source'}).text
     card_data['footer'] = {'text': source}

@@ -38,7 +38,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @commands.command(name='пф', aliases=['pf', 'пф2', 'pf2'])
     async def info_pf2(self, ctx, *, thing_name):
         """Узнать о любой вещи из Pathfinder 2e. На английском."""
-        await ctx_send(ctx, get_info_pf2(thing_name))
+        await ctx.send(embed=get_info_pf2(thing_name))
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *mod):
