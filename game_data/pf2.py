@@ -68,7 +68,7 @@ def get_info(name):
 
     name = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
-    card_data['author'] = level
+    card_data['author'] = {'name': level}
     card_data['title'] = name
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
