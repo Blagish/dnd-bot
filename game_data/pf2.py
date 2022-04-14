@@ -46,7 +46,8 @@ def get_info(name):
     results = soup.find_all('button')
 
     if len(results) == 0:
-        return Embed(title="OwO, what's this?", description='(по вашему запросу ничего не найдено)', color=Colour.red())
+        return Embed(title="OwO, what's this?",
+                     description='(по вашему запросу ничего не найдено)', colour=Colour.red())
 
     ans = results[0]
     # if len(results) > 1:
@@ -60,7 +61,7 @@ def get_info(name):
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
 
-    card_data = {'color': Colour.blurple()}
+    card_data = {'color': 0x7289da}
 
     source = soup.find('div', attrs={'class': 'source'}).text
     card_data['footer'] = {'text': source}
