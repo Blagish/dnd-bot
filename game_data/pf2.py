@@ -68,22 +68,24 @@ def get_info(name):
 
     name = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
-    card_data['author'] = {'name': f'**{name}** *({level})*\n'}
+    card_data['author'] = level
+    card_data['title'] = name
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
-        card_data['title'] = card_data.setdefault('title', '') + '> **Traits** [' + '], ['.join(traits_text) + ']\n'
+        card_data['description'] = card_data.setdefault('description', '') + \
+                                   '> **Traits** [' + '], ['.join(traits_text) + ']\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
         if 'addon' not in details.attrs['class']:
             details_text = '> ' + parse_content(details).replace('\n**', '\n> **')
-            card_data['title'] = card_data.setdefault('title', '') + details_text
+            card_data['description'] = card_data.setdefault('description', '') + details_text + '\n'
         else:
-            addon = True # добавить потом типа таблицы в общем да как в архетипах.
+            addon = True  # добавить потом типа таблицы в общем да как в архетипах.
 
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
-        card_data['description'] = parse_content(content)
+        card_data['description'] = card_data.setdefault('description', '') + parse_content(content)
 
     if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
         for content_extra in contents_extra:
