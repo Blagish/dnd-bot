@@ -12,7 +12,9 @@ ACTIONS = {'action1': ':one:',
 
 CARDS_COLORS = {'NORMAL': 0x7289da,
                 'UNCOMMON': 0xff6e00,
-                'RARE': 0x101b8c}
+                'RARE': 0x1522b2}
+
+FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
 
 def parse_content(element):
@@ -68,12 +70,12 @@ def get_info(name):
     card_data = {}
 
     source = soup.find('div', attrs={'class': 'source'}).text
-    card_data['footer'] = {'text': source}
+    card_data['footer'] = {'text': source, 'url':FOOTER_URL}
 
     name = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
-    card_data['author'] = {'name': level}
     card_data['title'] = name
+    card_data['description'] = f'*{level}*\n'
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
