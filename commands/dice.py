@@ -22,7 +22,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @roll.before_invoke
     async def before_roll(self, ctx):
         name = 'their DMs'
-        if isinstance(ctx.channel, discord.GroupChannel):
+        if hasattr(ctx.channel, 'name'):
             name = ctx.channel.name
         print(f'Roll! {ctx.author.name}: {ctx.message.content} at {name}')
 
@@ -38,13 +38,12 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @commands.command(name='пф', aliases=['pf', 'пф2', 'pf2'])
     async def info_pf2(self, ctx, *, thing_name):
         """Узнать о любой вещи из Pathfinder 2e. На английском."""
-        await ctx_send(ctx, get_info_pf2(thing_name))
+        await ctx.send(embed=get_info_pf2(thing_name))
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *mod):
         """Бросок четырех кубов системы Fate. Модификатор указывается по типу +3 или -1. Пустой аргумент равнозначен +0. """
-        mod = ''.join(mod)
-        mod = mod.replace(' ', '')
+        mod = ''.join(mod).replace(' ', '')
         if mod == '':
             mod = '+0'
         if (sign := mod[0]) not in ('+', '-'):

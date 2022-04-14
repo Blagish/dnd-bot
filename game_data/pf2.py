@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from discord import Embed, Colour
 
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
@@ -8,6 +9,12 @@ ACTIONS = {'action1': ':one:',
            'action3': ':three:',
            'actionF': ':free:',
            'Reaction': ':leftwards_arrow_with_hook:'}
+
+CARDS_COLORS = {'NORMAL': 0x7289da,
+                'UNCOMMON': 0xff6e00,
+                'RARE': 0x1522b2}
+
+FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
 
 def parse_content(element):
@@ -45,45 +52,56 @@ def get_info(name):
     results = soup.find_all('button')
 
     if len(results) == 0:
-        return 'owo wats this'
+        return Embed(title="OwO, what's this?",
+                     description='(по вашему запросу ничего не найдено)', colour=Colour.red())
 
-    ans_text = ''
     ans = results[0]
-    if len(results) > 1:
-        ans_type = ans.find('small').text
-        ans_name = ans.find('strong').text
-        if ans_name != name:
-            ans_text += f'Нашла больше одного варианта ответа. Использую ближайший:{ans_type} под названием {ans_name}.\n\n'
-        elif results[1].find('strong') == name:
-            ans_text += f'Нашла больше одного варианта ответа с идентичным именем.\n\n'
+    # if len(results) > 1:
+    #     ans_type = ans.find('small').text
+    #     ans_name = ans.find('strong').text
+    #     if ans_name != name:
+    #         ans_text += f'Нашла больше одного варианта ответа. Использую ближайший:{ans_type} под названием {ans_name}.\n\n'
+    #     elif results[1].find('strong') == name:
+    #         ans_text += f'Нашла больше одного варианта ответа с идентичным именем.\n\n'
     res_id = ans.find('input').attrs['value']
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
 
+    card_data = {}
+
+    source = soup.find('div', attrs={'class': 'source'}).text
+    card_data['footer'] = {'text': source, 'url':FOOTER_URL}
+
     name = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
-    ans_text += f'**{name}** *({level})*\n'
+    card_data['title'] = name
+    card_data['description'] = f'*{level}*\n'
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
-        ans_text += '> **Traits** [' + '], ['.join(traits_text) + ']\n'
+        card_data['color'] = CARDS_COLORS.get(traits_text[0], CARDS_COLORS['NORMAL'])
+        card_data['description'] = card_data.setdefault('description', '') + \
+                                   '> **Traits** [' + '], ['.join(traits_text) + ']\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
         if 'addon' not in details.attrs['class']:
             details_text = '> ' + parse_content(details).replace('\n**', '\n> **')
-            ans_text += details_text
+            card_data['description'] = card_data.setdefault('description', '') + details_text + '\n'
         else:
-            addon = True # добавить потом типа таблицы в общем да как в архетипах.
+            addon = True  # добавить потом типа таблицы в общем да как в архетипах.
 
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
-        ans_text += parse_content(content)+'\n'
+        card_data['description'] = card_data.setdefault('description', '') + parse_content(content)
 
     if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
         for content_extra in contents_extra:
-            ans_text += parse_content(content_extra)+'\n'
+            card_data['description'] += parse_content(content_extra)
+            # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
 
-    return ans_text
+    embed_card = Embed.from_dict(card_data)
+
+    return embed_card
 
 
 if __name__ == '__main__':
