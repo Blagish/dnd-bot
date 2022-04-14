@@ -10,6 +10,10 @@ ACTIONS = {'action1': ':one:',
            'actionF': ':free:',
            'Reaction': ':leftwards_arrow_with_hook:'}
 
+CARDS_COLORS = {'NORMAL': 0x7289da,
+                'UNCOMMON': 0xff6e00,
+                'RARE': 0x101b8c}
+
 
 def parse_content(element):
     if isinstance(element, str):
@@ -61,7 +65,7 @@ def get_info(name):
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
 
-    card_data = {'color': 0x7289da}
+    card_data = {}
 
     source = soup.find('div', attrs={'class': 'source'}).text
     card_data['footer'] = {'text': source}
@@ -73,6 +77,7 @@ def get_info(name):
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
+        card_data['color'] = CARDS_COLORS.get(traits_text[0], CARDS_COLORS['NORMAL'])
         card_data['description'] = card_data.setdefault('description', '') + \
                                    '> **Traits** [' + '], ['.join(traits_text) + ']\n'
 
