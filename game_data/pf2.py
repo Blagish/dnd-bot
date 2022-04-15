@@ -10,9 +10,11 @@ ACTIONS = {'action1': ':one:',
            'actionF': ':free:',
            'Reaction': ':leftwards_arrow_with_hook:'}
 
-CARDS_COLORS = {'NORMAL': 0x7289da,
+CARDS_COLORS = {'EMPTY': 0x090a0a,
+                'NORMAL': 0x7289da,
                 'UNCOMMON': 0xff6e00,
-                'RARE': 0x1522b2}
+                'RARE': 0x1522b2,
+                'UNIQUE': 0xa600a6}
 
 FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
@@ -67,39 +69,35 @@ def get_info(name):
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
 
-    card_data = {}
-
+    title = soup.find_all('h1')[-1].text.title()
+    level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()  # not only a level, but feat type, etc.
+    description = f'*{level}*\n'
+    color = CARDS_COLORS['EMPTY']
     source = soup.find('div', attrs={'class': 'source'}).text
-    card_data['footer'] = {'text': source, 'url':FOOTER_URL}
-
-    name = soup.find_all('h1')[-1].text.title()
-    level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
-    card_data['title'] = name
-    card_data['description'] = f'*{level}*\n'
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
-        card_data['color'] = CARDS_COLORS.get(traits_text[0], CARDS_COLORS['NORMAL'])
-        card_data['description'] = card_data.setdefault('description', '') + \
-                                   '> **Traits** [' + '], ['.join(traits_text) + ']\n'
+        color = CARDS_COLORS.get(traits_text[0], CARDS_COLORS['NORMAL'])
+        description += '> **Traits** `' + '`, `'.join(traits_text) + '`\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
         if 'addon' not in details.attrs['class']:
             details_text = '> ' + parse_content(details).replace('\n**', '\n> **')
-            card_data['description'] = card_data.setdefault('description', '') + details_text + '\n'
+            description += details_text
         else:
             addon = True  # добавить потом типа таблицы в общем да как в архетипах.
 
     if (content := soup.find('section', attrs={'class': 'content'})) is not None:
-        card_data['description'] = card_data.setdefault('description', '') + parse_content(content)
+        description += parse_content(content)
 
     if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
         for content_extra in contents_extra:
-            card_data['description'] += parse_content(content_extra)
+            description += parse_content(content_extra)
             # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
 
-    embed_card = Embed.from_dict(card_data)
+    embed_card = Embed(title=title, description=description, color=color)
+    embed_card.set_footer(text=source, icon_url=FOOTER_URL)
 
     return embed_card
 
