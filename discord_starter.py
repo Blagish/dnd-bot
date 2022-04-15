@@ -41,6 +41,8 @@ async def on_message(message):
         if '?' in text:
             if text.replace(' ', '')[-3:] == 'да?':
                 await message.channel.send(choice(pizda))
+            elif text[:2] == 'да' and text.replace(' ', '')[-7:] == 'даника?':
+                await message.channel.send(choice(pizda).replace('да', 'даника'))
             else:
                 await message.channel.send(choice(yeno))
         elif randint(1, 8) == 1:
