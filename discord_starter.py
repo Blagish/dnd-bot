@@ -7,6 +7,7 @@ from help import MyHelpCommand
 
 danika_react = ['а?', 'Я тут!', 'Меня звали?', 'Что-то нужно?']
 yeno = ['Ага', 'Неа']
+pizda = ['пизда :)', 'пизда', 'пизда!']
 
 discord_id = os.environ.get('DISCORD_ID')
 
@@ -38,7 +39,10 @@ async def on_message(message):
         await message.channel.send(choice(danika_react + [':eyes: ' * randint(1, 3)]))
     elif 'даник' in text.lower():
         if '?' in text:
-            await message.channel.send(choice(yeno))
+            if text.replace(' ', '')[-3:] == 'да?':
+                await message.channel.send(choice(pizda))
+            else:
+                await message.channel.send(choice(yeno))
         elif randint(1, 8) == 1:
             await message.channel.send(choice(danika_react))
     await bot.process_commands(message)  # maybe make a real listener later and remove this

@@ -87,7 +87,7 @@ def get_info(name):
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
         if 'addon' not in details.attrs['class']:
             details_text = '> ' + parse_content(details).replace('\n**', '\n> **')
-            card_data['description'] = card_data.setdefault('description', '') + details_text + '\n'
+            card_data['description'] = card_data.setdefault('description', '') + details_text
         else:
             addon = True  # добавить потом типа таблицы в общем да как в архетипах.
 
