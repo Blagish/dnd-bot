@@ -40,7 +40,7 @@ async def on_message(message):
     elif 'даник' in text.lower():
         if '?' in text:
             if text.replace(' ', '')[-3:] == 'да?':
-                await message.channel.send(choice(pizda))
+                await message.channel.send(choice(pizda+['сковорода!']))
             elif text[:2] == 'да' and text.replace(' ', '')[-7:] == 'даника?':
                 await message.channel.send(choice(pizda).replace('да', 'даника'))
             else:
