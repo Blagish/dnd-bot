@@ -10,7 +10,8 @@ ACTIONS = {'action1': ':one:',
            'actionF': ':free:',
            'Reaction': ':leftwards_arrow_with_hook:'}
 
-CARDS_COLORS = {'NORMAL': 0x7289da,
+CARDS_COLORS = {'EMPTY': 0x090a0a,
+                'NORMAL': 0x7289da,
                 'UNCOMMON': 0xff6e00,
                 'RARE': 0x1522b2}
 
@@ -70,18 +71,19 @@ def get_info(name):
     card_data = {}
 
     source = soup.find('div', attrs={'class': 'source'}).text
-    card_data['footer'] = {'text': source, 'url':FOOTER_URL}
+    card_data['footer'] = {'text': source, 'url': FOOTER_URL}
 
     name = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()
     card_data['title'] = name
     card_data['description'] = f'*{level}*\n'
+    card_data['color'] = CARDS_COLORS['EMPTY']
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
         card_data['color'] = CARDS_COLORS.get(traits_text[0], CARDS_COLORS['NORMAL'])
         card_data['description'] = card_data.setdefault('description', '') + \
-                                   '> **Traits** [' + '], ['.join(traits_text) + ']\n'
+                                   '> **Traits** `' + '`, `'.join(traits_text) + '`\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:

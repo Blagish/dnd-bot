@@ -35,9 +35,10 @@ async def on_message(message):
         return None
     text = message.content
     print(text)
+    text = text.lower()
     if discord_id in text:
         await message.channel.send(choice(danika_react + [':eyes: ' * randint(1, 3)]))
-    elif 'даник' in text.lower():
+    elif 'даник' in text:
         if '?' in text:
             if text.replace(' ', '')[-3:] == 'да?':
                 await message.channel.send(choice(pizda+['сковорода!']))
