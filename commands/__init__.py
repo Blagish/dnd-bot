@@ -1,8 +1,9 @@
 from .dice import Dice
 from .macros import Macros
 from .talking import Talking
+from .technical import Technical
 
-cogs = (Dice, Talking, Macros)
+cogs = (Dice, Talking, Macros, Technical)
 
 
 def setup(bot):
