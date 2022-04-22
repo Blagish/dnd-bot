@@ -6,7 +6,7 @@ import os
 class Talking(commands.Cog, name='Общение со мной :)'):
     def __init__(self, bot):
         self.bot = bot
-        self.danika_react = ['а?', 'Я тут!', 'Меня звали?', 'Что-то нужно?', 'Чем могу быть полезна?']
+        self.danika_react = ['а?', 'Я тут!', 'Меня звали?', 'Что-то нужно?', 'Чем могу быть полезна?', 'ты чо сука ты чо', 'опять??', 'каджит ничего не крал', 'доброе утро', 'я честно не сплю!', 'а? что??', 'аниме', 'гейминг', '*bites you*', 'апчхи']
         self.bot_id = os.environ.get('DISCORD_ID')
         self.yes_or_no = ['Ага', 'Неа']
         self.funny_words = ['пизда :)', 'пизда', 'пизда!', 'сковорода']
@@ -25,6 +25,38 @@ class Talking(commands.Cog, name='Общение со мной :)'):
                 ctx.send(self.funny_response(text))
             elif randint(1, 7) == 1:
                 ctx.send(choice(self.danika_react))
+
+    @commands.Cog.listener('on_message')
+    async def react(self, message):
+        REACT_P = 13
+        mood_indicators = {'anger': ['блять', 'пиздец', 'ебаный', "какого", "какова", "кусок", "жопа", "аааааааа"], 'funney': ["сука", "ору", "кричу", "ахах", "лмао"], 'please':["пожалуйста", "умоляю", "прошу", "ради бога", "пж"]}
+        mood_responses = {
+            'anger': ['ору', "лошара", "чел ты", "ехехеххехеех", "ухухухухухх", "ыхыхыхыхыхыхы", "поплачь ещё", "они действительно этого заслужили", "обломись"],
+	    'funney': ["сука", "ору", "кричу", "лмао", "не смешно", "чо шутник типа??"],
+            'please': ["окей", "ладно", "так уж и быть", "а ты не лопнешь деточка?", "а по губе", "нет", "не заслужил", "я подумаю", "иди нахуй"]
+        }
+
+        if message.author == self.bot.user:
+            return None
+        ctx = message.channel
+        print(message.content)
+        text = message.content.lower()
+        vibes = []
+        for vibe, signs in mood_indicators:
+            for sign in signs:
+                if sign in text:
+                    vibes.append(vibe)
+	
+        response = ''
+        for vibe in vibes:
+            if randint(0, 100) > REACT_P:
+                    continue
+            response = choice(mood_responses[vibe])
+	
+        normal_human_emotions = ['OwO', 'uwu', '>w<', ':D', 'D:', ':gun:', 'o_o', 'e_e', 'o.o', ':0', ':>', ':<', '>:<', ':}', '>:}', '>:]', ':P', '>:P', '(* ^ ω ^)', '(°▽°)', '(◕‿◕)', '(´• ω •`)', '(⌒_⌒;)', '(・`ω´・)', '(; ･`д･´)', 'ヽ(°〇°)ﾉ']
+	
+        if len(response) > 0:
+            ctx.send(response + choice(normal_human_emotions))
 
     def funny_response(self, text):
         if text.replace(' ', '')[-3:] == 'да?':
@@ -54,5 +86,5 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     @commands.command(name='слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
     async def anger(self, ctx):
         """Быкануть на меня :("""
-        res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!'])
+        res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!', 'ахах', 'лошара', 'меня заставили'])
         await ctx.send(res)
