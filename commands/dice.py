@@ -33,7 +33,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
     async def spell_dnd5(self, ctx, *, spell_name):
         """Узнать о заклинании из D&D 5e. Как на русском, так и на английском."""
-        await ctx_send(ctx, get_spell_dnd_su(spell_name))
+        await ctx.send(embed=get_spell_dnd_su(spell_name))
 
     @commands.command(name='пф', aliases=['pf', 'пф2', 'pf2'])
     async def info_pf2(self, ctx, *, thing_name):

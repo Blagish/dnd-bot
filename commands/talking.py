@@ -13,9 +13,8 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         self.bot_id = os.environ.get('DISCORD_ID')
         self.yes_or_no = ['Ага', 'Неа']
         self.funny_words = ['пизда :)', 'пизда', 'пизда!', 'сковорода']
-        with open("../beta_whitelist.json") as whitelist:
+        with open("commands/beta_whitelist.json") as whitelist:
             self.whitelist = json.loads(whitelist.readline())
-
 
     @commands.Cog.listener('on_message')
     async def respond_to_her_name(self, message):
