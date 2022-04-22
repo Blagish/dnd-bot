@@ -33,7 +33,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
 
     @commands.Cog.listener('on_message')
     async def react(self, message):  # beta-test
-        if hasattr(message, 'guild') and message.guild.id not in self.whitelist['react']:
+        if message.guild is not None and message.guild.id not in self.whitelist['react']:
             return None
         REACT_P = 13
         mood_indicators = {'anger': ['блять', 'пиздец', 'ебаный', "какого", "какова", "кусок", "жопа", "аааааааа"],
@@ -66,7 +66,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
                                  ':}', '>:}', '>:]', ':P', '>:P', '(* ^ ω ^)', '(°▽°)', '(◕‿◕)', '(´• ω •`)', '(⌒_⌒;)',
                                  '(・`ω´・)', '(; ･`д･´)', 'ヽ(°〇°)ﾉ']
         if len(response) > 0:
-            ctx.send(response + choice(normal_human_emotions))
+            await ctx.send(response + choice(normal_human_emotions))
 
     def funny_response(self, text):
         if text.replace(' ', '')[-3:] == 'да?':
