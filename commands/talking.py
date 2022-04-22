@@ -1,6 +1,7 @@
 from discord.ext import commands
 from random import choice, randint
 import os
+import json
 
 
 class Talking(commands.Cog, name='Общение со мной :)'):
@@ -12,6 +13,9 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         self.bot_id = os.environ.get('DISCORD_ID')
         self.yes_or_no = ['Ага', 'Неа']
         self.funny_words = ['пизда :)', 'пизда', 'пизда!', 'сковорода']
+        with open("../beta_whitelist.json") as whitelist:
+            self.whitelist = json.loads(whitelist.readline())
+
 
     @commands.Cog.listener('on_message')
     async def respond_to_her_name(self, message):
@@ -29,7 +33,9 @@ class Talking(commands.Cog, name='Общение со мной :)'):
                 ctx.send(choice(self.danika_react))
 
     @commands.Cog.listener('on_message')
-    async def react(self, message):
+    async def react(self, message):  # beta-test
+        if message.guild.id not in self.whitelist['react']:
+            return None
         REACT_P = 13
         mood_indicators = {'anger': ['блять', 'пиздец', 'ебаный', "какого", "какова", "кусок", "жопа", "аааааааа"],
                            'funney': ["сука", "ору", "кричу", "ахах", "лмао"],
