@@ -24,12 +24,12 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         print(message.content)
         text = message.content.lower()
         if self.bot_id in text:
-            ctx.send(choice(self.danika_react))
+            await ctx.send(choice(self.danika_react))
         elif 'даник' in text:
             if '?' in text:
-                ctx.send(self.funny_response(text))
+                await ctx.send(self.funny_response(text))
             elif randint(1, 7) == 1:
-                ctx.send(choice(self.danika_react))
+                await ctx.send(choice(self.danika_react))
 
     @commands.Cog.listener('on_message')
     async def react(self, message):  # beta-test
@@ -50,7 +50,6 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         if message.author == self.bot.user:
             return None
         ctx = message.channel
-        print(message.content)
         text = message.content.lower()
         vibes = []
         for vibe, signs in mood_indicators.items():
@@ -66,7 +65,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
                                  ':}', '>:}', '>:]', ':P', '>:P', '(* ^ ω ^)', '(°▽°)', '(◕‿◕)', '(´• ω •`)', '(⌒_⌒;)',
                                  '(・`ω´・)', '(; ･`д･´)', 'ヽ(°〇°)ﾉ']
         if len(response) > 0:
-            await ctx.send(response + choice(normal_human_emotions))
+            await ctx.send(response + ' ' + choice(normal_human_emotions))
 
     def funny_response(self, text):
         if text.replace(' ', '')[-3:] == 'да?':
