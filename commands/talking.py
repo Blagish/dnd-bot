@@ -33,7 +33,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
 
     @commands.Cog.listener('on_message')
     async def react(self, message):  # beta-test
-        if message.guild.id not in self.whitelist['react']:
+        if hasattr(message, 'guild') and message.guild.id not in self.whitelist['react']:
             return None
         REACT_P = 13
         mood_indicators = {'anger': ['блять', 'пиздец', 'ебаный', "какого", "какова", "кусок", "жопа", "аааааааа"],
@@ -53,7 +53,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         print(message.content)
         text = message.content.lower()
         vibes = []
-        for vibe, signs in mood_indicators:
+        for vibe, signs in mood_indicators.items():
             for sign in signs:
                 if sign in text:
                     vibes.append(vibe)
