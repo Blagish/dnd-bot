@@ -1,3 +1,6 @@
 __pycache__/
 config.py
 /venv/
+/beta_whitelist.json
+/commands/beta_whitelist.json
+

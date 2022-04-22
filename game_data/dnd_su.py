@@ -44,13 +44,13 @@ def get_spell(name):
     desc = soup.find('li', class_="size-type-alignment").get_text()
     print(desc)
     embed = Embed(title=title, url=target_url, description=desc)
-    #fields = ['уровень', 'время', "дистанция", "компоненты", "длительность", "классы", "ахетипы", "источник"]
+    # fields = ['уровень', 'время', "дистанция", "компоненты", "длительность", "классы", "ахетипы", "источник"]
     for li in card.ul.contents:
         raw = str(li)
         if '<strong>' in raw:
-# get text inside strong tag, strip off the semicolon so the inline looks nicer
+            # get text inside strong tag, strip off the semicolon so the inline looks nicer
             title = raw.split('<strong>')[1].split('</strong>')[0][:-1]
-            print(f'field title is {title}') 
+            print(f'field title is {title}')
             desc = raw.split('</strong>')[1]
             embed.add_field(name=title, value=desc, inline=True)
         if li.get('class') in blacklisted_tags:
@@ -60,12 +60,13 @@ def get_spell(name):
             li = li.div
         s = str(li)
         result.append(s)
-    
+
     desc = soup.find('li', class_="subsection desc").div.get_text()
     print('desc is ' + desc)
     embed.add_field(name='Описание', value=desc, inline=False)
-    #return '\n'.join(result)
+    # return '\n'.join(result)
     return embed
+
 
 if __name__ == '__main__':
     print(get_spell('fireball'))
