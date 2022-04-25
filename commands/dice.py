@@ -106,7 +106,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
             res = 'провал'
         elif ans > 9:
             res = 'полный успех'
-        s = f'Кидаю\n-> {sol}\n**Результат: {res}**'
+        s = f'Кидаю\n-> {sol}\n**Результат: {ans}, {res}**'
         await ctx.send(s)
 
     @commands.command(name='см', aliases=['сома', 'мист', 'сити', 'com', 'cm', 'cum'])
