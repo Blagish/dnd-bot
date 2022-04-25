@@ -3,7 +3,7 @@ from urllib.request import urlopen
 from discord import Embed, Colour
 
 blacklisted_tags = ['translate-by']
-COLOUR = 0xdf5903
+COLOUR = 0xfe650c
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
 
@@ -17,9 +17,9 @@ def parse_content(element):
     text = ''
     if element.name in tags_with_new_strings:
         style2 = '\n'
-        if element.name == 'li' and element.attrs.get('class') != 'subsection desc':
+        if element.name == 'li' and element.attrs.get('class') != ['subsection', 'desc']:
             style1 = '> '
-    elif element.attrs.get('class') == 'size-type-alignment':
+    elif element.attrs.get('class') == ['size-type-alignment']:
         style1 = style2 = '__'
     elif element.name == 'em':
         style1 = style2 = '*'
