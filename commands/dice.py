@@ -100,6 +100,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
             arg = f'+{arg}'
         command = f'2d6{arg}'
         sol, ans = d2(command)
+        ans = ans.ops[0]
         res = 'успех'
         if ans < 7:
             res = 'провал'
