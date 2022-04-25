@@ -1,8 +1,33 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-from discord import Embed
+from discord import Embed, Colour
 
 blacklisted_tags = ['translate-by']
+COLOUR = 0xfe650c
+tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
+
+
+def parse_content(element):
+    if isinstance(element, str):
+        return element
+    if element.text == '':
+        return ''
+
+    style1 = style2 = ''
+    text = ''
+    if element.name in tags_with_new_strings:
+        style2 = '\n'
+        if element.name == 'li' and element.attrs.get('class') != ['subsection', 'desc']:
+            style1 = '> '
+    elif element.attrs.get('class') == ['size-type-alignment']:
+        style1 = style2 = '__'
+    elif element.name == 'em':
+        style1 = style2 = '*'
+    elif element.name == 'strong':
+        style1 = style2 = '**'
+    for child in element.children:
+        text += parse_content(child)
+    return f'{style1}{text}{style2}'
 
 
 def get_spell(name):
@@ -33,39 +58,20 @@ def get_spell(name):
             possible_result = tag
 
     if possible_result is None:
-        return 'owo wats this'
+        return Embed(title="OwO, what's this?",
+                     description='(по вашему запросу ничего не найдено)',
+                     colour=Colour.red())
 
     target_url = base_url + possible_result.get('href')
     page = urlopen(target_url)
     soup = BeautifulSoup(page, 'html.parser')
     card = soup.find('div', attrs={'class': 'card-body'})
-    result = [soup.find('a', attrs={'class': 'item-link'}).get_text(), '']
     title = soup.find('a', attrs={'class': 'item-link'}).get_text()
-    desc = soup.find('li', class_="size-type-alignment").get_text()
-    print(desc)
-    embed = Embed(title=title, url=target_url, description=desc)
-    # fields = ['уровень', 'время', "дистанция", "компоненты", "длительность", "классы", "ахетипы", "источник"]
-    for li in card.ul.contents:
-        raw = str(li)
-        if '<strong>' in raw:
-            # get text inside strong tag, strip off the semicolon so the inline looks nicer
-            title = raw.split('<strong>')[1].split('</strong>')[0][:-1]
-            print(f'field title is {title}')
-            desc = raw.split('</strong>')[1]
-            embed.add_field(name=title, value=desc, inline=True)
-        if li.get('class') in blacklisted_tags:
-            continue
-        if li.get('class') == ['subsection', 'desc']:
-            result.append('**Описание:**')
-            li = li.div
-        s = str(li)
-        result.append(s)
-
-    desc = soup.find('li', class_="subsection desc").div.get_text()
-    print('desc is ' + desc)
-    embed.add_field(name='Описание', value=desc, inline=False)
-    # return '\n'.join(result)
-    return embed
+    embed_card = Embed(title=title,
+                       url=target_url,
+                       description=parse_content(card),
+                       colour=COLOUR)
+    return embed_card
 
 
 if __name__ == '__main__':

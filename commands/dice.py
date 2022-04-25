@@ -1,6 +1,7 @@
 from random import randint
 
 import discord
+from discord import Embed, Colour
 from discord.ext import commands
 from parser import d2
 from game_data import get_spell_dnd_su, get_info_pf2
@@ -11,6 +12,12 @@ class Dice(commands.Cog, name='Кубы кубы'):
     def __init__(self, bot):
         self.bot = bot
         self.fate_die = ('[-]', '[ ]', '[+]')
+
+    @staticmethod
+    def error_message(error):
+        return Embed(title="Произошла непредвиденная ошибка :(",
+                    description=f'**Код ошибки:** {error}.\nЧто бы это ни было, возможно, когда-нибудь это пофиксится.', 
+                    colour=Colour.red())
 
     @commands.command(name='куб', aliases=['r', 'р', 'k', 'к', 'roll', 'ролл'])
     async def roll(self, ctx, *, string):
@@ -33,12 +40,22 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
     async def spell_dnd5(self, ctx, *, spell_name):
         """Узнать о заклинании из D&D 5e. Как на русском, так и на английском."""
-        await ctx.send(embed=get_spell_dnd_su(spell_name))
+        async with ctx.typing():
+            try:
+                message = get_spell_dnd_su(spell_name)
+            except Exception as e:
+                message = self.error_message(e)
+        await ctx.send(embed=message)
 
     @commands.command(name='пф', aliases=['pf', 'пф2', 'pf2'])
     async def info_pf2(self, ctx, *, thing_name):
         """Узнать о любой вещи из Pathfinder 2e. На английском."""
-        await ctx.send(embed=get_info_pf2(thing_name))
+        async with ctx.typing():
+            try:
+                message = get_info_pf2(thing_name)
+            except Exception as e:
+                message = self.error_message(e)
+        await ctx.send(embed=message)
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *mod):
