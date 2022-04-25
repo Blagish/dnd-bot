@@ -6,10 +6,10 @@ class Technical(commands.Cog, name='Важное'):
         self.bot = bot
 
     @commands.Cog.listener('on_message_edit')
-    async def process_command_on_edit(self, message):
-        if message.author == self.bot.user:
+    async def process_command_on_edit(self, before, after):
+        if before.author == self.bot.user:
             return None
-        await self.bot.process_command(message)
+        await self.bot.process_command(after)
 
     @commands.command(name='хелп', aliases=['помощь'], hidden=True)
     async def help_rus(self, ctx, *arg):
