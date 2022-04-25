@@ -55,7 +55,8 @@ def get_info(name):
 
     if len(results) == 0:
         return Embed(title="OwO, what's this?",
-                     description='(по вашему запросу ничего не найдено)', colour=Colour.red())
+                     description='(по вашему запросу ничего не найдено)',
+                     colour=Colour.red())
 
     ans = results[0]
     # if len(results) > 1:
