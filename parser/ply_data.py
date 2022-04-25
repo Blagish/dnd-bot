@@ -1,4 +1,3 @@
-from random import randint
 from .parser_classes import *
 
 function_keywords = {'max': 'MAX', 'min': 'MIN', 'sum': 'SUM', 'map': 'MAP',
