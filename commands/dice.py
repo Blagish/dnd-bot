@@ -79,6 +79,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
 
     @commands.command(name='клинки', aliases=['квт', 'кт', 'bd', 'blades'])
     async def blades(self, ctx, *, mod):
+        """Бросок системы Blades in the Dark. 0 для худшего результата из двух, любое другое число для лучшего результата."""
         n = int(mod)
         s = 'Кидаю\n-> '
         if n == 0:
@@ -91,9 +92,10 @@ class Dice(commands.Cog, name='Кубы кубы'):
             s += f'\n**Лучший результат: {max(nums)}**'
         await ctx.send(s)
 
-    @commands.command(name='pbta', aliases=['apoc', 'pb', 'пбта', 'пб'])
-    async def pbta(self, ctx, *arg):
-        arg = [''.join(arg)]
+    @commands.command(name='пбта', aliases=['apoc', 'pb', 'pbta', 'пб'])
+    async def pbta(self, ctx, *mod):
+        """Бросок системы PBTA. Может принимать в себя любое вычисляемое выражение."""
+        arg = ''.join(mod)
         command = f'2d6+{arg}'
         sol, ans = d2(command)
         res = 'успех'
@@ -102,4 +104,23 @@ class Dice(commands.Cog, name='Кубы кубы'):
         elif ans > 9:
             res = 'полный успех'
         s = f'Кидаю\n-> {sol}\n**Результат: *{res}***'
+        await ctx.send(s)
+
+    @commands.command(name='см', aliases=['сома', 'мист', 'сити', 'com', 'cm', 'cum'])
+    async def com(self, ctx, *mod):
+        """Бросок системы City of Mist. Может принимать в себя любое вычисляемое выражение."""
+        arg = ''.join(mod)
+        command = f'2d6+{arg}'
+        sol, ans = d2(command)
+        s = f'Кидаю\n-> {sol}\n**Результат: *{ans}***'
+        await ctx.send(s)
+
+    @commands.command(name='пп', aliases=['пнп', 'pp', 'pnp'])
+    async def pnp(self, ctx, *, rolls):
+        """Бросок системы Prowlers & Paragons."""
+        n = int(rolls)
+        command = f"sum(map(((it=2)+(it=4)+2*(it=6)):{n}x(d6)))"
+        sol, ans = d2(command)
+        sol = sol[4:-1]
+        s = f'Кидаю\n-> {sol}\n**Успехов: *{ans}***'
         await ctx.send(s)
