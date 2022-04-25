@@ -77,3 +77,55 @@ class Dice(commands.Cog, name='Кубы кубы'):
         s += f'** {sign} {abs(mod)}\n= **{res + mod}**'
         await ctx.send(s)
 
+    @commands.command(name='клинки', aliases=['квт', 'кт', 'bd', 'blades'])
+    async def blades(self, ctx, *, mod):
+        """Бросок системы Blades in the Dark. 0 для худшего результата из двух, любое другое число для лучшего результата."""
+        n = int(mod)
+        s = 'Кидаю\n-> '
+        if n == 0:
+            a, b = randint(1, 6), randint(1, 6)
+            s += f'[**{a}**], [**{b}**]\n'
+            s += f'**Худший результат: {min(a, b)}**'
+        else:
+            nums = [randint(1, 6) for i in range(n)]
+            s += (len(nums)*'[**{}**], ').format(*nums)[:-2]
+            s += f'\n**Лучший результат: {max(nums)}**'
+        await ctx.send(s)
+
+    @commands.command(name='пбта', aliases=['apoc', 'pb', 'pbta', 'пб'])
+    async def pbta(self, ctx, *mod):
+        """Бросок системы PBTA. Может принимать в себя любое вычисляемое выражение."""
+        arg = ''.join(mod)
+        if arg[0] not in ('*', '-', '/'):
+            arg = f'+{arg}'
+        command = f'2d6{arg}'
+        sol, ans = d2(command)
+        ans = ans.ops[0]
+        res = 'успех'
+        if ans < 7:
+            res = 'провал'
+        elif ans > 9:
+            res = 'полный успех'
+        s = f'Кидаю\n-> {sol}\n**Результат: {ans}, {res}**'
+        await ctx.send(s)
+
+    @commands.command(name='см', aliases=['сома', 'мист', 'сити', 'com', 'cm', 'cum'])
+    async def com(self, ctx, *mod):
+        """Бросок системы City of Mist. Может принимать в себя любое вычисляемое выражение."""
+        arg = ''.join(mod)
+        if arg[0] not in ('*', '-', '/'):
+            arg = f'+{arg}'
+        command = f'2d6{arg}'
+        sol, ans = d2(command)
+        s = f'Кидаю\n-> {sol}\n**Результат: {ans}**'
+        await ctx.send(s)
+
+    @commands.command(name='пп', aliases=['пнп', 'pp', 'pnp'])
+    async def pnp(self, ctx, *, rolls):
+        """Бросок системы Prowlers & Paragons. Принимает один параметр - число бросков."""
+        n = int(rolls)
+        command = f"sum(map(((it=2)+(it=4)+2*(it=6)):{n}x(d6)))"
+        sol, ans = d2(command)
+        sol = sol[4:-1]
+        s = f'Кидаю\n-> {sol}\n**Успехов: {ans}**'
+        await ctx.send(s)

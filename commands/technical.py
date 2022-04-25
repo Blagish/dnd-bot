@@ -9,7 +9,7 @@ class Technical(commands.Cog, name='Важное'):
     async def process_command_on_edit(self, before, after):
         if before.author == self.bot.user:
             return None
-        await self.bot.process_command(after)
+        await self.bot.process_commands(after)
 
     @commands.command(name='хелп', aliases=['помощь'], hidden=True)
     async def help_rus(self, ctx, *arg):
