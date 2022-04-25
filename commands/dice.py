@@ -77,16 +77,29 @@ class Dice(commands.Cog, name='Кубы кубы'):
         s += f'** {sign} {abs(mod)}\n= **{res + mod}**'
         await ctx.send(s)
 
-    @commands.command(name='клинки', aliases=['квт ', 'кт', 'bd', 'bid', 'blades'])
+    @commands.command(name='клинки', aliases=['квт', 'кт', 'bd', 'blades'])
     async def blades(self, ctx, *, mod):
         n = int(mod)
         s = 'Кидаю\n-> '
         if n == 0:
             a, b = randint(1, 6), randint(1, 6)
             s += f'[**{a}**], [**{b}**]\n'
-            s += f'**Худший результат:** {min(a, b)}'
+            s += f'**Худший результат: {min(a, b)}**'
         else:
             nums = [randint(1, 6) for i in range(n)]
             s += (len(nums)*'[**{}**], ').format(*nums)[:-2]
-            s += f'**Лучший результат:** {max(nums)}'
+            s += f'\n**Лучший результат: {max(nums)}**'
+        await ctx.send(s)
+
+    @commands.command(name='pbta', aliases=['apoc', 'pb', 'пбта', 'пб'])
+    async def pbta(self, ctx, *arg):
+        arg = [''.join(arg)]
+        command = f'2d6+{arg}'
+        sol, ans = d2(command)
+        res = 'успех'
+        if ans < 7:
+            res = 'провал'
+        elif ans > 9:
+            res = 'полный успех'
+        s = f'Кидаю\n-> {sol}\n**Результат: *{res}***'
         await ctx.send(s)
