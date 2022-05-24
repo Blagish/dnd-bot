@@ -6,7 +6,9 @@ from random import choice
 class Gaming(commands.Cog, name='Гейминг'):
     def __init__(self, bot):
         self.bot = bot
-        self.games = ('D&D 5e', 'Pathfinder 2e', 'Fate', 'City of Mist', 'Prowlers & Paragons', 'Minecraft')
+        with open('tasks/games.txt', 'r', encoding='utf-8') as file:
+            games = file.read().split('\n')
+            self.games = list(filter(lambda x: x != '', games))
         self.start_new_game.start()
 
     def cog_unload(self):
@@ -25,4 +27,3 @@ class Gaming(commands.Cog, name='Гейминг'):
 
     def choose_a_game(self):
         return choice(self.games)
-
