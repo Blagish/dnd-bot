@@ -156,8 +156,7 @@ class QuadAdvantageDiceOperation(DiceOperation):
         return roll, f'k[{roll1}|{roll2}|{roll3}|{roll4}] + '
 
 
-class CommaOperation(Operation):  # на данный момент есть два разных типа коммаоперейшн. один - посчитанный, второй -
-    # нет. в первом опс это слагаемые, во втором - уже сам ответ. надо это исправить
+class CommaOperation(Operation):
     value = ','
     types = dict()
 
@@ -174,22 +173,31 @@ class CommaOperation(Operation):  # на данный момент есть дв
     def calculate(self, args=None):
         elems1 = []
         elems2 = []
+        result = MultipleVals()
         for i in range(len(self.ops)):
             val, text = self.ops[i].calculate(args)
             elems1.append(val)
             elems2.append(text)
-            self.types.setdefault(val.ops[1], []).append(i)
-        self.ops = [elems1, elems2]
-        return self, self.ops[1]
+            result.types.setdefault(val.ops[1], []).append(i)
+        result.ops = [elems1, elems2]
+        return result, result.ops[1]
 
     def simplify(self):
         pass
 
     def __str__(self):
-        return str(tuple(self.ops[0]))
+        return str(tuple(self.ops))
 
     def __repr__(self):
         return self.__str__()
+
+
+class MultipleVals(Operation):
+    value = ';'
+    types = dict()
+
+    def calculate(self, args=None):
+        return self.ops[0], self.ops[1]
 
     def __add__(self, other):
         if other.value == 'val':
@@ -230,13 +238,19 @@ class CommaOperation(Operation):  # на данный момент есть дв
                 self.ops[0][i] /= other
         return self
 
+    def __str__(self):
+        return str(tuple(self.ops[0]))
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class MinFunction(Operation):
     value = 'min'
 
     def calculate(self, args=None):
         calced = self.ops[0].calculate(args)
-        return min(calced[0]), f'{self.value}({", ".join(calced[1])})'
+        return min(calced[0].ops[0]), f'{self.value}({", ".join(calced[0].ops[1])})'
 
     def __str__(self):
         str_ = f'{self.value}('
@@ -250,7 +264,7 @@ class MaxFunction(Operation):
 
     def calculate(self, args=None):
         calced = self.ops[0].calculate(args)
-        return max(calced[0]), f'{self.value}({", ".join(calced[1])})'
+        return max(calced[0].ops[0]), f'{self.value}({", ".join(calced[0].ops[1])})'
 
     def __str__(self):
         str_ = f'{self.value}('
@@ -264,8 +278,6 @@ class Greater(Operation):
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        print(first)
-        print(second)
         return Val(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
@@ -367,7 +379,7 @@ class SumFunction(Operation):
 
     def calculate(self, args=None):
         calced = self.ops[0].calculate(args)
-        return sum(calced[0]), f'{self.value}({", ".join(calced[1])})'
+        return sum(calced[0].ops[0]), f'{self.value}({", ".join(calced[0].ops[1])})'
 
     def __str__(self):
         return f'(sum of {self.ops[0]})'

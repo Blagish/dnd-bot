@@ -1,8 +1,17 @@
 from .parser_classes import *
 
 function_keywords = {'max': 'MAX', 'min': 'MIN', 'sum': 'SUM', 'map': 'MAP',
-                     'x': 'FOR', 'd': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
-                     'ed': 'ELFDIE', 'kd': 'QUADIE', 'it': 'VAR'}
+                     'x': 'FOR', 'х': 'FOR', 'd': 'DIE', 'д': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
+                     'ed': 'ELFDIE', 'kd': 'QUADIE', 'ад': 'ADVDIE', 'дд': 'DISDIE',
+                     'ед': 'ELFDIE', 'кд': 'QUADIE', 'it': 'VAR'}
+
+translate_letters = {'д': 'd', 'х': 'x', 'ад': 'ad', 'дд': 'dd', 'ед': 'ed', 'кд': 'kd'}
+
+
+def translate(key):
+    return translate_letters.get(key, key)
+
+
 tokens = (
     'ADD',  # +
     'SUB',  # -
@@ -148,7 +157,8 @@ def p_die(p):
     | DISDIE expression
     | ELFDIE expression
     | QUADIE expression"""
-    p[0] = dices[p[1]](Val(1), p[2])
+    die = translate(p[1])
+    p[0] = dices[die](Val(1), p[2])
 
 
 def p_dice(p):
@@ -157,7 +167,8 @@ def p_dice(p):
     | expression DISDIE expression
     | expression ELFDIE expression
     | expression QUADIE expression"""
-    p[0] = dices[p[2]](p[1], p[3])
+    die = translate(p[2])
+    p[0] = dices[die](p[1], p[3])
 
 
 def p_die_comment(p):
