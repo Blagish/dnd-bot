@@ -39,7 +39,7 @@ t_ignore = ' \n\t'
 
 
 def t_COMMENT(t):
-    r"""[a-zA-Zа-яА-ЯёЁ_-]+"""
+    r"""[a-zA-Zа-яА-ЯёЁ_]+"""
     if t.value in function_keywords:  # is this a keyword
         t.type = function_keywords[t.value]
     return t

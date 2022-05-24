@@ -1,3 +1,3 @@
 from parser import d2
 
-print(d2('d20 + 1 sos-is'))
+print(d2('d20 + 1 '))
