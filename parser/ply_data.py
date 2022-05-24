@@ -1,8 +1,17 @@
 from .parser_classes import *
 
 function_keywords = {'max': 'MAX', 'min': 'MIN', 'sum': 'SUM', 'map': 'MAP',
-                     'x': 'FOR', 'd': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
-                     'ed': 'ELFDIE', 'kd': 'QUADIE', 'it': 'VAR'}
+                     'x': 'FOR', 'х': 'FOR', 'd': 'DIE', 'д': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
+                     'ed': 'ELFDIE', 'kd': 'QUADIE', 'ад': 'ADVDIE', 'дд': 'DISDIE',
+                     'ед': 'ELFDIE', 'кд': 'QUADIE', 'it': 'VAR'}
+
+translate_letters = {'д': 'd', 'х': 'x', 'ад': 'ad', 'дд': 'dd', 'ед': 'ed', 'кд': 'kd'}
+
+
+def translate(key):
+    return translate_letters.get(key, key)
+
+
 tokens = (
     'ADD',  # +
     'SUB',  # -
@@ -26,6 +35,7 @@ tokens = (
     'DISDIE',  # dd
     'ELFDIE',  # ed
     'QUADIE',  # kd
+    'DIEMOD',  # % todo: full operator, not just for dice?
     'BIGGER',  # >
     'LESSER',  # <
     'EQUAL',  # =
@@ -47,7 +57,8 @@ precedence = (
     ('left', 'ADD', 'SUB', 'BIGGER', 'LESSER', 'EQUAL', 'BIGGEREQUAL', 'LESSEREQUAL'),
     ('left', 'MUL', 'DIV'),
     ('right', 'ADVDIE', 'DISDIE', 'ELFDIE', "QUADIE"),
-    ('left', 'DIE')
+    ('right', 'DIE'),
+    ('left', 'DIEMOD')
 )
 
 classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
@@ -148,7 +159,28 @@ def p_die(p):
     | DISDIE expression
     | ELFDIE expression
     | QUADIE expression"""
-    p[0] = dices[p[1]](Val(1), p[2])
+    die = translate(p[1])
+    p[0] = dices[die](Val(1), p[2])
+
+
+def p_die_procent(p):
+    """expression : DIE DIEMOD
+    | ADVDIE DIEMOD
+    | DISDIE DIEMOD
+    | ELFDIE DIEMOD
+    | QUADIE DIEMOD"""
+    die = translate(p[1])
+    p[0] = dices[die](Val(1), Val(100))
+
+
+def p_die_mod(p):
+    """expression : DIE expression DIEMOD expression
+    | ADVDIE expression DIEMOD expression
+    | DISDIE expression DIEMOD expression
+    | ELFDIE expression DIEMOD expression
+    | QUADIE expression DIEMOD expression"""
+    die = translate(p[1])
+    p[0] = dices[die](Val(1), p[2], overwrite=p[4])
 
 
 def p_dice(p):
@@ -157,7 +189,18 @@ def p_dice(p):
     | expression DISDIE expression
     | expression ELFDIE expression
     | expression QUADIE expression"""
-    p[0] = dices[p[2]](p[1], p[3])
+    die = translate(p[2])
+    p[0] = dices[die](p[1], p[3])
+
+
+def p_dice_mod(p):
+    """expression : expression DIE expression DIEMOD expression
+    | expression ADVDIE expression DIEMOD expression
+    | expression DISDIE expression DIEMOD expression
+    | expression ELFDIE expression DIEMOD expression
+    | expression QUADIE expression DIEMOD expression"""
+    die = translate(p[2])
+    p[0] = dices[die](p[1], p[3], overwrite=p[5])
 
 
 def p_die_comment(p):
@@ -165,9 +208,19 @@ def p_die_comment(p):
     p[0] = DiceOperation(Val(1), p[2], p[3])
 
 
+def p_die_comment_mod(p):
+    """expression : DIE expression DIEMOD expression COMMENT"""
+    p[0] = DiceOperation(Val(1), p[2], p[5], overwrite=p[4])
+
+
 def p_dice_comment(p):
     """expression : expression DIE expression COMMENT"""
     p[0] = DiceOperation(p[1], p[3], p[4])
+
+
+def p_dice_comment_mod(p):
+    """expression : expression DIE expression DIEMOD expression COMMENT"""
+    p[0] = DiceOperation(p[1], p[3], p[6], overwrite=p[5])
 
 
 def p_var(p):

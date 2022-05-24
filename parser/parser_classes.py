@@ -10,6 +10,7 @@ def strfy(x):
 
 
 class Operation:
+    """Базовый класс операции. Сохраняет в себя данные и умеет выводить их строкой."""
     verbose = True
     ops = None
     value = None
@@ -28,6 +29,7 @@ class Operation:
 
 
 class Addition(Operation):
+    """Математическая операция сложения. Принимает любое число слагаемых."""
     value = '+'
 
     def calculate(self, args=None):
@@ -42,6 +44,7 @@ class Addition(Operation):
 
 
 class Subtraction(Operation):
+    """Математическая операция вычитания. Принимает любое число вычитаемых."""
     value = '-'
 
     def calculate(self, args=None):
@@ -56,6 +59,7 @@ class Subtraction(Operation):
 
 
 class Division(Operation):
+    """Математическая операция деления. Принимает любое число аргументов и делит последовательно."""
     value = '/'
 
     def calculate(self, args=None):
@@ -71,6 +75,7 @@ class Division(Operation):
 
 
 class Multiplication(Operation):
+    """Математическая операция умножения. Принимает любое число аргументов и умножает последовательно."""
     value = '*'
 
     def calculate(self, args=None):
@@ -86,7 +91,16 @@ class Multiplication(Operation):
 
 
 class DiceOperation(Operation):
+    """Операция броска куба, одного или нескольких."""
     value = 'd'
+    overwrite_minimum = False
+    overwrite_value = None
+
+    def __init__(self, *ops, overwrite=None):
+        super().__init__(*ops)
+        if overwrite is not None:
+            self.overwrite_minimum = True
+            self.overwrite_value = overwrite.calculate()[0].ops[0]
 
     def calculate(self, args=None):
         rolls = self.ops[0].calculate(args)[0].ops[0]
@@ -103,61 +117,75 @@ class DiceOperation(Operation):
             res_str += ress
         return Val(s, type), (res_str[:-2]+type).strip()
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll = randint(1, die_size)
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'[~~{roll}~~|**{self.overwrite_value}**] + '
         return roll, f'[**{roll}**] + '
+
+    @staticmethod
+    def bold_the_result(result, *rolls):
+        s = '|'+'|'.join(map(str, rolls))
+        return s.replace(f'|{result}', f'|**{result}**')[1:]
 
 
 class AdvantageDiceOperation(DiceOperation):
+    """Операция броска куба с преимуществом."""
     value = 'ad'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll = max(roll1, roll2)
-        return roll, f'a[{roll1}|{roll2}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'a[~~{roll1}~~|~~{roll2}~~|**{self.overwrite_value}**] + '
+        return roll, f'a[{self.bold_the_result(roll, roll1, roll2)}] + '
 
 
 class DisadvantageDiceOperation(DiceOperation):
+    """Операция броска куба с помехой."""
     value = 'dd'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll = min(roll1, roll2)
-        return roll, f'd[{roll1}|{roll2}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'd[~~{roll1}~~|~~{roll2}~~|**{self.overwrite_value}**] + '
+        return roll, f'd[{self.bold_the_result(roll, roll1, roll2)}] + '
 
 
 class ElfAdvantageDiceOperation(DiceOperation):
+    """Операция броска куба с эльфийским преимуществом (3 куба)."""
     value = 'ed'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll3 = randint(1, die_size)
         roll = max(roll1, roll2, roll3)
-        return roll, f'e[{roll1}|{roll2}|{roll3}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'e[~~{roll1}~~|~~{roll2}~~|~~{roll3}~~|**{self.overwrite_value}**] + '
+        return roll, f'e[{self.bold_the_result(roll, roll1, roll2, roll3)}] + '
 
 
 class QuadAdvantageDiceOperation(DiceOperation):
+    """Операция броска куба с четверным преимуществом (4 куба)."""
     value = 'kd'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll3 = randint(1, die_size)
         roll4 = randint(1, die_size)
         roll = max(roll1, roll2, roll3, roll4)
-        return roll, f'k[{roll1}|{roll2}|{roll3}|{roll4}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'k[~~{roll1}~~|~~{roll2}~~|~~{roll3}~~|~~{roll4}~~|**{self.overwrite_value}**] + '
+        return roll, f'k[{self.bold_the_result(roll, roll1, roll2, roll3, roll4)}] + '
 
 
-class CommaOperation(Operation):  # на данный момент есть два разных типа коммаоперейшн. один - посчитанный, второй -
-    # нет. в первом опс это слагаемые, во втором - уже сам ответ. надо это исправить
+class CommaOperation(Operation):
+    """Конвертор нескольких чисел в объект MultipleVals."""
     value = ','
     types = dict()
 
@@ -174,22 +202,35 @@ class CommaOperation(Operation):  # на данный момент есть дв
     def calculate(self, args=None):
         elems1 = []
         elems2 = []
+        result = MultipleVals()
         for i in range(len(self.ops)):
             val, text = self.ops[i].calculate(args)
             elems1.append(val)
             elems2.append(text)
-            self.types.setdefault(val.ops[1], []).append(i)
-        self.ops = [elems1, elems2]
-        return self, self.ops[1]
+            result.types.setdefault(val.ops[1], []).append(i)
+        result.ops = [elems1, elems2]
+        return result, result.ops[1]
 
     def simplify(self):
         pass
 
     def __str__(self):
-        return str(tuple(self.ops[0]))
+        return str(tuple(self.ops))
 
     def __repr__(self):
         return self.__str__()
+
+
+class MultipleVals(Operation):
+    """Несколько чисел, разделяются запятой и выводятся в скобках."""
+    value = ';'
+    types = dict()
+
+    def calculate(self, args=None):
+        return self.ops[0], self.ops[1]
+
+    def simplify(self):
+        pass
 
     def __add__(self, other):
         if other.value == 'val':
@@ -202,6 +243,9 @@ class CommaOperation(Operation):  # на данный момент есть дв
                 index = self.types.get(type1)[0]
                 self.ops[0][index] += other
                 self.ops[1][index] += f' + {other}'
+        elif other.value == ';':
+            self.ops[0] += other.ops[0]
+            self.ops[1] += other.ops[1]
         return self
 
     def __sub__(self, other):
@@ -230,13 +274,27 @@ class CommaOperation(Operation):  # на данный момент есть дв
                 self.ops[0][i] /= other
         return self
 
+    def __str__(self):
+        return str(tuple(self.ops[0]))
 
-class MinFunction(Operation):
-    value = 'min'
+    def __repr__(self):
+        return self.__str__()
+
+
+class FunctionOfMultipleVars(Operation):
+    """Базовый класс операции применения функции к нескольким числам."""
+    value = 'func'
+    func = None
 
     def calculate(self, args=None):
         calced = self.ops[0].calculate(args)
-        return min(calced[0]), f'{self.value}({", ".join(calced[1])})'
+        sol = calced[1]
+        if isinstance(sol, str):
+            sol = [sol]
+        to_sum = calced[0].ops[0]
+        if isinstance(calced[0], Val):
+            to_sum = [calced[0]]
+        return self.func(to_sum), f'{self.value}({", ".join(sol)})'
 
     def __str__(self):
         str_ = f'{self.value}('
@@ -245,31 +303,35 @@ class MinFunction(Operation):
         return str_[:-2]+')'
 
 
-class MaxFunction(Operation):
+class MinFunction(FunctionOfMultipleVars):
+    """Математическая функция минимума из нескольких чисел."""
+    value = 'min'
+    func = min
+
+
+class MaxFunction(FunctionOfMultipleVars):
+    """Математическая функция максимума из нескольких чисел."""
     value = 'max'
+    func = max
 
-    def calculate(self, args=None):
-        calced = self.ops[0].calculate(args)
-        return max(calced[0]), f'{self.value}({", ".join(calced[1])})'
 
-    def __str__(self):
-        str_ = f'{self.value}('
-        for i in self.ops:
-            str_ += f'{i}, '
-        return str_[:-2] + ')'
+class SumFunction(FunctionOfMultipleVars):
+    """Математическая функция суммы нескольких чисел."""
+    value = 'sum'
+    func = sum
 
 
 class Greater(Operation):
+    """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     value = '>'
 
     def calculate(self, args=None):
         first, second = self.ops[0].calculate(args), self.ops[1].calculate(args)
-        print(first)
-        print(second)
         return Val(first[0] > second[0]), f'{first[1]} {self.value} {second[1]}'
 
 
 class Lesser(Operation):
+    """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     value = '<'
 
     def calculate(self, args=None):
@@ -278,6 +340,7 @@ class Lesser(Operation):
 
 
 class GreaterEquals(Operation):
+    """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     value = '>='
 
     def calculate(self, args=None):
@@ -286,6 +349,7 @@ class GreaterEquals(Operation):
 
 
 class LesserEquals(Operation):
+    """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     value = '<='
 
     def calculate(self, args=None):
@@ -294,6 +358,7 @@ class LesserEquals(Operation):
 
 
 class Equals(Operation):
+    """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     value = '='
 
     def calculate(self, args=None):
@@ -302,6 +367,7 @@ class Equals(Operation):
 
 
 class NotEquals(Operation):
+    """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     value = '≠'
 
     def calculate(self, args=None):
@@ -345,7 +411,7 @@ class Var(Operation):
         return args
 
 
-class Map(Operation):  # todo output
+class Map(Operation):
     value = 'map'
 
     def calculate(self, args=None):
@@ -356,21 +422,11 @@ class Map(Operation):  # todo output
             res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
             ress1.append(res1)
             ress2.append(res2)
-        return tuple(ress1), values[1]
+        result = CommaOperation(*ress1).calculate()
+        return result[0], values[1]
 
     def __str__(self):
         return f'checking ({self.ops[0]} for {self.ops[1]}'
-
-
-class SumFunction(Operation):
-    value = 'sum'
-
-    def calculate(self, args=None):
-        calced = self.ops[0].calculate(args)
-        return sum(calced[0]), f'{self.value}({", ".join(calced[1])})'
-
-    def __str__(self):
-        return f'(sum of {self.ops[0]})'
 
 
 class CountFunction(Operation):
@@ -396,7 +452,7 @@ class Val(Operation):
     def __init__(self, *ops):
         super().__init__(*ops)
         if len(self.ops) == 1:
-            self.ops = self.ops + ('',)
+            self.ops = (self.ops[0], '')
 
     def calculate(self, args=None):
         if args is None:
@@ -419,7 +475,7 @@ class Val(Operation):
         return f'{self.ops[0]} {self.ops[1]}'.strip()
 
     def __add__(self, other):
-        if other.value == ',':
+        if other.value == ';':
             return other.__add__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
@@ -433,7 +489,7 @@ class Val(Operation):
         num1, type1 = self.ops
         if type(other) == int:
             return Val(other + num1, type1)
-        if other.value == ',':
+        if other.value == ';':
             return other.__add__(self)
         num2, type2 = other.ops
         return Val(num1 + num2, type1)
@@ -463,7 +519,7 @@ class Val(Operation):
         return Val(num1 - num2, max(type1, type2))
 
     def __mul__(self, other):
-        if other.value == ',':
+        if other.value == ';':
             return other.__mul__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
@@ -474,7 +530,7 @@ class Val(Operation):
         return Val(num1 * num2, max(type1, type2))
 
     def __truediv__(self, other):
-        if other.value == ',':
+        if other.value == ';':
             return other.__truediv__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops

@@ -21,6 +21,7 @@ t_ADVDIE = r'ad'
 t_DISDIE = r'dd'
 t_ELFDIE = r'ed'
 t_QUADIE = r'kd'
+t_DIEMOD = r'\%'
 t_MAX = r'max'
 t_MIN = r'min'
 t_MAP = r'map'
@@ -39,7 +40,7 @@ t_ignore = ' \n\t'
 
 
 def t_COMMENT(t):
-    r"""[a-zA-Zа-яА-ЯёЁ]+"""
+    r"""[a-zA-Zа-яА-ЯёЁ_]+"""
     if t.value in function_keywords:  # is this a keyword
         t.type = function_keywords[t.value]
     return t
@@ -66,11 +67,6 @@ def test(expression):
 
 
 def d2(expression):
-    expression = expression.replace('х', 'x')
-    expression = expression.replace('а', 'a')
-    expression = expression.replace('е', 'e')
-    expression = expression.replace('д', 'd')
-    expression = expression.replace('к', 'k')
     res = parse(expression)
     ans, sol = res.calculate()
     if type(sol) == list:
