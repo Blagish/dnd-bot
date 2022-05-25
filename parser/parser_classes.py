@@ -87,6 +87,14 @@ class Multiplication(Operation):
 
 class DiceOperation(Operation):
     value = 'd'
+    overwrite_minimum = False
+    overwrite_value = None
+
+    def __init__(self, *ops, overwrite=None):
+        super().__init__(*ops)
+        if overwrite is not None:
+            self.overwrite_minimum = True
+            self.overwrite_value = overwrite.calculate()[0].ops[0]
 
     def calculate(self, args=None):
         rolls = self.ops[0].calculate(args)[0].ops[0]
@@ -103,57 +111,67 @@ class DiceOperation(Operation):
             res_str += ress
         return Val(s, type), (res_str[:-2]+type).strip()
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll = randint(1, die_size)
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'[~~{roll}~~|**{self.overwrite_value}**] + '
         return roll, f'[**{roll}**] + '
+
+    @staticmethod
+    def bold_the_result(result, *rolls):
+        s = '|'+'|'.join(map(str, rolls))
+        return s.replace(f'|{result}', f'|**{result}**')[1:]
 
 
 class AdvantageDiceOperation(DiceOperation):
     value = 'ad'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll = max(roll1, roll2)
-        return roll, f'a[{roll1}|{roll2}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'a[~~{roll1}~~|~~{roll2}~~|**{self.overwrite_value}**] + '
+        return roll, f'a[{self.bold_the_result(roll, roll1, roll2)}] + '
 
 
 class DisadvantageDiceOperation(DiceOperation):
     value = 'dd'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll = min(roll1, roll2)
-        return roll, f'd[{roll1}|{roll2}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'd[~~{roll1}~~|~~{roll2}~~|**{self.overwrite_value}**] + '
+        return roll, f'd[{self.bold_the_result(roll, roll1, roll2)}] + '
 
 
 class ElfAdvantageDiceOperation(DiceOperation):
     value = 'ed'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll3 = randint(1, die_size)
         roll = max(roll1, roll2, roll3)
-        return roll, f'e[{roll1}|{roll2}|{roll3}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'e[~~{roll1}~~|~~{roll2}~~|~~{roll3}~~|**{self.overwrite_value}**] + '
+        return roll, f'e[{self.bold_the_result(roll, roll1, roll2, roll3)}] + '
 
 
 class QuadAdvantageDiceOperation(DiceOperation):
     value = 'kd'
 
-    @staticmethod
-    def get_result(die_size):
+    def get_result(self, die_size):
         roll1 = randint(1, die_size)
         roll2 = randint(1, die_size)
         roll3 = randint(1, die_size)
         roll4 = randint(1, die_size)
         roll = max(roll1, roll2, roll3, roll4)
-        return roll, f'k[{roll1}|{roll2}|{roll3}|{roll4}] + '
+        if self.overwrite_minimum and roll < self.overwrite_value:
+            return self.overwrite_value, f'k[~~{roll1}~~|~~{roll2}~~|~~{roll3}~~|~~{roll4}~~|**{self.overwrite_value}**] + '
+        return roll, f'k[{self.bold_the_result(roll, roll1, roll2, roll3, roll4)}] + '
 
 
 class CommaOperation(Operation):
