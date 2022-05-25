@@ -199,6 +199,9 @@ class MultipleVals(Operation):
     def calculate(self, args=None):
         return self.ops[0], self.ops[1]
 
+    def simplify(self):
+        pass
+
     def __add__(self, other):
         if other.value == 'val':
             num, type1 = other.ops
@@ -210,6 +213,9 @@ class MultipleVals(Operation):
                 index = self.types.get(type1)[0]
                 self.ops[0][index] += other
                 self.ops[1][index] += f' + {other}'
+        elif other.value == ';':
+            self.ops[0] += other.ops[0]
+            self.ops[1] += other.ops[1]
         return self
 
     def __sub__(self, other):
@@ -357,7 +363,7 @@ class Var(Operation):
         return args
 
 
-class Map(Operation):  # todo output
+class Map(Operation):
     value = 'map'
 
     def calculate(self, args=None):
@@ -368,7 +374,8 @@ class Map(Operation):  # todo output
             res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
             ress1.append(res1)
             ress2.append(res2)
-        return tuple(ress1), values[1]
+        result = CommaOperation(*ress1).calculate()
+        return result[0], values[1]
 
     def __str__(self):
         return f'checking ({self.ops[0]} for {self.ops[1]}'
@@ -379,7 +386,13 @@ class SumFunction(Operation):
 
     def calculate(self, args=None):
         calced = self.ops[0].calculate(args)
-        return sum(calced[0].ops[0]), f'{self.value}({", ".join(calced[0].ops[1])})'
+        sol = calced[1]
+        if isinstance(sol, str):
+            sol = [sol]
+        to_sum = calced[0].ops[0]
+        if isinstance(calced[0], Val):
+            to_sum = [calced[0]]
+        return sum(to_sum), f'{self.value}({", ".join(sol)})'
 
     def __str__(self):
         return f'(sum of {self.ops[0]})'
@@ -408,7 +421,7 @@ class Val(Operation):
     def __init__(self, *ops):
         super().__init__(*ops)
         if len(self.ops) == 1:
-            self.ops = self.ops + ('',)
+            self.ops = (self.ops[0], '')
 
     def calculate(self, args=None):
         if args is None:
@@ -431,7 +444,7 @@ class Val(Operation):
         return f'{self.ops[0]} {self.ops[1]}'.strip()
 
     def __add__(self, other):
-        if other.value == ',':
+        if other.value == ';':
             return other.__add__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
@@ -445,7 +458,7 @@ class Val(Operation):
         num1, type1 = self.ops
         if type(other) == int:
             return Val(other + num1, type1)
-        if other.value == ',':
+        if other.value == ';':
             return other.__add__(self)
         num2, type2 = other.ops
         return Val(num1 + num2, type1)
@@ -475,7 +488,7 @@ class Val(Operation):
         return Val(num1 - num2, max(type1, type2))
 
     def __mul__(self, other):
-        if other.value == ',':
+        if other.value == ';':
             return other.__mul__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
@@ -486,7 +499,7 @@ class Val(Operation):
         return Val(num1 * num2, max(type1, type2))
 
     def __truediv__(self, other):
-        if other.value == ',':
+        if other.value == ';':
             return other.__truediv__(self)
         num1, type1 = self.ops
         num2, type2 = other.ops
