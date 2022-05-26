@@ -58,7 +58,7 @@ precedence = (
     ('left', 'MUL', 'DIV'),
     ('right', 'ADVDIE', 'DISDIE', 'ELFDIE', "QUADIE"),
     ('right', 'DIE'),
-    ('left', 'DIEMOD'),
+    ('left', 'DIEMOD')
 )
 
 classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
@@ -161,6 +161,16 @@ def p_die(p):
     | QUADIE expression"""
     die = translate(p[1])
     p[0] = dices[die](Val(1), p[2])
+
+
+def p_die_procent(p):
+    """expression : DIE DIEMOD
+    | ADVDIE DIEMOD
+    | DISDIE DIEMOD
+    | ELFDIE DIEMOD
+    | QUADIE DIEMOD"""
+    die = translate(p[1])
+    p[0] = dices[die](Val(1), Val(100))
 
 
 def p_die_mod(p):
