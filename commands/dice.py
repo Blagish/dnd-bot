@@ -1,7 +1,6 @@
 from random import randint
 
-import discord
-from discord import Embed, Colour
+from discord import Embed, Colour, ButtonStyle
 from discord.ext import commands
 from parser import d2
 from game_data import get_spell_dnd_su, get_info_pf2
@@ -16,12 +15,22 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @staticmethod
     def error_message(error):
         return Embed(title="Произошла непредвиденная ошибка :(",
-                    description=f'**Код ошибки:** {error}.\nЧто бы это ни было, возможно, когда-нибудь это пофиксится.', 
-                    colour=Colour.red())
+                     description=f'**Код ошибки:** {error}.\nЧто бы это ни было, возможно, когда-нибудь это пофиксится',
+                     colour=Colour.red())
+
 
     @commands.command(name='куб', aliases=['r', 'р', 'k', 'к', 'roll', 'ролл'])
     async def roll(self, ctx, *, string):
         """Кидаю кубы, прибавляю модификаторы~ Можно использовать сложение, вычитание, умножение, деление. Кубы с преимуществом - ad, с помехой - dd. Можно использовать скобки, короче, реально охуенный парсер, два года его писала """
+        # if string.strip() == '':
+        #     view = ui.View()
+        #     d4 = ui.Button(style=ButtonStyle.green, label='d4')
+        #     d6 = ui.Button(style=ButtonStyle.gray, label='d6')
+        #     d8 = ui.Button(style=ButtonStyle.green, label='d8')
+        #     d10 = ui.Button(style=ButtonStyle.gray, label='d10')
+        #     d12 = ui.Button(style=ButtonStyle.green, label='d12')
+        #     d20 = ui.Button(style=ButtonStyle.red, label='d20')
+        #     d100 = ui.Button(style=ButtonStyle.blurple, label='d100')
         sol, ans = d2(string)
         s = f'Кидаю\n-> {sol}\n= **{ans}**'
         await ctx_send(ctx, s)
@@ -88,7 +97,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
             s += f'**Худший результат: {min(a, b)}**'
         else:
             nums = [randint(1, 6) for i in range(n)]
-            s += (len(nums)*'[**{}**], ').format(*nums)[:-2]
+            s += (len(nums) * '[**{}**], ').format(*nums)[:-2]
             s += f'\n**Лучший результат: {max(nums)}**'
         await ctx.send(s)
 

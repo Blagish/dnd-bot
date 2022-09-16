@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from urllib.parse import quote
 from discord import Embed, Colour
 
 blacklisted_tags = ['translate-by']
@@ -17,8 +18,12 @@ def parse_content(element):
     text = ''
     if element.name in tags_with_new_strings:
         style2 = '\n'
-        if element.name == 'li' and element.attrs.get('class') != ['subsection', 'desc']:
+        if element.name == 'li' and element.attrs.get('class') == ['size-type-alignment']:
+            style1 = '> *'
+            style2 = '*\n'
+        elif element.name == 'li' and element.attrs.get('class') != ['subsection', 'desc']:
             style1 = '> '
+
     elif element.attrs.get('class') == ['size-type-alignment']:
         style1 = style2 = '__'
     elif element.name == 'em':
@@ -33,13 +38,11 @@ def parse_content(element):
 def get_spell(name):
     print('dnd: looking for', name)
     base_url = "https://dnd.su/"
-    spells_url = "https://dnd.su/spells/"
-    page = urlopen(spells_url)
+    spells_url = "https://dnd.su/spells/?search="
+    name = '+'.join(name.lower().split())
+    page = urlopen(spells_url+quote(name, safe='+'))
     soup = BeautifulSoup(page, 'html.parser')
-
-    name = name.lower()
-    results = soup.find_all(lambda x: x.has_attr('title') and name.lower() in x.get('title').lower())
-
+    results = soup.find_all('h2', attrs={'class': 'card-title'})
     possible_result = None
     diff = 1e9
 
@@ -47,7 +50,7 @@ def get_spell(name):
         return 'owo wats this'
 
     for tag in results:
-        title = tag.get('title').lower()
+        title = tag.get_text()
         print('title is ' + title)
         parts = title.split(' [')
         title = parts[1]
@@ -61,16 +64,16 @@ def get_spell(name):
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
-
-    target_url = base_url + possible_result.get('href')
+    target_url = base_url + possible_result.a.get('href')
     page = urlopen(target_url)
     soup = BeautifulSoup(page, 'html.parser')
-    card = soup.find('div', attrs={'class': 'card-body'})
-    title = soup.find('a', attrs={'class': 'item-link'}).get_text()
+    card = soup.find('div', attrs={'class': 'card-body', 'itemprop': 'articleBody'})
+    title = possible_result.get_text()
     embed_card = Embed(title=title,
                        url=target_url,
                        description=parse_content(card),
                        colour=COLOUR)
+    print(parse_content(card))
     return embed_card
 
 
