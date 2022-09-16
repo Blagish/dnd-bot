@@ -5,7 +5,8 @@ from discord.ext import commands
 from bot_config import command_prefix
 from help import MyHelpCommand
 
-bot = commands.Bot(command_prefix=command_prefix,
+intents = discord.Intents.default()
+bot = commands.Bot(intents=intents, command_prefix=command_prefix,
                    activity=discord.Activity(type=discord.ActivityType.listening,
                                              name=f'{command_prefix}help'))
 
