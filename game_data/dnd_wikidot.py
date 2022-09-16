@@ -1,11 +1,13 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
-from urllib.parse import quote
 from discord import Embed, Colour
 
-blacklisted_tags = ['translate-by']
-COLOUR = 0xfe650c
+blacklisted_tags = []
+CARDS_COLORS = {'NORMAL': 0xc4af63,
+                'UNEARTHED_ARCANA': 0x980082}
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
+
+FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
 
 def parse_content(element):
@@ -18,10 +20,7 @@ def parse_content(element):
     text = ''
     if element.name in tags_with_new_strings:
         style2 = '\n'
-        if element.name == 'li' and element.attrs.get('class') == ['size-type-alignment']:
-            style1 = '> *'
-            style2 = '*\n'
-        elif element.name == 'li' and element.attrs.get('class') != ['subsection', 'desc']:
+        if element.name == 'li' and element.attrs.get('class') != ['subsection', 'desc']:
             style1 = '> '
 
     elif element.attrs.get('class') == ['size-type-alignment']:
@@ -36,23 +35,24 @@ def parse_content(element):
 
 
 def get_spell(name):
-    print('dnd ru: looking for', name)
+    print('dnd en: looking for', name)
 
     if len(name) < 4:
         return Embed(title="You baka!",
                      description='(поисковой запрос должен быть больше трех символов)',
                      colour=Colour.red())
 
-    base_url = "https://dnd.su/"
-    spells_url = "https://dnd.su/spells/?search="
-    name = '+'.join(name.lower().split())
-    page = urlopen(spells_url+quote(name, safe='+'))
+    base_url = "http://dnd5e.wikidot.com/"
+    spells_url = "http://dnd5e.wikidot.com/spells"
+    COLOUR = CARDS_COLORS['NORMAL']
+    name = name.lower()
+    page = urlopen(spells_url)
     soup = BeautifulSoup(page, 'html.parser')
-    results = soup.find_all('h2', attrs={'class': 'card-title'})
+    results = soup.find_all(lambda x: x and x.name == 'td' and x.a and name in x.get_text().lower())
     possible_result = None
     diff = 1e9
 
-    if results[0].get_text().startswith('По вашему'):
+    if len(results) == 0:
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
@@ -60,10 +60,6 @@ def get_spell(name):
     for tag in results:
         title = tag.get_text()
         print('title is ' + title)
-        parts = title.split(' [')
-        title = parts[1]
-        if 'а' <= name[0] <= 'я':
-            title = parts[0]
         if len(title) - len(name) < diff:
             diff = len(title) - len(name)
             possible_result = tag
@@ -72,39 +68,29 @@ def get_spell(name):
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
+
     target_url = base_url + possible_result.a.get('href')
     page = urlopen(target_url)
     soup = BeautifulSoup(page, 'html.parser')
-    card = soup.find('div', attrs={'class': 'card-body', 'itemprop': 'articleBody'})
-    title = possible_result.get_text()
+    card = soup.find('div', attrs={'id': 'page-content'})
+    ps = card.find_all('p')
+    source = ps[0].get_text()
+    source = source[source.find(' '):]
     content = parse_content(card)
+    content = content.replace('**Casting Time', '> **Casting Time').replace('**Range', '> **Range').replace('**Components', '> **Components').replace('**Duration', '> **Duration')
+    content = content[content.find('\n', 2):]
+    content = '> ' + content.replace('\n', '', 3)
     content = content.replace('\n\n\n\n', '\n\n').replace('\n\n\n', '\n\n')
+    title = soup.find('div', attrs={'class': 'page-title'}).get_text()
+    if '(UA)' in title:
+        COLOUR = CARDS_COLORS['UNEARTHED_ARCANA']
     embed_card = Embed(title=title,
                        url=target_url,
                        description=content,
                        colour=COLOUR)
+    embed_card.set_footer(text=source, icon_url=FOOTER_URL)
     return embed_card
 
 
-def get_english_name(name):
-    spells_url = "https://dnd.su/spells/?search="
-    name = '+'.join(name.lower().split())
-    page = urlopen(spells_url+quote(name, safe='+'))
-    soup = BeautifulSoup(page, 'html.parser')
-    results = soup.find_all('h2', attrs={'class': 'card-title'})
-    possible_result = None
-    diff = 1e9
-    if results[0].get_text().startswith('По вашему'):
-        return None
-    for tag in results:
-        title = tag.get_text()
-        parts = title.split(' [')
-        title = parts[0]
-        if len(title) - len(name) < diff:
-            diff = len(title) - len(name)
-            possible_result = parts[1][:-1]
-    return possible_result
-
-
 if __name__ == '__main__':
-    print(get_spell('fireball'))
+    print(get_spell('spray of cards'))

@@ -7,14 +7,20 @@ import json
 class Talking(commands.Cog, name='Общение со мной :)'):
     def __init__(self, bot):
         self.bot = bot
-        self.danika_react = ['а?', 'Я тут!', 'Меня звали?', 'Что-то нужно?', 'Чем могу быть полезна?',
-                             'ты чо сука ты чо', 'опять??', 'каджит ничего не крал', 'доброе утро', 'я честно не сплю!',
-                             'а? что??', 'аниме', 'гейминг', '*bites you*', 'апчхи']
+        self.danika_react = ['а?', 'я тут!', 'меня звали?', 'что-то нужно?', 'чем могу помочь??',
+                             'ты чо сука ты чо', 'опять я??', 'каджит ничего не крал', 'доброе утро', 'добрый день', 'добрый вечер'
+                             'а? что??', 'аниме', 'гейминг', '*кусь*', 'апчхи', 'без комментариев']
         self.bot_id = os.environ.get('DISCORD_ID')
         self.yes_or_no = ['Ага', 'Неа']
         self.funny_words = ['пизда :)', 'пизда', 'пизда!', 'сковорода']
-        with open("commands/beta_whitelist.json") as whitelist:
-            self.whitelist = json.loads(whitelist.readline())
+        whitelist = os.environ.get("TALKING_WHITELIST")
+        self.whitelist = json.loads(whitelist)
+
+    def random_danika_reaction(self):
+        s = choice(self.danika_react)
+        if randint(1, 3) == 1:
+            s = s.capitalize()
+        return s
 
     @commands.Cog.listener('on_message')
     async def respond_to_her_name(self, message):
@@ -24,12 +30,12 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         print(message.content)
         text = message.content.lower()
         if self.bot_id in text:
-            await ctx.send(choice(self.danika_react))
+            await ctx.send(self.random_danika_reaction())
         elif 'даник' in text:
             if '?' in text:
                 await ctx.send(self.funny_response(text))
             elif randint(1, 7) == 1:
-                await ctx.send(choice(self.danika_react))
+                await ctx.send(self.random_danika_reaction())
 
     @commands.Cog.listener('on_message')
     async def react(self, message):  # beta-test
