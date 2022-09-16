@@ -73,7 +73,6 @@ def get_spell(name):
                        url=target_url,
                        description=parse_content(card),
                        colour=COLOUR)
-    print(parse_content(card))
     return embed_card
 
 
