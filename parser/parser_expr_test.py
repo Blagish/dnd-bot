@@ -1,6 +1,7 @@
 from .ply_data import *
 import ply.lex as lex
 import ply.yacc as yacc
+from .comments import replace, replace_back
 
 t_ADD = r'\+'
 t_SUB = r'-'
@@ -67,8 +68,11 @@ def test(expression):
 
 
 def d2(expression):
+    dict_, expression = replace(expression)
+    print(dict_)
     res = parse(expression)
     ans, sol = res.calculate()
     if type(sol) == list:
         sol = '('+', '.join(sol)+')'
+    ans, sol = replace_back(dict_, ans), replace_back(dict_, sol)
     return sol, ans
