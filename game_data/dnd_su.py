@@ -37,6 +37,12 @@ def parse_content(element):
 
 def get_spell(name):
     print('dnd: looking for', name)
+
+    if len(name) < 4:
+        return Embed(title="You baka!",
+                     description='(поисковой запрос должен быть больше трех символов)',
+                     colour=Colour.red())
+
     base_url = "https://dnd.su/"
     spells_url = "https://dnd.su/spells/?search="
     name = '+'.join(name.lower().split())
@@ -48,6 +54,11 @@ def get_spell(name):
 
     if len(results) == 0:
         return 'owo wats this'
+
+    if results[0].get_text().startswith('По вашему'):
+        return Embed(title="OwO, what's this?",
+                     description='(по вашему запросу ничего не найдено)',
+                     colour=Colour.red())
 
     for tag in results:
         title = tag.get_text()
