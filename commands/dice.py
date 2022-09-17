@@ -55,10 +55,11 @@ class Dice(commands.Cog, name='Кубы кубы'):
             get_from_spell_source = get_spell_dnd_su
         elif spell_name[:3] in ('en ', 'ен ', 'ан '):
             spell_name = spell_name[3:]
-            if any('а' <= c <= 'я' for c in spell_name):
+            get_from_spell_source = get_spell_wikidot
+            if any('а' <= c <= 'я' for c in spell_name):  # если название спелла на русском
                 spell_name = get_english_name(spell_name)
-            else:
-                get_from_spell_source = get_spell_wikidot
+                if not spell_name:
+                    spell_name = 'aaaaaaaaa'
         elif any('a' <= c <= 'z' for c in spell_name):  # если есть английские буквы
             get_from_spell_source = get_spell_wikidot
 
