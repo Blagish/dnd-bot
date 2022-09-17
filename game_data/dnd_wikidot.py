@@ -77,7 +77,7 @@ def get_spell(name):
     content = parse_content(card)
     content = content.replace('**Casting Time', '> **Casting Time').replace('**Range', '> **Range').replace('**Components', '> **Components').replace('**Duration', '> **Duration')
     content = content[content.find('\n', 2):]
-    content = '> ' + content.replace('\n', '', 4)
+    content = '> ' + content.replace('\n', '', 3)
     title = soup.find('div', attrs={'class': 'page-title'}).get_text()
     embed_card = Embed(title=title,
                        url=target_url,
