@@ -73,15 +73,15 @@ def get_spell(name):
     card = soup.find('div', attrs={'id': 'page-content'})
     ps = card.find_all('p')
     source = ps[0].get_text()
+    source = source[source.find(' '):]
     content = parse_content(card)
     content = content.replace('**Casting Time', '> **Casting Time').replace('**Range', '> **Range').replace('**Components', '> **Components').replace('**Duration', '> **Duration')
     content = content[content.find('\n', 2):]
     content = '> ' + content.replace('\n', '', 4)
     title = soup.find('div', attrs={'class': 'page-title'}).get_text()
-    print(content)
     embed_card = Embed(title=title,
                        url=target_url,
-                       description=parse_content(card),
+                       description=content,
                        colour=COLOUR)
     embed_card.set_footer(text=source, icon_url=FOOTER_URL)
     return embed_card

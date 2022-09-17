@@ -48,13 +48,15 @@ class Dice(commands.Cog, name='Кубы кубы'):
 
     @commands.command(name='днд', aliases=['закл', 'спелл', 'dnd5', 'spell', 'dnd', 'днд5'])
     async def spell_dnd5(self, ctx, *, spell_name):
-        """Узнать о заклинании из D&D 5e. Как на русском, так и на английском."""
+        """Узнать о заклинании из D&D 5e. Как на русском, так и на английском; Укажите "ru" или "en" перед названием заклинания для выбора соответствующего языка."""
         get_from_spell_source = get_spell_dnd_su
         if spell_name[:3] in ('ru ', 'ру '):
             get_from_spell_source = get_spell_dnd_su
+            spell_name = spell_name[3:]
         elif spell_name[:3] in ('en ', 'ен ', 'ан '):
             get_from_spell_source = get_spell_wikidot
-        elif any(c.isalpha() for c in spell_name):  # если есть английские буквы
+            spell_name = spell_name[3:]
+        elif any('a' <= c <= 'z' for c in spell_name):  # если есть английские буквы
             get_from_spell_source = get_spell_wikidot
         async with ctx.typing():
             try:
