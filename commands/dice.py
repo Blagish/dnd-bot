@@ -3,7 +3,7 @@ from random import randint
 from discord import Embed, Colour, ButtonStyle
 from discord.ext import commands
 from parser import d2
-from game_data import get_spell_dnd_su, get_spell_wikidot, get_info_pf2
+from game_data import get_spell_dnd_su, get_spell_wikidot, get_info_pf2, get_english_name
 from util import ctx_send
 
 
@@ -51,13 +51,17 @@ class Dice(commands.Cog, name='Кубы кубы'):
         """Узнать о заклинании из D&D 5e. Как на русском, так и на английском; Укажите "ru" или "en" перед названием заклинания для выбора соответствующего языка."""
         get_from_spell_source = get_spell_dnd_su
         if spell_name[:3] in ('ru ', 'ру '):
+            spell_name = spell_name[3:]
             get_from_spell_source = get_spell_dnd_su
-            spell_name = spell_name[3:]
         elif spell_name[:3] in ('en ', 'ен ', 'ан '):
-            get_from_spell_source = get_spell_wikidot
             spell_name = spell_name[3:]
+            if any('а' <= c <= 'я' for c in spell_name):
+                spell_name = get_english_name(spell_name)
+            else:
+                get_from_spell_source = get_spell_wikidot
         elif any('a' <= c <= 'z' for c in spell_name):  # если есть английские буквы
             get_from_spell_source = get_spell_wikidot
+
         async with ctx.typing():
             try:
                 message = get_from_spell_source(spell_name)

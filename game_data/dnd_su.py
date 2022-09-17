@@ -86,5 +86,25 @@ def get_spell(name):
     return embed_card
 
 
+def get_english_name(name):
+    spells_url = "https://dnd.su/spells/?search="
+    name = '+'.join(name.lower().split())
+    page = urlopen(spells_url+quote(name, safe='+'))
+    soup = BeautifulSoup(page, 'html.parser')
+    results = soup.find_all('h2', attrs={'class': 'card-title'})
+    possible_result = None
+    diff = 1e9
+    if results[0].get_text().startswith('По вашему'):
+        return None
+    for tag in results:
+        title = tag.get_text()
+        parts = title.split(' [')
+        title = parts[0]
+        if len(title) - len(name) < diff:
+            diff = len(title) - len(name)
+            possible_result = parts[1][:-1]
+    return possible_result
+
+
 if __name__ == '__main__':
     print(get_spell('fireball'))
