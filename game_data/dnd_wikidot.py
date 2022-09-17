@@ -3,7 +3,8 @@ from urllib.request import urlopen
 from discord import Embed, Colour
 
 blacklisted_tags = []
-COLOUR = 0xfe650c
+CARDS_COLORS = {'NORMAL': 0xc4af63,
+                'UNEARTHED_ARCANA': 0x980082}
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
 FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
@@ -43,6 +44,7 @@ def get_spell(name):
 
     base_url = "http://dnd5e.wikidot.com/"
     spells_url = "http://dnd5e.wikidot.com/spells"
+    COLOUR = CARDS_COLORS['NORMAL']
     name = name.lower()
     page = urlopen(spells_url)
     soup = BeautifulSoup(page, 'html.parser')
@@ -78,7 +80,10 @@ def get_spell(name):
     content = content.replace('**Casting Time', '> **Casting Time').replace('**Range', '> **Range').replace('**Components', '> **Components').replace('**Duration', '> **Duration')
     content = content[content.find('\n', 2):]
     content = '> ' + content.replace('\n', '', 3)
+    content = '\n'.join(content.splitlines())
     title = soup.find('div', attrs={'class': 'page-title'}).get_text()
+    if '(UA)' in title:
+        COLOUR = CARDS_COLORS['UNEARTHED_ARCANA']
     embed_card = Embed(title=title,
                        url=target_url,
                        description=content,

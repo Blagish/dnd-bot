@@ -77,9 +77,11 @@ def get_spell(name):
     soup = BeautifulSoup(page, 'html.parser')
     card = soup.find('div', attrs={'class': 'card-body', 'itemprop': 'articleBody'})
     title = possible_result.get_text()
+    content = parse_content(card)
+    content = '\n'.join(content.splitlines())
     embed_card = Embed(title=title,
                        url=target_url,
-                       description=parse_content(card),
+                       description=content,
                        colour=COLOUR)
     return embed_card
 
