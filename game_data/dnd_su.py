@@ -78,7 +78,7 @@ def get_spell(name):
     card = soup.find('div', attrs={'class': 'card-body', 'itemprop': 'articleBody'})
     title = possible_result.get_text()
     content = parse_content(card)
-    content = '\n'.join(content.splitlines())
+    content = content.replace('\n\n\n', '\n\n').replace('\n\n\n\n', '\n\n')
     embed_card = Embed(title=title,
                        url=target_url,
                        description=content,
