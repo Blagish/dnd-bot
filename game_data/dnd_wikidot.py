@@ -80,7 +80,7 @@ def get_spell(name):
     content = content.replace('**Casting Time', '> **Casting Time').replace('**Range', '> **Range').replace('**Components', '> **Components').replace('**Duration', '> **Duration')
     content = content[content.find('\n', 2):]
     content = '> ' + content.replace('\n', '', 3)
-    content = content.replace('\n\n\n', '\n\n').replace('\n\n\n\n', '\n\n')
+    content = content.replace('\n\n\n\n', '\n\n').replace('\n\n\n', '\n\n')
     title = soup.find('div', attrs={'class': 'page-title'}).get_text()
     if '(UA)' in title:
         COLOUR = CARDS_COLORS['UNEARTHED_ARCANA']
@@ -93,4 +93,4 @@ def get_spell(name):
 
 
 if __name__ == '__main__':
-    print(get_spell('fireball'))
+    print(get_spell('spray of cards'))
