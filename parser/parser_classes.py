@@ -130,7 +130,7 @@ class DiceOperation(Operation):
 
 
 class ExplodingDiceOperation(DiceOperation):
-    value = 'e'
+    value = 'b'
 
     def get_result(self, die_size):
         rolls_total = []

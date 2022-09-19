@@ -68,7 +68,7 @@ classes = {'>': Greater, '>=': GreaterEquals, '=>': GreaterEquals,
            '≠': NotEquals, '!=': NotEquals,
            'min': MinFunction, 'max': MaxFunction, 'sum': SumFunction}
 
-dices = {'d': DiceOperation, 'ad': AdvantageDiceOperation, 'dd': DisadvantageDiceOperation,
+dices = {'d': DiceOperation, 'b': ExplodingDiceOperation, 'ad': AdvantageDiceOperation, 'dd': DisadvantageDiceOperation,
          'ed': ElfAdvantageDiceOperation, 'kd': QuadAdvantageDiceOperation}
 
 
