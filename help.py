@@ -12,5 +12,7 @@ class MyHelpCommand(commands.MinimalHelpCommand):
 
     def get_opening_note(self):
         command_name = self.invoked_with
-        return "Используйте `{0}{1} [command]` для получения информации по команде.\n" \
-               "Можно также делать `{0}{1} [category]` для информации по категории.".format(self.clean_prefix, command_name)
+        return (
+            f'Используйте `{self.context.clean_prefix}{command_name} [command]` для получения информации по команде.\n'
+            f'Можно также делать `{self.context.clean_prefix}{command_name} [category]` для получения информации по категории.'
+        )

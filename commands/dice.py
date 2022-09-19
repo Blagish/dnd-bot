@@ -4,14 +4,13 @@ from discord import Embed, Colour, ButtonStyle
 from discord.ext import commands
 from parser import d2
 from game_data import get_spell_dnd_su, get_spell_wikidot, get_info_pf2, get_english_name
-from util import ctx_send
+from util import send_long_message
 import re
 
 
 class Dice(commands.Cog, name='Кубы кубы'):
     def __init__(self, bot):
         self.bot = bot
-        self.fate_die = ('[-]', '[ ]', '[+]')
 
     @staticmethod
     def error_message(error):
@@ -21,7 +20,20 @@ class Dice(commands.Cog, name='Кубы кубы'):
 
     @commands.command(name='куб', aliases=['r', 'р', 'k', 'к', 'roll', 'ролл'])
     async def roll(self, ctx, *, string):
-        """Кидаю кубы, прибавляю модификаторы~ Можно использовать сложение, вычитание, умножение, деление. Кубы с преимуществом - ad, с помехой - dd. Можно использовать скобки, короче, реально охуенный парсер, два года его писала """
+        """Кидаю кубы, прибавляю модификаторы~
+        - Куб указывается буквой **д**/**d** и числом за ним - `д20, d6, d69, д420`.
+        - Чтобы кинуть куб с *преимуществом* (выбирается наибольший результат из двух бросков) или с *помехой* (наименьший), используйте **ad**/**ад** и **dd**/**дд** сооветственно.
+        - Есть также опции для *тройного* или *четверного преимущества* - ed, kd.
+        - Можно кинуть несколько кубов сразу, результат суммируется - `5d12, 2ad20, 20д4`.
+        - Поддерживаются основные арифметические операции - *сложение, вычитание, умножение и деление*. И, само собой, целые и дробные числа.
+        - Также поддерживаются *сравнения* двух чисел (больше, меньше, равно, больше или равно, меньше или равно, неравно) - **>**, **<**, **=**, **>=**/**=>**, **<=**/**=<**, **≠** или **!=** если вы погромист
+        - Поддерживаются математические функции минимума, максимума и суммы - **min**, **max**, **sum**. Пример: `min(d20+4, d20+8)`.
+        - Можно указывать несколько команд через запятую! `/roll d20+10, 5d8+2, 2d6+12`
+
+        - Вы можете указать после выражения небольшой комментарий - например, тип урона или тему броска. Даника автоматически сгруппирует кубы с одинаковым комментарием, например: `/р 2д6 режущ + д8 огонь + д6 кислота + д10 огонь` выдаст что-то вроде `(7 режущ, 14 огонь, 3 кислота)`. Это можно использовать, если у монстров есть сопротивление или уязвимость к определенным видам урона, ну или просто для удобства, как тут: `д20+6 атака, д20+3 инициатива, д20+8 stealth` и т.д. **ВНИМАНИЕ** комментарий должен быть без пробелов, единым словом, и не содержать в себе чисел и специальных знаков.
+
+        - В некоторых играх есть *"взрывающиеся"* кубы, когда куб *бросается еще раз*, если на нём выпадает максимум - **b**/**б**. `b6, b8`, т.д.
+        - Если вы кидаете такой куб, что выпавшее на нём число *заменяется*, если оно меньше указанного (как способность разбойника Надёжный талант в D&D) - укажите **%** после куба. `d20%15, d6%2`"""
         # if string.strip() == '':
         #     view = ui.View()
         #     d4 = ui.Button(style=ButtonStyle.green, label='d4')
@@ -33,7 +45,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         #     d100 = ui.Button(style=ButtonStyle.blurple, label='d100')
         sol, ans = d2(string)
         s = f'Кидаю\n-> {sol}\n= **{ans}**'
-        await ctx_send(ctx, s)
+        await send_long_message(ctx, s)
 
     @roll.before_invoke
     async def before_roll(self, ctx):
@@ -53,6 +65,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         if spell_name[:3] in ('ru ', 'ру '):
             spell_name = spell_name[3:]
             get_from_spell_source = get_spell_dnd_su
+
         elif spell_name[:3] in ('en ', 'ен ', 'ан '):
             spell_name = spell_name[3:]
             get_from_spell_source = get_spell_wikidot
@@ -60,6 +73,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
                 spell_name = get_english_name(spell_name)
                 if not spell_name:
                     spell_name = 'aaaaaaaaa'
+
         elif any('a' <= c <= 'z' for c in spell_name):  # если есть английские буквы
             get_from_spell_source = get_spell_wikidot
 
@@ -83,6 +97,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *mod):
         """Бросок четырех кубов системы Fate. Модификатор указывается по типу +3 или -1. Пустой аргумент равнозначен +0. """
+        fate_die = ('[-]', '[ ]', '[+]')
         mod = ''.join(mod).replace(' ', '')
         if mod == '':
             mod = '+0'
@@ -95,7 +110,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         res = 0
         for i in range(4):
             d = randint(-1, 1)
-            s += self.fate_die[d + 1]
+            s += fate_die[d + 1]
             res += d
         s += f'** {sign} {abs(mod)}\n= **{res + mod}**'
         await ctx.send(s)

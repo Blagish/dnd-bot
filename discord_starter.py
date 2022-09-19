@@ -9,7 +9,7 @@ intents = discord.Intents(guilds=True, members=True, messages=True, reactions=Tr
 bot = commands.Bot(intents=intents, command_prefix=command_prefix,
                    activity=discord.Activity(type=discord.ActivityType.listening,
                                              name=f'{command_prefix}help'))
-
+bot.remove_command('help')
 bot.help_command = MyHelpCommand(sort_commands=False,
                                  commands_heading='(команды):',
                                  aliases_heading='Варианты:',

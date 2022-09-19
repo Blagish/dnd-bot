@@ -13,6 +13,8 @@ def parse_content(element):
         return element
     if element.text == '':
         return ''
+    if element.attrs.get('class') and 'additionalInfo' in element.attrs.get('class'):
+        return ''
 
     style1 = style2 = ''
     text = ''
@@ -64,6 +66,9 @@ def get_spell(name):
         title = parts[1]
         if 'а' <= name[0] <= 'я':
             title = parts[0]
+        if name not in title.lower():
+            print('not ' + title)
+            continue
         if len(title) - len(name) < diff:
             diff = len(title) - len(name)
             possible_result = tag
