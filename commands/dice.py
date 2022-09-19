@@ -5,6 +5,7 @@ from discord.ext import commands
 from parser import d2
 from game_data import get_spell_dnd_su, get_spell_wikidot, get_info_pf2, get_english_name
 from util import ctx_send
+import re
 
 
 class Dice(commands.Cog, name='Кубы кубы'):
@@ -151,4 +152,13 @@ class Dice(commands.Cog, name='Кубы кубы'):
         sol, ans = d2(command)
         sol = sol[4:-1]
         s = f'Кидаю\n-> {sol}\n**Успехов: {ans}**'
+        await ctx.send(s)
+
+    @commands.command(name='св', aliases=['sw', 'sav', 'сав'])
+    async def sw(self, ctx, *, string):
+        """Бросок системы Savage Worlds. Принимает в себя вычисляемую строку, автоматически добавляет дикий куб d6."""
+        wild_die = 'b6'
+        string = re.sub(r'([dд])(\d+)', r'b\2', string) + f' + {wild_die}'
+        sol, ans = d2(string)
+        s = f'Кидаю\n-> {sol}\n= **{ans}**'
         await ctx.send(s)
