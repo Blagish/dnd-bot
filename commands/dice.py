@@ -19,7 +19,6 @@ class Dice(commands.Cog, name='Кубы кубы'):
                      description=f'**Код ошибки:** {error}.\nЧто бы это ни было, возможно, когда-нибудь это пофиксится',
                      colour=Colour.red())
 
-
     @commands.command(name='куб', aliases=['r', 'р', 'k', 'к', 'roll', 'ролл'])
     async def roll(self, ctx, *, string):
         """Кидаю кубы, прибавляю модификаторы~ Можно использовать сложение, вычитание, умножение, деление. Кубы с преимуществом - ad, с помехой - dd. Можно использовать скобки, короче, реально охуенный парсер, два года его писала """
@@ -158,18 +157,28 @@ class Dice(commands.Cog, name='Кубы кубы'):
     async def sw(self, ctx, *, string):
         """Бросок системы Savage Worlds. Принимает в себя вычисляемую строку, автоматически добавляет дикий куб d6."""
         wild_die = 'b6'
-        bar = 4
-        string = re.sub(r'([dд])(\d+)', r'b\2', string.replace(' ', '')) + f', {wild_die}'
-        string = re.sub(r'(\d+)*b(\d+)(\+\d+)*', r'<\1x>(b\2\3)', string)
+        grade_text = {0: 'ями', 1: 'ем'}
+        throw_wild_die = True
+        success_bar = 4
+        uprise_bar = 4
+        string = string.replace(' ', '')
+        is_bar = string.rfind('/')
+        if is_bar > 0:
+            success_bar = int(string[is_bar+1:])
+            string = string[:is_bar]
+
+        string = re.sub(r'([dд])(\d+)', r'b\2', string)  # + f', {wild_die}'
+        string = re.sub(r'(\d+)*b(\d+)([\+\-]\d+)*', r'<\1x>(b\2\3)', string)
         string = string.replace('<x>', '1x').replace('<', '').replace('>', '')
+
         sol, ans = d2(f'max({string})')
         ans = ans.ops[0]
-        grade = ans//bar
-        if grade == 0:
+        if ans < success_bar:
             msg = 'провал'
-        elif grade == 1:
+        elif (grade := (ans-success_bar)//uprise_bar) == 0:
             msg = 'успех'
         else:
-            msg = f'успех с {grade-1} повышениями'
-        s = f'Кидаю\n-> {sol}\nРезультат: **{ans}, {msg}!**'
+            msg = f'успех с {grade} повышени{grade_text.get(grade%10==1)}'
+
+        s = f'Кидаю; целевое число = {success_bar}\n-> {sol[4:-1]}\n**Результат: {ans}, {msg}!**'
         await ctx.send(s)
