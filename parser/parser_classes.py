@@ -142,7 +142,7 @@ class ExplodingDiceOperation(DiceOperation):
             roll = randint(1, die_size)
             rolls_sum += roll
             rolls_total.append(str(roll))
-            if roll == die_size:
+            if roll == die_size and die_size > 1:
                 times_to_roll += 1
         return rolls_sum, f'[**{"**+**".join(rolls_total)}**] + '
 

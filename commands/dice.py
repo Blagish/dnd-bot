@@ -158,7 +158,18 @@ class Dice(commands.Cog, name='Кубы кубы'):
     async def sw(self, ctx, *, string):
         """Бросок системы Savage Worlds. Принимает в себя вычисляемую строку, автоматически добавляет дикий куб d6."""
         wild_die = 'b6'
-        string = re.sub(r'([dд])(\d+)', r'b\2', string) + f' + {wild_die}'
-        sol, ans = d2(string)
-        s = f'Кидаю\n-> {sol}\n= **{ans}**'
+        bar = 4
+        string = re.sub(r'([dд])(\d+)', r'b\2', string.replace(' ', '')) + f', {wild_die}'
+        string = re.sub(r'(\d+)*b(\d+)(\+\d+)*', r'<\1x>(b\2\3)', string)
+        string = string.replace('<x>', '1x').replace('<', '').replace('>', '')
+        sol, ans = d2(f'max({string})')
+        ans = ans.ops[0]
+        grade = ans//bar
+        if grade == 0:
+            msg = 'провал'
+        elif grade == 1:
+            msg = 'успех'
+        else:
+            msg = f'успех с {grade-1} повышениями'
+        s = f'Кидаю\n-> {sol}\nРезультат: **{ans}, {msg}!**'
         await ctx.send(s)
