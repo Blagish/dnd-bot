@@ -4,7 +4,7 @@ from discord import Embed, Colour, ButtonStyle
 from discord.ext import commands
 
 
-class Cards(commands.Cog, name='Кубы кубы'):
+class Cards(commands.Cog, name='Игральные карты'):
     def __init__(self, bot):
         self.bot = bot
         self.cards = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
