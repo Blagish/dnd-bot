@@ -19,7 +19,8 @@ class Cards(commands.Cog, name='Игральные карты'):
                        "Joker1": 0x000000,
                        "Joker2": 0xdf0000}
 
-    def gen_embed_picture(self, title, name, color):
+    @staticmethod
+    def gen_embed_picture(title, name, color):
         e = Embed(title=title, colour=color)
         e.set_image(url=f'cards/{name}.svg')
         return e
@@ -35,4 +36,4 @@ class Cards(commands.Cog, name='Игральные карты'):
             name = f"{card}{suit}"
             color = self.colors[suit]
             title = f"{self.full_cards.get(card, card)} of {self.full_suits[suit]}"
-        ctx.send(embed=self.gen_embed_picture(title, name, color))
+        await ctx.send(embed=self.gen_embed_picture(title, name, color))
