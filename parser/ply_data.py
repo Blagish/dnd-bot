@@ -31,6 +31,7 @@ tokens = (
     'SEMICOLON',  # ;
     'FOR',  # x
     'DIE',  # d
+    'BOOMDIE',  # b
     'ADVDIE',  # ad
     'DISDIE',  # dd
     'ELFDIE',  # ed
