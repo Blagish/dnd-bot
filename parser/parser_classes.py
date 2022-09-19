@@ -129,6 +129,24 @@ class DiceOperation(Operation):
         return s.replace(f'|{result}', f'|**{result}**')[1:]
 
 
+class ExplodingDiceOperation(DiceOperation):
+    value = 'b'
+
+    def get_result(self, die_size):
+        rolls_total = []
+        rolls_sum = 0
+        times_to_roll = 1
+        rollings = 0
+        while rollings < times_to_roll:
+            rollings += 1
+            roll = randint(1, die_size)
+            rolls_sum += roll
+            rolls_total.append(str(roll))
+            if roll == die_size and die_size > 1:
+                times_to_roll += 1
+        return rolls_sum, f'[**{"**+**".join(rolls_total)}**] + '
+
+
 class AdvantageDiceOperation(DiceOperation):
     """Операция броска куба с преимуществом."""
     value = 'ad'
