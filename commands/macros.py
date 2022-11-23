@@ -2,7 +2,7 @@ from discord.ext import commands
 import json
 
 from parser import d2
-from util import ctx_send
+from util import send_long_message
 
 
 class Macros(commands.Cog, name='Макросы'):
@@ -25,7 +25,7 @@ class Macros(commands.Cog, name='Макросы'):
                 return 'Ошибка: не хватает значений.'
             sol, ans = d2(full)
             s = f'Кидаю\n-> {sol}\n{true_command[1].format(ans)}'
-            await ctx_send(ctx, s)
+            await send_long_message(ctx, s)
         else:
             await ctx.send(f'Ошибка: макрос "{command}" не найден.')
 
