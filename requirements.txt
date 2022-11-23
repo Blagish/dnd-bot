@@ -2,3 +2,4 @@ beautifulsoup4==4.11.1
 discord.py==2.1.0
 ply==3.11
 requests==2.27.1
+prettytable==3.5.0
