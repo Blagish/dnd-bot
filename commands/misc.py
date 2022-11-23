@@ -22,8 +22,9 @@ class Cards(commands.Cog, name='Разное: игральные карты'):
     @staticmethod
     def gen_embed_picture(title, name, color):
         e = Embed(title=title, colour=color)
-        e.set_image(url=f"https://raw.githubusercontent.com/notpeter/Vector-Playing-Cards/master/cards-svg/{name}.svg")
-        return e
+        file = File(f"cards/{name}.png", filename=f"card_{name}.png")
+        e.set_image(url=f"attachment://card_{name}.png")
+        return file, e
 
     @commands.command(name='card52', aliases=['52', 'карт52', 'к52', 'k52', 'c52'])
     async def card52(self, ctx):
@@ -32,8 +33,8 @@ class Cards(commands.Cog, name='Разное: игральные карты'):
         name = f"{card}{suit}"
         color = self.colors[suit]
         title = f"{self.full_cards.get(card, card)} of {self.full_suits[suit]}"
-        embed = self.gen_embed_picture(title, name, color)
-        await ctx.send(embed=embed)
+        file, embed = self.gen_embed_picture(title, name, color)
+        await ctx.send(file=file, embed=embed)
 
     @commands.command(name='card54', aliases=['54', 'карт54', 'к54', 'k54', 'c54'])
     async def card54(self, ctx):
@@ -47,5 +48,5 @@ class Cards(commands.Cog, name='Разное: игральные карты'):
             name = f"{card}{suit}"
             color = self.colors[suit]
             title = f"{self.full_cards.get(card, card)} of {self.full_suits[suit]}"
-        embed = self.gen_embed_picture(title, name, color)
-        await ctx.send(embed=embed)
+        file, embed = self.gen_embed_picture(title, name, color)
+        await ctx.send(file=file, embed=embed)
