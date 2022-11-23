@@ -2,19 +2,25 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.parse import quote
 from discord import Embed, Colour
+from cool_embed_tables import TableParser
 
 blacklisted_tags = ['translate-by']
 COLOUR = 0xfe650c
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
 
-def parse_content(element):
+def parse_content(element, ignore_br=True):
     if isinstance(element, str):
         return element
+    if not ignore_br and element.name == 'br':
+        return ' '
     if element.text == '':
         return ''
     if element.attrs.get('class') and 'additionalInfo' in element.attrs.get('class'):
         return ''
+    if element.name == 'table':
+        table = TableParser(element, parse_string=parse_content, align_left='l', style='ms')
+        return table.get_for_embed()
 
     style1 = style2 = ''
     text = ''
@@ -33,7 +39,7 @@ def parse_content(element):
     elif element.name == 'strong':
         style1 = style2 = '**'
     for child in element.children:
-        text += parse_content(child)
+        text += parse_content(child, ignore_br=ignore_br)
     return f'{style1}{text}{style2}'
 
 
@@ -59,16 +65,13 @@ def get_spell(name):
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
 
-    for tag in results:
+    for tag in results[:2]:
         title = tag.get_text()
         print('title is ' + title)
         parts = title.split(' [')
         title = parts[1]
         if 'а' <= name[0] <= 'я':
             title = parts[0]
-        if name not in title.lower():
-            print('not ' + title)
-            continue
         if len(title) - len(name) < diff:
             diff = len(title) - len(name)
             possible_result = tag
@@ -112,4 +115,4 @@ def get_english_name(name):
 
 
 if __name__ == '__main__':
-    print(get_spell('fireball'))
+    print(get_spell('озорство').description)

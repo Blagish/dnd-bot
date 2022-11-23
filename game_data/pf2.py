@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from discord import Embed, Colour
+from cool_embed_tables import TableParser
 
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
@@ -19,14 +20,19 @@ CARDS_COLORS = {'EMPTY': 0x090a0a,
 FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
 
-def parse_content(element):
+def parse_content(element, ignore_br=True):
     if isinstance(element, str):
         return element
+    if not ignore_br and element.name == 'br':
+        return ' '
     if element.name == 'i':
         action_class = element.attrs['class'][1]
         return ACTIONS[action_class]
     if element.text == '':
         return ''
+    if element.name == 'table':
+        table = TableParser(element, parse_string=parse_content, align_left='l', style='ms')
+        return table.get_for_embed()
 
     style1 = style2 = ''
     text = ''
@@ -41,7 +47,7 @@ def parse_content(element):
     elif element.name == 'strong':
         style1 = style2 = '**'
     for child in element.children:
-        text += parse_content(child)
+        text += parse_content(child, ignore_br=ignore_br)
     return f'{style1}{text}{style2}'
 
 
@@ -97,6 +103,11 @@ def get_info(name):
             description += parse_content(content_extra)
             # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
 
+    if len(details_addon := soup.find_all('section', attrs={'class': ['details addon']})) > 0:
+        for detail_addon in details_addon:
+            description += parse_content(detail_addon)
+            # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
+
     embed_card = Embed(title=title, description=description, color=color)
     embed_card.set_footer(text=source, icon_url=FOOTER_URL)
 
@@ -104,4 +115,4 @@ def get_info(name):
 
 
 if __name__ == '__main__':
-    print(get_info('chromatic wall'))
+    print(get_info('familiar master').description)
