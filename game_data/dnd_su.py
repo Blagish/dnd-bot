@@ -28,7 +28,7 @@ def parse_table(table):
             if c != '\n':
                 a.append(parse_content(c, ignore_br=False))
         t.add_row(a)
-    return str(t)
+    return '`' + str(t) + '`'
 
 
 def parse_content(element, ignore_br=True):
@@ -86,16 +86,13 @@ def get_spell(name):
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
 
-    for tag in results:
+    for tag in results[:2]:
         title = tag.get_text()
         print('title is ' + title)
         parts = title.split(' [')
         title = parts[1]
         if 'а' <= name[0] <= 'я':
             title = parts[0]
-        if name not in title.lower():
-            print('not ' + title)
-            continue
         if len(title) - len(name) < diff:
             diff = len(title) - len(name)
             possible_result = tag
