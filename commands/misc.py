@@ -3,7 +3,7 @@ from random import choice, randint
 from discord import Embed, Colour, ButtonStyle, File
 from discord.ext import commands
 import os
-print(os.listdir())
+print('misc', os.listdir())
 
 
 class Cards(commands.Cog, name='Разное: игральные карты'):
