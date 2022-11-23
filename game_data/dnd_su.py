@@ -27,14 +27,15 @@ def parse_table(table):
         for c in child.children:
             if c != '\n':
                 a.append(parse_content(c, ignore_br=False))
-        t.add_row(a)
+        if len(a) == len(headers):
+            t.add_row(a)
     return '`' + str(t) + '`'
 
 
 def parse_content(element, ignore_br=True):
     if isinstance(element, str):
         return element
-    if not ignore_br and element.name == 'br' :
+    if not ignore_br and element.name == 'br':
         return ' '
     if element.text == '':
         return ''

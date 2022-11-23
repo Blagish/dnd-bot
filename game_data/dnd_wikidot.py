@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from discord import Embed, Colour
+from prettytable import PrettyTable
 
 blacklisted_tags = []
 CARDS_COLORS = {'NORMAL': 0xc4af63,
@@ -10,9 +11,34 @@ tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
 
-def parse_content(element):
+def parse_table(table):
+    table = table.tbody  # hop to tbody
+    data = table.children
+    next(data)
+    header = next(data)
+    headers = []
+    for h in header.children:
+        if h != '\n':
+            headers.append(parse_content(h, ignore_br=False))
+    print(headers)
+    t = PrettyTable(headers)
+    for child in data:
+        if child == '\n':
+            continue
+        a = []
+        for c in child.children:
+            if c != '\n':
+                a.append(parse_content(c, ignore_br=False))
+        if len(a) == len(headers):
+            t.add_row(a)
+    return '`' + str(t) + '`'
+
+
+def parse_content(element, ignore_br=True):
     if isinstance(element, str):
         return element
+    if not ignore_br and element.name == 'br':
+        return ' '
     if element.text == '':
         return ''
 
@@ -30,7 +56,7 @@ def parse_content(element):
     elif element.name == 'strong':
         style1 = style2 = '**'
     for child in element.children:
-        text += parse_content(child)
+        text += parse_content(child, ignore_br=ignore_br)
     return f'{style1}{text}{style2}'
 
 
