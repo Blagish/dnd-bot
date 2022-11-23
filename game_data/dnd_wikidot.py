@@ -12,8 +12,9 @@ FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/96414871
 
 
 def parse_table(table):
-    table = table.tbody  # hop to tbody
-    data = table.children
+    if table.tbody:
+        table = table.tbody
+    data = table.children  # no tbody
     next(data)
     header = next(data)
     headers = []

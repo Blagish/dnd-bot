@@ -19,8 +19,10 @@ CARDS_COLORS = {'EMPTY': 0x090a0a,
 
 FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
 
+
 def parse_table(table):
-    table = table.tbody  # hop to tbody
+    if table.tbody:
+        table = table.tbody
     data = table.children
     next(data)
     header = next(data)
@@ -122,6 +124,11 @@ def get_info(name):
     if len(contents_extra := soup.find_all('section', attrs={'class': ['content extra']})) > 0:
         for content_extra in contents_extra:
             description += parse_content(content_extra)
+            # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
+
+    if len(details_addon := soup.find_all('section', attrs={'class': ['details addon']})) > 0:
+        for detail_addon in details_addon:
+            description += parse_content(detail_addon)
             # embed_card.add_field(name='', value=parse_content(content_extra), inline=False)
 
     embed_card = Embed(title=title, description=description, color=color)

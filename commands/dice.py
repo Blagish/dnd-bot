@@ -15,7 +15,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
     @staticmethod
     def error_message(error):
         return Embed(title="Произошла непредвиденная ошибка :(",
-                     description=f'**Код ошибки:** {error}.\nПожалуйста, сообщите об этой проблеме разработчику: **blag#2847#**.',
+                     description=f'**Код ошибки:** {error}.\nПожалуйста, сообщите об этой проблеме разработчику: **blag#2847**.',
                      colour=Colour.red())
 
     @commands.command(name='куб', aliases=['r', 'р', 'k', 'к', 'roll', 'ролл'])
