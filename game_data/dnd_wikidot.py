@@ -41,6 +41,8 @@ def parse_content(element, ignore_br=True):
         return ' '
     if element.text == '':
         return ''
+    if element.name == 'table':
+        return parse_table(element)
 
     style1 = style2 = ''
     text = ''
