@@ -3,8 +3,6 @@ from .dice import Dice
 from .talking import Talking
 from .technical import Technical
 from .misc import Cards
-import os
-print('init', os.listdir())
 
 cogs = (Dice, Talking, Technical, Cards)
 
