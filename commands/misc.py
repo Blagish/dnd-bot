@@ -22,7 +22,7 @@ class Cards(commands.Cog, name='Разное: игральные карты'):
     @staticmethod
     def gen_embed_picture(title, name, color):
         e = Embed(title=title, colour=color)
-        e.set_image(url=f"https://https://raw.githubusercontent.com/notpeter/Vector-Playing-Cards/master/cards-svg/{name}.svg")
+        e.set_image(url=f"https//raw.githubusercontent.com/notpeter/Vector-Playing-Cards/master/cards-svg/{name}.svg")
         return e
 
     @commands.command(name='card52', aliases=['52', 'карт52', 'к52', 'k52', 'c52'])
