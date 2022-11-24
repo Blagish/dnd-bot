@@ -2,34 +2,11 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.parse import quote
 from discord import Embed, Colour
-from prettytable import PrettyTable
+from cool_embed_tables import TableParser
 
 blacklisted_tags = ['translate-by']
 COLOUR = 0xfe650c
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
-
-
-def parse_table(table):
-    table = table.tbody  # hop to tbody
-    data = table.children
-    next(data)
-    header = next(data)
-    headers = []
-    for h in header.children:
-        if h != '\n':
-            headers.append(parse_content(h, ignore_br=False))
-    print(headers)
-    t = PrettyTable(headers)
-    for child in data:
-        if child == '\n':
-            continue
-        a = []
-        for c in child.children:
-            if c != '\n':
-                a.append(parse_content(c, ignore_br=False))
-        if len(a) == len(headers):
-            t.add_row(a)
-    return '`' + str(t) + '`'
 
 
 def parse_content(element, ignore_br=True):
@@ -42,7 +19,8 @@ def parse_content(element, ignore_br=True):
     if element.attrs.get('class') and 'additionalInfo' in element.attrs.get('class'):
         return ''
     if element.name == 'table':
-        return parse_table(element)
+        table = TableParser(element, parse_string=parse_content, align_left='l', style='ms')
+        return table.get_for_embed()
 
     style1 = style2 = ''
     text = ''
@@ -137,4 +115,4 @@ def get_english_name(name):
 
 
 if __name__ == '__main__':
-    print(get_spell('телепортация').description)
+    print(get_spell('озорство').description)

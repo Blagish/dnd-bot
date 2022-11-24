@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from discord import Embed, Colour
-from prettytable import PrettyTable
+from cool_embed_tables import TableParser
 
 blacklisted_tags = []
 CARDS_COLORS = {'NORMAL': 0xc4af63,
@@ -9,30 +9,6 @@ CARDS_COLORS = {'NORMAL': 0xc4af63,
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
 FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png'
-
-
-def parse_table(table):
-    if table.tbody:
-        table = table.tbody
-    data = table.children  # no tbody
-    next(data)
-    header = next(data)
-    headers = []
-    for h in header.children:
-        if h != '\n':
-            headers.append(parse_content(h, ignore_br=False))
-    print(headers)
-    t = PrettyTable(headers)
-    for child in data:
-        if child == '\n':
-            continue
-        a = []
-        for c in child.children:
-            if c != '\n':
-                a.append(parse_content(c, ignore_br=False))
-        if len(a) == len(headers):
-            t.add_row(a)
-    return '`' + str(t) + '`'
 
 
 def parse_content(element, ignore_br=True):
@@ -43,7 +19,8 @@ def parse_content(element, ignore_br=True):
     if element.text == '':
         return ''
     if element.name == 'table':
-        return parse_table(element)
+        table = TableParser(element, parse_string=parse_content, align_left='l', style='ms')
+        return table.get_for_embed()
 
     style1 = style2 = ''
     text = ''
@@ -122,4 +99,4 @@ def get_spell(name):
 
 
 if __name__ == '__main__':
-    print(get_spell('spray of cards'))
+    print(get_spell('chaos bolt').description)
