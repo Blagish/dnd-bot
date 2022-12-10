@@ -34,7 +34,9 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         if self.bot_id in text:
             await ctx.send(self.random_danika_reaction())
         elif 'даник' in text:
-            if '?' in text:
+            if 'привет' in text:
+                await ctx.send(self.get_hello())
+            elif '?' in text:
                 await ctx.send(self.funny_response(text))
             elif randint(1, 7) == 1:
                 await ctx.send(self.random_danika_reaction())
@@ -86,6 +88,9 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     @commands.command(name='привет', aliases=['hello', 'hewwo', 'owo'])
     async def hello(self, ctx):
         """Привет :)"""
+        await ctx.send(self.get_hello())
+
+    def get_hello(self):
         if randint(1, 3) < 3:
             time = self.get_time_of_day()
             phrases = {0: ['Доброй ночи', 'Ночи', 'Чё не спишь'],
@@ -96,7 +101,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         else:
             res = choice(['Привет!', 'Hewwo', 'Привееееет'])
         res += choice(['', '!', '!!', '!!!', '?', ' :)'])
-        await ctx.send(res)
+        return res
 
     @staticmethod
     def get_time_of_day(timezone=0):
