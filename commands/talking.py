@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from discord.ext import commands
 from random import choice, randint
 import os
@@ -84,8 +86,24 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     @commands.command(name='привет', aliases=['hello', 'hewwo', 'owo'])
     async def hello(self, ctx):
         """Привет :)"""
-        res = choice(['Привет!', 'Привет :)', 'Hewwo', ' Hewwo :)', 'Привееееет :)'])
+        if randint(1, 3) < 3:
+            time = self.get_time_of_day()
+            phrases = {0: ['Доброй ночи', 'Ночи', 'Чё не спишь'],
+                       1: ['Доброе утро', 'Утра', 'Утро доброе', 'Утречка'],
+                       2: ['Добрый день', 'Дня', 'День добрый', 'Доброго дня', 'Доброго денёчка'],
+                       3: ['Добрый вечер', 'Вечера', 'Вечер добрый', 'Доброго вечера', 'Вечер в хату', 'Вечерочка']}
+            res = choice(phrases[time])
+        else:
+            res = choice(['Привет!', 'Hewwo', 'Привееееет'])
+        res += choice(['', '!', '!!', '!!!', '?', ' :)'])
         await ctx.send(res)
+
+    @staticmethod
+    def get_time_of_day(timezone=0):
+        now = datetime.today().hour
+        time = {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, 11: 1, 12: 2, 13: 2, 14: 2,
+                15: 2, 16: 2, 17: 3, 18: 3, 19: 3, 20: 3, 21: 3, 22: 3, 23: 0}
+        return time[now]
 
     @commands.command(name='куку', hidden=True)
     async def kuku(self, ctx):
