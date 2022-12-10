@@ -2,6 +2,9 @@ from random import choice, randint
 
 from discord import Embed, Colour, ButtonStyle, File
 from discord.ext import commands
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Cards(commands.Cog, name='Разное: игральные карты'):

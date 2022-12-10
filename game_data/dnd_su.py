@@ -3,6 +3,9 @@ from urllib.request import urlopen
 from urllib.parse import quote
 from discord import Embed, Colour
 from cool_embed_tables import TableParser
+import logging
+
+logger = logging.getLogger(__name__)
 
 blacklisted_tags = ['translate-by']
 COLOUR = 0xfe650c
@@ -44,7 +47,7 @@ def parse_content(element, ignore_br=True):
 
 
 def get_spell(name):
-    print('dnd ru: looking for', name)
+    logger.debug(f'dnd ru: looking for {name}')
 
     if len(name) < 4:
         return Embed(title="You baka!",
@@ -61,13 +64,14 @@ def get_spell(name):
     diff = 1e9
 
     if results[0].get_text().startswith('По вашему'):
+        logger.debug('no results')
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
 
     for tag in results[:2]:
         title = tag.get_text()
-        print('title is ' + title)
+        logger.debug(f'title is {title}')
         parts = title.split(' [')
         title = parts[1]
         if 'а' <= name[0] <= 'я':
@@ -77,6 +81,7 @@ def get_spell(name):
             possible_result = tag
 
     if possible_result is None:
+        logger.debug('no results')
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
@@ -91,6 +96,7 @@ def get_spell(name):
                        url=target_url,
                        description=content,
                        colour=COLOUR)
+    logger.debug('result found')
     return embed_card
 
 

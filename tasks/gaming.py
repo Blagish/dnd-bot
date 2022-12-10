@@ -1,6 +1,9 @@
 from discord.ext import commands, tasks
 import discord
 from random import choice
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Gaming(commands.Cog, name='Гейминг'):
@@ -17,12 +20,12 @@ class Gaming(commands.Cog, name='Гейминг'):
     @tasks.loop(hours=6.0)
     async def start_new_game(self):
         game_title = self.choose_a_game()
-        print(f'Starting playing {game_title}')
+        logger.info(f'Starting playing {game_title}')
         await self.bot.change_presence(activity=discord.Game(name=game_title))
 
     @start_new_game.before_loop
     async def before_start_new_game(self):
-        print('waiting...')
+        logger.info('waiting...')
         await self.bot.wait_until_ready()
 
     def choose_a_game(self):
