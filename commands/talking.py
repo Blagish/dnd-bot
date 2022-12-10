@@ -36,6 +36,8 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         elif 'даник' in text:
             if 'привет' in text:
                 await ctx.send(self.get_hello())
+            elif 'пасиб' in text:
+                await ctx.send(self.get_thanks())
             elif '?' in text:
                 await ctx.send(self.funny_response(text))
             elif randint(1, 7) == 1:
@@ -93,14 +95,14 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     def get_hello(self):
         if randint(1, 3) < 3:
             time = self.get_time_of_day()
-            phrases = {0: ['Доброй ночи', 'Ночи', 'Чё не спишь'],
+            phrases = {0: ['Доброй ночи', 'Ночи', 'Чё не спишь', 'Привет чё не спишь', 'Чета ты поздновато'],
                        1: ['Доброе утро', 'Утра', 'Утро доброе', 'Утречка'],
                        2: ['Добрый день', 'Дня', 'День добрый', 'Доброго дня', 'Доброго денёчка'],
                        3: ['Добрый вечер', 'Вечера', 'Вечер добрый', 'Доброго вечера', 'Вечер в хату', 'Вечерочка']}
             res = choice(phrases[time])
         else:
             res = choice(['Привет!', 'Hewwo', 'Привееееет'])
-        res += choice(['', '!', '!!', '!!!', '?', ' :)'])
+        res += choice(['', '!', '!!', '!!!', '?', '!?', ' :)', ':eyes:'])
         return res
 
     @staticmethod
@@ -118,8 +120,14 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     @commands.command(name='спасибо', aliases=['спс', 'thanks', 'thx'])
     async def thanks(self, ctx):
         """Поблагодарить меня :)"""
-        res = choice(['Пожалуйста!', 'Рада помочь!', 'Всегда пожалуйста', 'Стараюсь :)'])
+        res = self.get_thanks()
         await ctx.send(res)
+
+    @staticmethod
+    def get_thanks():
+        res = choice(['Пожалуйста', 'Рада помочь', 'Всегда пожалуйста', 'Стараюсь', 'Не за что'])
+        res += choice(['', '!', '!!', '!!!', ' <З', ' !', ' :)', ':eyes:'])
+        return res
 
     @commands.command(name='слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
     async def anger(self, ctx):
