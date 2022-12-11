@@ -2,6 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from discord import Embed, Colour
 from cool_embed_tables import TableParser
+import logging
+
+logger = logging.getLogger(__name__)
 
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
 
@@ -52,7 +55,7 @@ def parse_content(element, ignore_br=True):
 
 
 def get_info(name):
-    print('pf: looking for', name)
+    logger.debug(f'pf: looking for {name}')
     search_url = 'https://pf2easy.com/php/search.php'
     thing_url = 'https://pf2easy.com/index.php'
     response = requests.post(search_url, {'name': name})
@@ -60,6 +63,7 @@ def get_info(name):
     results = soup.find_all('button')
 
     if len(results) == 0:
+        logger.debug('no results')
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
@@ -110,7 +114,7 @@ def get_info(name):
 
     embed_card = Embed(title=title, description=description, color=color)
     embed_card.set_footer(text=source, icon_url=FOOTER_URL)
-
+    logger.debug('results found')
     return embed_card
 
 

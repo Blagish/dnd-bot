@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from discord import Embed, Colour
 from cool_embed_tables import TableParser
+import logging
+
+logger = logging.getLogger(__name__)
 
 blacklisted_tags = []
 CARDS_COLORS = {'NORMAL': 0xc4af63,
@@ -41,7 +44,7 @@ def parse_content(element, ignore_br=True):
 
 
 def get_spell(name):
-    print('dnd en: looking for', name)
+    logger.debug(f'dnd en: looking for {name}')
 
     if len(name) < 4:
         return Embed(title="You baka!",
@@ -59,18 +62,20 @@ def get_spell(name):
     diff = 1e9
 
     if len(results) == 0:
+        logger.debug('no results')
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
 
     for tag in results:
         title = tag.get_text()
-        print('title is ' + title)
+        logger.debug(f'title is {title}')
         if len(title) - len(name) < diff:
             diff = len(title) - len(name)
             possible_result = tag
 
     if possible_result is None:
+        logger.debug('no results')
         return Embed(title="OwO, what's this?",
                      description='(по вашему запросу ничего не найдено)',
                      colour=Colour.red())
@@ -95,6 +100,7 @@ def get_spell(name):
                        description=content,
                        colour=COLOUR)
     embed_card.set_footer(text=source, icon_url=FOOTER_URL)
+    logger.debug('result found')
     return embed_card
 
 

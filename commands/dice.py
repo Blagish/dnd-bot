@@ -6,6 +6,9 @@ from parser import d2
 from game_data import get_spell_dnd_su, get_spell_wikidot, get_info_pf2, get_english_name
 from util import send_long_message
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Dice(commands.Cog, name='Кубы кубы'):
@@ -14,6 +17,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
 
     @staticmethod
     def error_message(error):
+        logger.error(error)
         return Embed(title="Произошла непредвиденная ошибка :(",
                      description=f'**Код ошибки:** {error}.\nПожалуйста, сообщите об этой проблеме разработчику: **blag#2847**.',
                      colour=Colour.red())
@@ -49,10 +53,10 @@ class Dice(commands.Cog, name='Кубы кубы'):
 
     @roll.before_invoke
     async def before_roll(self, ctx):
-        name = 'their DMs'
+        name = 'DMs'
         if hasattr(ctx.channel, 'name'):
             name = ctx.channel.name
-        print(f'Roll! {ctx.author.name}: {ctx.message.content} at {name}')
+        logger.info(f'[ROLL] Name:{ctx.author.name}, Place:{name}, Command: {ctx.message.content}')
 
     @roll.after_invoke
     async def after_roll(self, ctx):

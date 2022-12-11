@@ -4,6 +4,9 @@ from discord.ext import commands
 from random import choice, randint
 import os
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Talking(commands.Cog, name='Общение со мной :)'):
@@ -29,7 +32,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         if message.author == self.bot.user:
             return None
         ctx = message.channel
-        print(message.content)
+        logger.debug(f'[MESSAGE] {message.author.name}: {message.content}')
         text = message.content.lower()
         if self.bot_id in text:
             await ctx.send(self.random_danika_reaction())
