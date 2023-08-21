@@ -79,6 +79,7 @@ def get_info(name):
     res_id = ans.find('input').attrs['value']
     data = requests.get(thing_url + f'?id={res_id}')
     soup = BeautifulSoup(data.text, 'html.parser')
+    soup = soup.find('article', attrs={'id': 'mainContainer'})
 
     title = soup.find_all('h1')[-1].text.title()
     level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()  # not only a level, but feat type, etc.
@@ -119,4 +120,4 @@ def get_info(name):
 
 
 if __name__ == '__main__':
-    print(get_info('familiar master').description)
+    print(get_info('wand of').description)
