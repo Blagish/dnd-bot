@@ -1,6 +1,7 @@
-from .ply_data import *
+from parser.ply_data import *
 import ply.lex as lex
 import ply.yacc as yacc
+import re
 
 t_ADD = r'\+'
 t_SUB = r'-'
@@ -17,6 +18,7 @@ t_COMMA = r'\,'
 t_SEMICOLON = r'\;'
 t_FOR = r'x'
 t_DIE = r'd'
+t_PICK = r'p'
 t_BOOMDIE = r'b'
 t_ADVDIE = r'ad'
 t_DISDIE = r'dd'
@@ -57,7 +59,7 @@ parser = yacc.yacc()
 
 
 def parse(expression):
-    result = parser.parse(expression)
+    result = parser.parse(expression.lower())
     return result
 
 
@@ -68,8 +70,17 @@ def test(expression):
 
 
 def d2(expression):
+    expression = re.sub(' {2,}', ' ', expression)
+    expression = re.sub('(?<=[a-zA-Zа-яА-ЯёЁ]) (?=[a-zA-Zа-яА-ЯёЁ])', '_', expression)
     res = parse(expression)
-    ans, sol = res.calculate()
-    if type(sol) == list:
-        sol = '('+', '.join(sol)+')'
+    ans = res.calculate()
+    ans.simplify()
+    sol = ans.verbose.replace('_', ' ')
+    ans = ans.answer.replace('_', ' ')
     return sol, ans
+
+
+if __name__ == '__main__':
+    expr = '2>1?d1000:d10'
+    #print(test(expr))
+    print(d2(expr))
