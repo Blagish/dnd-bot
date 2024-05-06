@@ -19,7 +19,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
     def error_message(error):
         logger.error(error)
         return Embed(title="Произошла непредвиденная ошибка :(",
-                     description=f'**Код ошибки:** {error}.\nПожалуйста, сообщите об этой проблеме разработчику: **blag#2847**.',
+                     description=f'**Код ошибки:** {error}.\nПожалуйста, сообщите об этой проблеме разработчику: **@blagish**.',
                      colour=Colour.red())
 
     @commands.command(name='куб', aliases=['r', 'р', 'k', 'к', 'roll', 'ролл'])
@@ -93,10 +93,10 @@ class Dice(commands.Cog, name='Кубы кубы'):
         """Узнать о любой вещи из Pathfinder 2e. На английском."""
         async with ctx.typing():
             try:
-                message = get_info_pf2(thing_name)
+                message, embed = get_info_pf2(thing_name)
             except Exception as e:
                 message = self.error_message(e)
-        await ctx.send(embed=message)
+        await ctx.send(message, embed=embed)
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *mod):
