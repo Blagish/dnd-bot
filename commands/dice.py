@@ -1,8 +1,7 @@
-from random import randint
-
 from discord import Embed, Colour, ButtonStyle
 from discord.ext import commands
 from parser import d2
+from parser.custom_random import rangen
 from game_data import get_spell_dnd_su, get_spell_wikidot, get_info_pf2, get_english_name
 from util import send_long_message
 import re
@@ -48,8 +47,11 @@ class Dice(commands.Cog, name='Кубы кубы'):
         #     d20 = ui.Button(style=ButtonStyle.red, label='d20')
         #     d100 = ui.Button(style=ButtonStyle.blurple, label='d100')
         sol, ans = d2(string)
-        s = f'Кидаю\n-> {sol}\n= **{ans}**'
-        await send_long_message(ctx, s)
+        s = f'Кидаю\n{sol}\n**{ans}**'
+        s = s.replace('\n', '-> ', s.count('\n')-1)
+        s = s.replace('\n', '\n= ')
+        s = s.replace('->', '\n->')
+        await send_long_message(ctx, s, reply=True)
 
     @roll.before_invoke
     async def before_roll(self, ctx):
@@ -81,12 +83,13 @@ class Dice(commands.Cog, name='Кубы кубы'):
         elif any('a' <= c <= 'z' for c in spell_name):  # если есть английские буквы
             get_from_spell_source = get_spell_wikidot
 
+        get_from_spell_source = get_spell_dnd_su
         async with ctx.typing():
             try:
                 message = get_from_spell_source(spell_name)
             except Exception as e:
                 message = self.error_message(e)
-        await ctx.send(embed=message)
+        await ctx.reply(embed=message, mention_author=False)
 
     @commands.command(name='пф', aliases=['pf', 'пф2', 'pf2'])
     async def info_pf2(self, ctx, *, thing_name):
@@ -95,8 +98,9 @@ class Dice(commands.Cog, name='Кубы кубы'):
             try:
                 message, embed = get_info_pf2(thing_name)
             except Exception as e:
-                message = self.error_message(e)
-        await ctx.send(message, embed=embed)
+                message = ''
+                embed = self.error_message(e)
+        await ctx.reply(message, embed=embed, mention_author=False)
 
     @commands.command(name='фейт', aliases=['f', 'ф', 'fate'])
     async def fate(self, ctx, *mod):
@@ -113,11 +117,11 @@ class Dice(commands.Cog, name='Кубы кубы'):
         s = 'Кидаю\n-> **'
         res = 0
         for i in range(4):
-            d = randint(-1, 1)
-            s += fate_die[d + 1]
+            d = rangen.roll(3)
+            s += fate_die[d - 1]
             res += d
         s += f'** {sign} {abs(mod)}\n= **{res + mod}**'
-        await ctx.send(s)
+        await ctx.reply(s, mention_author=False)
 
     @commands.command(name='клинки', aliases=['квт', 'кт', 'bd', 'blades'])
     async def blades(self, ctx, *, mod):
@@ -125,14 +129,14 @@ class Dice(commands.Cog, name='Кубы кубы'):
         n = int(mod)
         s = 'Кидаю\n-> '
         if n == 0:
-            a, b = randint(1, 6), randint(1, 6)
+            a, b = rangen.roll(6, times=2)
             s += f'[**{a}**], [**{b}**]\n'
             s += f'**Худший результат: {min(a, b)}**'
         else:
-            nums = [randint(1, 6) for i in range(n)]
+            nums = rangen.roll(6, times=n)
             s += (len(nums) * '[**{}**], ').format(*nums)[:-2]
             s += f'\n**Лучший результат: {max(nums)}**'
-        await ctx.send(s)
+        await ctx.reply(s, mention_author=False)
 
     @commands.command(name='пбта', aliases=['apoc', 'pb', 'pbta', 'пб'])
     async def pbta(self, ctx, *mod):
@@ -149,7 +153,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         elif ans > 9:
             res = 'полный успех'
         s = f'Кидаю\n-> {sol}\n**Результат: {ans}, {res}**'
-        await ctx.send(s)
+        await ctx.reply(s, mention_author=False)
 
     @commands.command(name='см', aliases=['сома', 'мист', 'сити', 'com', 'cm', 'cum'])
     async def com(self, ctx, *mod):
@@ -160,7 +164,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         command = f'2d6{arg}'
         sol, ans = d2(command)
         s = f'Кидаю\n-> {sol}\n**Результат: {ans}**'
-        await ctx.send(s)
+        await ctx.reply(s, mention_author=False)
 
     @commands.command(name='пп', aliases=['пнп', 'pp', 'pnp'])
     async def pnp(self, ctx, *, rolls):
@@ -170,7 +174,7 @@ class Dice(commands.Cog, name='Кубы кубы'):
         sol, ans = d2(command)
         sol = sol[4:-1]
         s = f'Кидаю\n-> {sol}\n**Успехов: {ans}**'
-        await ctx.send(s)
+        await ctx.reply(s, mention_author=False)
 
     @commands.command(name='св', aliases=['sw', 'sav', 'сав'])
     async def sw(self, ctx, *, string):
@@ -200,4 +204,4 @@ class Dice(commands.Cog, name='Кубы кубы'):
             msg = f'успех с {grade} повышени{grade_text.get(grade%10==1)}'
 
         s = f'Кидаю; целевое число = {success_bar}\n-> {sol[4:-1]}\n**Результат: {ans}, {msg}!**'
-        await ctx.send(s)
+        await ctx.reply(s, mention_author=False)

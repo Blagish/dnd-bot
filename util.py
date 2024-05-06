@@ -1,7 +1,7 @@
 MAX_MESSAGE_LENGTH = 1999
 
 
-async def send_long_message(ctx, message):
+async def send_long_message(ctx, message, reply=False):
     messages = [message]
     while len(message := messages[-1]) > MAX_MESSAGE_LENGTH:
         enter = message.rfind('\n')
@@ -13,4 +13,7 @@ async def send_long_message(ctx, message):
         messages[-2] = message[:enter]
 
     for m in messages:
-        await ctx.send(m)
+        if not reply:
+            await ctx.send(m)
+        else:
+            await ctx.reply(m)

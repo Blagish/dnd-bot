@@ -17,6 +17,7 @@ ACTIONS = {'action1': ':one:',
 
 CARDS_COLORS = {'EMPTY': 0x090a0a,
                 'NORMAL': 0x7289da,
+                'NORMAL_LEGACY': 0x9cace5,
                 'UNCOMMON': 0xff6e00,
                 'RARE': 0x1522b2,
                 'UNIQUE': 0xa600a6}
@@ -26,6 +27,8 @@ FOOTER_URL = 'https://cdn.discordapp.com/attachments/778998112819085352/96414871
 
 def parse_content(element, ignore_br=True):
     if isinstance(element, str):
+        if element.strip(' ') == '':
+            return ''
         return element
     if not ignore_br and element.name == 'br':
         return ' '
@@ -56,30 +59,43 @@ def parse_content(element, ignore_br=True):
     return f'{style1}{text}{style2}'
 
 
-def get_info(name, page=1):
+def get_info(name, result_number=0, mention_multiple=False):
     logger.debug(f'pf: looking for {name}')
     search_url = 'https://pf2easy.com/php/search.php'
     action_url = 'https://pf2easy.com/php/actionInfo.php'
-    response = requests.post(search_url, {'name': name, 'year': 2023})
+    year = 2023
+    normal_color_key = 'NORMAL'
+    name = name.strip()
+    response = requests.post(search_url, {'name': name, 'year': year})
     soup = BeautifulSoup(response.text, 'html.parser')
     results = soup.find_all('button')
 
     if len(results) == 0:
-        logger.debug('no results')
-        return Embed(title="OwO, what's this?",
-                     description='(по вашему запросу ничего не найдено)',
-                     colour=Colour.red())
+        year = 2022
+        normal_color_key = 'NORMAL_LEGACY'
+        response = requests.post(search_url, {'name': name, 'year': year})
+        soup = BeautifulSoup(response.text, 'html.parser')
+        results = soup.find_all('button')
 
-    ans = results[0]
-    # if len(results) > 1:
-    #     ans_type = ans.find('small').text
-    #     ans_name = ans.find('strong').text
-    #     if ans_name != name:
-    #         ans_text += f'Нашла больше одного варианта ответа. Использую ближайший:{ans_type} под названием {ans_name}.\n\n'
-    #     elif results[1].find('strong') == name:
-    #         ans_text += f'Нашла больше одного варианта ответа с идентичным именем.\n\n'
+    if len(results) == 0:
+        logger.debug('no results')
+        return '', Embed(title="OwO, what's this?",
+                         description='(по вашему запросу ничего не найдено)',
+                         colour=Colour.red())
+
+    ans = results[result_number]
+
+    if ans.find('strong').text.lower() != name and mention_multiple and len(results) > 1:
+        ans_text = 'Нашла больше одного варианта ответа. Какой вас больше устраивает?\n'
+        for i in range(min(len(results), 4)):
+            ans_type = results[i].find('small').text or ''
+            ans_name = results[i].find('strong').text or ''
+            ans_text += f'{i+1}. {ans_name} *({ans_type.lower()})*\n'
+        ans_text += 'Выберите ответ реакцией с соответствующим числом.'
+        return ans_text
+
     res_id = ans.find('input').attrs['value']
-    data = requests.post(action_url, {'id_feature': res_id, 'year': 2023})
+    data = requests.post(action_url, {'id_feature': res_id, 'year': year})
     soup = BeautifulSoup(data.text, 'html.parser')
     message = ''
 
@@ -87,7 +103,7 @@ def get_info(name, page=1):
     source = soup.find('div', attrs={'class': 'source'}).text
     description = ''
     if len(h1s := soup.find_all('h1')) > 0:  # is a spell/feat with levels most likely
-        title = h1s[-1].text.title()
+        title = h1s[0].text.title()
         level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()  # not only a level, but feat type, etc.
         description = f'*{level}*\n'
     else:  # most likely a rule or smth
@@ -95,8 +111,8 @@ def get_info(name, page=1):
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
-        color = CARDS_COLORS.get(traits_text[0], CARDS_COLORS['NORMAL'])
-        description += '> **Traits** `' + '`, `'.join(traits_text) + '`\n'
+        color = CARDS_COLORS.get(traits_text[0], CARDS_COLORS[normal_color_key])
+        description += f'> **Traits** `{"`, `".join(traits_text)}`\n'
 
     addon = False
     if (details := soup.find('section', attrs={'class': 'details'})) is not None:
@@ -126,4 +142,5 @@ def get_info(name, page=1):
 
 
 if __name__ == '__main__':
-    print(get_info('fireball').description)
+    a, b = get_info('fireball', mention_multiple=True)
+    print(b.title, b.description)  # .description)

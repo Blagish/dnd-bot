@@ -1,6 +1,7 @@
-from .ply_data import *
+from parser.ply_data import *
 import ply.lex as lex
 import ply.yacc as yacc
+import re
 
 t_ADD = r'\+'
 t_SUB = r'-'
@@ -17,6 +18,7 @@ t_COMMA = r'\,'
 t_SEMICOLON = r'\;'
 t_FOR = r'x'
 t_DIE = r'd'
+t_PICK = r'p'
 t_BOOMDIE = r'b'
 t_ADVDIE = r'ad'
 t_DISDIE = r'dd'
@@ -57,7 +59,7 @@ parser = yacc.yacc()
 
 
 def parse(expression):
-    result = parser.parse(expression)
+    result = parser.parse(expression.lower())
     return result
 
 
@@ -68,8 +70,25 @@ def test(expression):
 
 
 def d2(expression):
+    expression = re.sub(' {2,}', ' ', expression)
+    expression = re.sub('(?<=[a-zA-Zа-яА-ЯёЁ]) (?=[a-zA-Zа-яА-ЯёЁ])', '_', expression)
     res = parse(expression)
-    ans, sol = res.calculate()
-    if type(sol) == list:
-        sol = '('+', '.join(sol)+')'
+    ans = res.calculate()
+    ans.simplify()
+    sol = ans.verbose.replace('_', ' ')
+    ans = ans.answer.replace('_', ' ')
     return sol, ans
+
+
+if __name__ == '__main__':
+    expr = '6x(d20+10 sos)'
+    #expr = 'sum(map(((it=2)+(it=4)+2*(it=6)):9x(d6)))'
+    #expr = 'sum(map(((it=2)+(it=4)+(it=6)):5x(d6)))'
+    #expr = '10x(1=d2)'
+    #expr = '(it=2) + (it=4) + 2*(it=6)'.replace('it', '3')
+    #expr = '10x(ad20+1)'
+    sol, ans = d2(expr)
+    s = f'Кидаю\n{sol}\n**{ans}**'
+    s = s.replace('\n', '\n-> ')
+    #s = s.replace('\n', '= ')
+    print(s)

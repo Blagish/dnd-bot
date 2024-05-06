@@ -88,7 +88,7 @@ def get_spell(name):
     target_url = base_url + possible_result.a.get('href')
     page = urlopen(target_url)
     soup = BeautifulSoup(page, 'html.parser')
-    card = soup.find('div', attrs={'class': 'card-body', 'itemprop': 'articleBody'})
+    card = soup.find('div', attrs={'class': 'card__body', 'itemprop': 'articleBody'})
     title = possible_result.get_text()
     content = parse_content(card)
     content = content.replace('\n\n\n\n', '\n\n').replace('\n\n\n', '\n\n')
