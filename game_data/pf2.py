@@ -7,6 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 tags_with_new_strings = ('p', 'li', 'h1', 'h2', 'h3')
+tags_to_ignore_parse = ('footer',)
 
 ACTIONS = {'action1': ':one:',
            'action2': ':two:',
@@ -28,11 +29,12 @@ def parse_content(element, ignore_br=True):
         return element
     if not ignore_br and element.name == 'br':
         return ' '
+    if element.text == '' or element.name in tags_to_ignore_parse:
+        return ''
     if element.name == 'i':
         action_class = element.attrs['class'][1]
-        return ACTIONS[action_class]
-    if element.text == '':
-        return ''
+        return ACTIONS.get(action_class, '')
+
     if element.name == 'table':
         table = TableParser(element, parse_string=parse_content, align_left='l', style='ms')
         return table.get_for_embed()
@@ -54,11 +56,11 @@ def parse_content(element, ignore_br=True):
     return f'{style1}{text}{style2}'
 
 
-def get_info(name):
+def get_info(name, page=1):
     logger.debug(f'pf: looking for {name}')
     search_url = 'https://pf2easy.com/php/search.php'
-    thing_url = 'https://pf2easy.com/index.php'
-    response = requests.post(search_url, {'name': name})
+    action_url = 'https://pf2easy.com/php/actionInfo.php'
+    response = requests.post(search_url, {'name': name, 'year': 2023})
     soup = BeautifulSoup(response.text, 'html.parser')
     results = soup.find_all('button')
 
@@ -77,15 +79,19 @@ def get_info(name):
     #     elif results[1].find('strong') == name:
     #         ans_text += f'Нашла больше одного варианта ответа с идентичным именем.\n\n'
     res_id = ans.find('input').attrs['value']
-    data = requests.get(thing_url + f'?id={res_id}')
+    data = requests.post(action_url, {'id_feature': res_id, 'year': 2023})
     soup = BeautifulSoup(data.text, 'html.parser')
-    soup = soup.find('article', attrs={'id': 'mainContainer'})
+    message = ''
 
-    title = soup.find_all('h1')[-1].text.title()
-    level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()  # not only a level, but feat type, etc.
-    description = f'*{level}*\n'
     color = CARDS_COLORS['EMPTY']
     source = soup.find('div', attrs={'class': 'source'}).text
+    description = ''
+    if len(h1s := soup.find_all('h1')) > 0:  # is a spell/feat with levels most likely
+        title = h1s[-1].text.title()
+        level = soup.find('h2').text.replace('×', '').replace('\n', '').lower()  # not only a level, but feat type, etc.
+        description = f'*{level}*\n'
+    else:  # most likely a rule or smth
+        title = soup.find_all('h2')[-1].text.title()
 
     if (traits := soup.find('section', attrs={'class': 'traits'})) is not None:
         traits_text = traits.get_text('|').split('|')
@@ -116,8 +122,8 @@ def get_info(name):
     embed_card = Embed(title=title, description=description, color=color)
     embed_card.set_footer(text=source, icon_url=FOOTER_URL)
     logger.debug('results found')
-    return embed_card
+    return message, embed_card
 
 
 if __name__ == '__main__':
-    print(get_info('wand of').description)
+    print(get_info('fireball').description)
