@@ -81,6 +81,14 @@ def d2(expression):
 
 
 if __name__ == '__main__':
-    expr = '2>1?d1000:d10'
-    #print(test(expr))
-    print(d2(expr))
+    expr = '6x(d20+10 sos)'
+    #expr = 'sum(map(((it=2)+(it=4)+2*(it=6)):9x(d6)))'
+    #expr = 'sum(map(((it=2)+(it=4)+(it=6)):5x(d6)))'
+    #expr = '10x(1=d2)'
+    #expr = '(it=2) + (it=4) + 2*(it=6)'.replace('it', '3')
+    #expr = '10x(ad20+1)'
+    sol, ans = d2(expr)
+    s = f'Кидаю\n{sol}\n**{ans}**'
+    s = s.replace('\n', '\n-> ')
+    #s = s.replace('\n', '= ')
+    print(s)

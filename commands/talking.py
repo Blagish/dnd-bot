@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from discord.ext import commands
+from discord.utils import get
 from random import choice, randint
 import os
 import json
@@ -41,6 +42,8 @@ class Talking(commands.Cog, name='Общение со мной :)'):
                 await ctx.send(self.get_thanks())
             elif '?' in text:
                 await ctx.send(self.funny_response(text))
+            elif 'слыш' in text:
+                await ctx.send(self.get_anger())
             elif randint(1, 7) == 1:
                 await ctx.send(self.random_danika_reaction())
 
@@ -59,7 +62,7 @@ class Talking(commands.Cog, name='Общение со мной :)'):
 
     def get_hello(self):
         if randint(1, 3) < 3:
-            time = self.get_time_of_day()
+            time = self.get_time_of_day(3)
             phrases = {0: ['Доброй ночи', 'Ночи', 'Чё не спишь', 'Привет чё не спишь', 'Чета ты поздновато'],
                        1: ['Доброе утро', 'Утра', 'Утро доброе', 'Утречка'],
                        2: ['Добрый день', 'Дня', 'День добрый', 'Доброго дня', 'Доброго денёчка'],
@@ -71,8 +74,9 @@ class Talking(commands.Cog, name='Общение со мной :)'):
         return res
 
     @staticmethod
-    def get_time_of_day(timezone=0):
-        now = datetime.today().hour
+    def get_time_of_day(tzone=0):
+        tz = timezone(timedelta(hours=tzone))
+        now = datetime.now(tz).hour
         time = {0: 0, 1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, 11: 1, 12: 2, 13: 2, 14: 2,
                 15: 2, 16: 2, 17: 3, 18: 3, 19: 3, 20: 3, 21: 3, 22: 3, 23: 0}
         return time[now]
@@ -81,6 +85,16 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     async def kuku(self, ctx):
         """Ку ку?"""
         await ctx.send('быбы')
+
+    @commands.command(name='пикмин', aliases=['pikmin'], hidden=True)
+    async def pikmin(self, ctx):
+        """Ку ку?"""
+        pikmin1 = None
+        if ctx.guild:
+            pikmin1 = get(ctx.guild.emojis, name='pikmin')
+        if pikmin1 is None:
+            pikmin1 = '<:pikmin:1250191844080357376>'
+        await ctx.send(f'{pikmin1}')
 
     @commands.command(name='спасибо', aliases=['спс', 'thanks', 'thx'])
     async def thanks(self, ctx):
@@ -97,6 +111,11 @@ class Talking(commands.Cog, name='Общение со мной :)'):
     @commands.command(name='слышь', aliases=['слыш', 'э', 'слiш', 'bruh', 'брух'])
     async def anger(self, ctx):
         """Быкануть на меня :("""
+
+        await ctx.send(self.get_anger())
+
+    @staticmethod
+    def get_anger():
         res = choice(['Виноваты кубики', 'Оно само', 'Это не я', 'Я честно не виновата', 'Все вопросы к кубам!', 'ахах',
                       'лошара', 'меня заставили'])
-        await ctx.send(res)
+        return res

@@ -2,6 +2,7 @@ from random import choice, randint
 
 from discord import Embed, Colour, ButtonStyle, File
 from discord.ext import commands
+import os
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,9 +26,12 @@ class Cards(commands.Cog, name='Разное: игральные карты'):
 
     @staticmethod
     def gen_embed_picture(title, name, color):
+        print(os.curdir)
+        filename = name+'.png'
         e = Embed(title=title, colour=color)
-        file = File(f"commands/cards/{name}.png", filename=name+'.png')
-        e.set_image(url=f"attachment://{name}.png")
+        path = './commands/cards/'
+        file = File(f"{path}{filename}", filename=filename)
+        e.set_image(url=f"attachment://{filename}")
         return file, e
 
     @commands.command(name='card52', aliases=['52', 'карт52', 'к52', 'k52', 'c52'])

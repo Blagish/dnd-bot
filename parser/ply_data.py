@@ -3,13 +3,20 @@ from .parser_classes import *
 function_keywords = {'max': 'MAX', 'min': 'MIN', 'sum': 'SUM', 'map': 'MAP',
                      'x': 'FOR', 'х': 'FOR', 'd': 'DIE', 'д': 'DIE', 'ad': 'ADVDIE', 'dd': 'DISDIE',
                      'ed': 'ELFDIE', 'kd': 'QUADIE', 'ад': 'ADVDIE', 'дд': 'DISDIE',
-                     'ед': 'ELFDIE', 'кд': 'QUADIE', 'it': 'VAR', 'b': 'BOOMDIE', 'p': 'PICK'}
+                     'ед': 'ELFDIE', 'кд': 'QUADIE', 'it': 'VAR', 'b': 'BOOMDIE',
+                     'б': 'BOOMDIE', 'p': 'PICK', 'п': 'PICK'}
 
 translate_letters = {'д': 'd', 'х': 'x', 'ад': 'ad', 'дд': 'dd', 'ед': 'ed', 'кд': 'kd', 'б': 'b', 'п': 'p'}
 
 
 def translate(key):
     return translate_letters.get(key, key)
+
+
+def copy_expression(exp):
+    class_ = type(exp)
+    new_exp = class_(exp.value, exp.value2, **exp.kwargs)
+    return new_exp
 
 
 tokens = (
@@ -104,7 +111,9 @@ def p_functions(p):
 
 def p_for(p):
     """expression : expression FOR LBRACKET expression RBRACKET"""
-    p[0] = MultipleVals(*[p[4]] * p[1].ops[0])
+    p[0] = MultipleVals(None)
+    for i in range(p[1].value):
+        p[0].append(p[4].calculate(recalculate=True))
 
 
 def p_comma(p):

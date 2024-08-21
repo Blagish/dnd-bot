@@ -1,64 +1,41 @@
-from random import randint
-
-
-class Operation:
-    """Базовый класс операции. Сохраняет в себя данные и умеет выводить их строкой."""
-    verbose = None
-    sign = None
-    value = None
-    modifier = None
-    comment = None
-
-    def __init__(self, value, value2=None, comment=None, verbose=None):
-        self.value = value
-        self.value2 = value2
-        self.comment = comment
-        self.verbose = verbose
-
-    def __str__(self):
-        return f'{self.value}{self.sign}{self.value2}'
-
-    def calculate(self, args=None):
-        if self.value and not isinstance(self.value, Val) and not isinstance(self.value, MultipleVals):
-            self.value = self.value.calculate()
-        if self.value2 and not isinstance(self.value2, Val) and not isinstance(self.value2, MultipleVals):
-            self.value2 = self.value2.calculate()
+from parser.types import Operation, Val, MultipleVals
+from parser.custom_random import rangen
 
 
 class Addition(Operation):
     """Математическая операция сложения"""
     sign = '+'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return (self.value + self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        super().calculate(recalculate)
+        return (self.value + self.value2).calculate(recalculate)
 
 
 class Subtraction(Operation):
-    """Математическая операция вычитания. Принимает любое число вычитаемых."""
+    """Математическая операция вычитания."""
     sign = '-'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return (self.value - self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        super().calculate(recalculate)
+        return (self.value - self.value2).calculate(recalculate)
 
 
 class Division(Operation):
-    """Математическая операция деления. Принимает любое число аргументов и делит последовательно."""
+    """Математическая операция деления."""
     sign = '/'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return (self.value / self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        super().calculate(recalculate)
+        return (self.value / self.value2).calculate(recalculate)
 
 
 class Multiplication(Operation):
-    """Математическая операция умножения. Принимает любое число аргументов и умножает последовательно."""
+    """Математическая операция умножения."""
     sign = '*'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return (self.value * self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        super().calculate(recalculate)
+        return (self.value * self.value2).calculate(recalculate)
 
 
 class DiceOperation(Operation):
@@ -76,25 +53,26 @@ class DiceOperation(Operation):
             self.overwrite_minimum = True
             self.overwrite_value = overwrite.calculate().value
 
-    def calculate(self, args=None):
-        super().calculate()
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        super().calculate(recalculate)
         results = []
         for i in range(self.value.value):
             s_, res_ = self.get_result(self.value2.value)
             results.append((s_, res_, i))
         s, res_str = self.pick_result(results)
         comment = self.value2.comment or self.comment
-        return Val(s, comment=comment, verbose=(res_str[:-2] + (self.comment or '')).strip())
+        verbose = (res_str[:-2] + (self.comment or '')).strip()
+        return Val(s, comment=comment, verbose=verbose)
 
-    def pick_result(self, results):
+    def pick_result(self, results) -> (int, str):
         s = 0
         res_str = ''
         if self.pick is not None:
-            res_str = 'Выкинуто: '
+            res_str = '\nВыкинуто: '
             for i in results:
                 res_str += i[1]
             res_str = res_str.replace(' + ', ', ').replace('*', '')
-            res_str += '\n->'
+            res_str += '\n'
             results.sort(key=lambda x: x[0], reverse=True)
             results = results[:self.pick.value]
             results.sort(key=lambda x: x[2])
@@ -105,14 +83,14 @@ class DiceOperation(Operation):
             res_str += j
         return s, res_str
 
-    def get_result(self, die_size):
-        roll = randint(1, die_size)
+    def get_result(self, die_size) -> (int, str):
+        roll = rangen.roll(die_size)
         if self.overwrite_minimum and roll < self.overwrite_value:
             return self.overwrite_value, f'[~~{roll}~~|**{self.overwrite_value}**] + '
         return roll, f'[**{roll}**] + '
 
     @staticmethod
-    def bold_the_result(result, *rolls):
+    def bold_the_result(result, *rolls) -> str:
         s = '|' + '|'.join(map(str, rolls))
         return s.replace(f'|{result}', f'|**{result}**')[1:]
 
@@ -120,14 +98,14 @@ class DiceOperation(Operation):
 class ExplodingDiceOperation(DiceOperation):
     sign = 'b'
 
-    def get_result(self, die_size):
+    def get_result(self, die_size) -> (int, str):
         rolls_total = []
         rolls_sum = 0
         times_to_roll = 1
         rollings = 0
         while rollings < times_to_roll:
             rollings += 1
-            roll = randint(1, die_size)
+            roll = rangen(die_size)
             rolls_sum += roll
             rolls_total.append(str(roll))
             if roll == die_size and die_size > 1:
@@ -139,145 +117,51 @@ class AdvantageDiceOperation(DiceOperation):
     """Операция броска куба с преимуществом."""
     sign = 'ad'
 
-    def get_result(self, die_size):
-        roll1 = randint(1, die_size)
-        roll2 = randint(1, die_size)
-        roll = max(roll1, roll2)
+    def get_result(self, die_size) -> (int, str):
+        rolls = rangen.roll(die_size, times=2)
+        roll = max(rolls)
         if self.overwrite_minimum and roll < self.overwrite_value:
-            return self.overwrite_value, f'a[~~{roll1}~~|~~{roll2}~~|**{self.overwrite_value}**] + '
-        return roll, f'a[{self.bold_the_result(roll, roll1, roll2)}] + '
+            return self.overwrite_value, f'a[~~{rolls[0]}~~|~~{rolls[1]}~~|**{self.overwrite_value}**] + '
+        return roll, f'a[{self.bold_the_result(roll, *rolls)}] + '
 
 
 class DisadvantageDiceOperation(DiceOperation):
     """Операция броска куба с помехой."""
     sign = 'dd'
 
-    def get_result(self, die_size):
-        roll1 = randint(1, die_size)
-        roll2 = randint(1, die_size)
-        roll = min(roll1, roll2)
+    def get_result(self, die_size) -> (int, str):
+        rolls = rangen.roll(die_size, times=2)
+        roll = min(rolls)
         if self.overwrite_minimum and roll < self.overwrite_value:
-            return self.overwrite_value, f'd[~~{roll1}~~|~~{roll2}~~|**{self.overwrite_value}**] + '
-        return roll, f'd[{self.bold_the_result(roll, roll1, roll2)}] + '
+            s = '|'.join(map(lambda x: f'~~{x}~~', rolls))
+            return self.overwrite_value, f'd[{s}|**{self.overwrite_value}**] + '
+        return roll, f'd[{self.bold_the_result(roll, *rolls)}] + '
 
 
 class ElfAdvantageDiceOperation(DiceOperation):
     """Операция броска куба с эльфийским преимуществом (3 куба)."""
     sign = 'ed'
 
-    def get_result(self, die_size):
-        roll1 = randint(1, die_size)
-        roll2 = randint(1, die_size)
-        roll3 = randint(1, die_size)
-        roll = max(roll1, roll2, roll3)
+    def get_result(self, die_size) -> (int, str):
+        rolls = rangen.roll(die_size, times=3)
+        roll = max(rolls)
         if self.overwrite_minimum and roll < self.overwrite_value:
-            return self.overwrite_value, f'e[~~{roll1}~~|~~{roll2}~~|~~{roll3}~~|**{self.overwrite_value}**] + '
-        return roll, f'e[{self.bold_the_result(roll, roll1, roll2, roll3)}] + '
+            s = '|'.join(map(lambda x: f'~~{x}~~', rolls))
+            return self.overwrite_value, f'e[{s}|**{self.overwrite_value}**] + '
+        return roll, f'e[{self.bold_the_result(roll, *rolls)}] + '
 
 
 class QuadAdvantageDiceOperation(DiceOperation):
     """Операция броска куба с четверным преимуществом (4 куба)."""
     sign = 'kd'
 
-    def get_result(self, die_size):
-        roll1 = randint(1, die_size)
-        roll2 = randint(1, die_size)
-        roll3 = randint(1, die_size)
-        roll4 = randint(1, die_size)
-        roll = max(roll1, roll2, roll3, roll4)
+    def get_result(self, die_size) -> (int, str):
+        rolls = rangen.roll(die_size, times=4)
+        roll = max(rolls)
         if self.overwrite_minimum and roll < self.overwrite_value:
-            return self.overwrite_value, f'k[~~{roll1}~~|~~{roll2}~~|~~{roll3}~~|~~{roll4}~~|**{self.overwrite_value}**] + '
-        return roll, f'k[{self.bold_the_result(roll, roll1, roll2, roll3, roll4)}] + '
-
-
-class MultipleVals(Operation):
-    """Несколько чисел, разделяются запятой и выводятся в скобках."""
-    sign = ','
-    types = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.value = [self.value]
-        if self.value2:
-            if isinstance(self.value2, MultipleVals):
-                self.value += self.value2.value
-                self.value2 = None
-            else:
-                self.value.append(self.value2)
-        self.types = {}
-
-    def simplify(self):
-        pass
-
-    @property
-    def answer(self):
-        return f'{self.sign} '.join(map(lambda x: x.answer, self.value))
-
-    def calculate(self, args=None):
-        vals = []
-        verboses = []
-        for i in self.value:
-            val = i.calculate(args)
-            verboses.append(val.verbose)
-            vals.append(val)
-            self.value = vals
-        self.verbose = f'{self.sign} '.join(verboses)
-        return self
-
-    def __add__(self, other):
-        if isinstance(other, MultipleVals):
-            new_mult_vals = MultipleVals()
-            new_mult_vals.value = self.value
-            new_mult_vals.types = self.types
-            for val in other.value:
-                new_mult_vals += val
-            return new_mult_vals
-        elif isinstance(other, Val):
-            if self.types.get(other.comment) is None:
-                self.value.append(other)
-                self.types[other.comment] = len(self.value)-1
-            else:
-                index = self.types.get(other.comment)
-                self.value[index] += other
-        return self
-
-    def __sub__(self, other):
-        if isinstance(other, MultipleVals):
-            new_mult_vals = MultipleVals()
-            new_mult_vals.value = self.value
-            new_mult_vals.types = self.types
-            for val in other.value:
-                new_mult_vals -= val
-            return new_mult_vals
-        elif isinstance(other, Val):
-            if self.types.get(other.comment) is None:
-                self.value.append(other)
-                self.types[other.comment] = len(self.value)-1
-            else:
-                index = self.types.get(other.comment)
-                self.value[index] -= other
-        return self
-
-    def __mul__(self, other):
-        if isinstance(other, Val):
-            for i in range(len(self.value)):
-                self.value[i] *= other
-        return self
-
-    def __truediv__(self, other):
-        if isinstance(other, Val):
-            for i in range(len(self.value)):
-                self.value[i] /= other
-        return self
-
-    def __str__(self):
-        return str(tuple(self.value))
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __bool__(self):
-        return bool(self.value)
+            s = '|'.join(map(lambda x: f'~~{x}~~', rolls))
+            return self.overwrite_value, f'k[{s}|**{self.overwrite_value}**] + '
+        return roll, f'k[{self.bold_the_result(roll, *rolls)}] + '
 
 
 class FunctionOfMultipleVars(Operation):
@@ -285,9 +169,9 @@ class FunctionOfMultipleVars(Operation):
     sign = 'func'
     func = None
 
-    def calculate(self, args=None):
-        super().calculate()
-        self.value.calculate()
+    def calculate(self, recalculate=False) -> MultipleVals:
+        super().calculate(recalculate)
+        self.value.calculate(recalculate)
         res = self.func(self.value.value)
         res.verbose = f'{self.sign}({self.value.verbose})'
         return res
@@ -315,54 +199,54 @@ class Greater(Operation):
     """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     sign = '>'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return Val(self.value > self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val:
+        super().calculate(recalculate)
+        return Val(self.value > self.value2).calculate(recalculate)
 
 
 class Lesser(Operation):
     """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     sign = '<'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return Val(self.value < self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val:
+        super().calculate(recalculate)
+        return Val(self.value < self.value2).calculate(recalculate)
 
 
 class GreaterEquals(Operation):
     """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     sign = '>='
 
-    def calculate(self, args=None):
-        super().calculate()
-        return Val(self.value >= self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val:
+        super().calculate(recalculate)
+        return Val(self.value >= self.value2).calculate(recalculate)
 
 
 class LesserEquals(Operation):
     """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     sign = '<='
 
-    def calculate(self, args=None):
-        super().calculate()
-        return Val(self.value <= self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val:
+        super().calculate(recalculate)
+        return Val(self.value <= self.value2).calculate(recalculate)
 
 
 class Equals(Operation):
     """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     sign = '='
 
-    def calculate(self, args=None):
-        super().calculate()
-        return Val(self.value == self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val:
+        super().calculate(recalculate)
+        return Val(self.value == self.value2).calculate(recalculate)
 
 
 class NotEquals(Operation):
     """Математическая функция сравнения двух чисел. Возвращает 0 или 1."""
     sign = '≠'
 
-    def calculate(self, args=None):
-        super().calculate()
-        return Val(self.value != self.value2).calculate()
+    def calculate(self, recalculate=False) -> Val:
+        super().calculate(recalculate)
+        return Val(self.value != self.value2).calculate(recalculate)
 
 
 class IfOperation(Operation):
@@ -373,10 +257,10 @@ class IfOperation(Operation):
         super().__init__(*args, **kwargs)
         self.value3 = value3
 
-    def calculate(self, args=None):
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
         # value3 - выражение для проверки
-        super().calculate()
-        if self.value3.calculate():
+        super().calculate(recalculate)
+        if self.value3.calculate(recalculate):
             s = f'{self.value3} - истинно, результат = '
             self.value.verbose = s + self.value.verbose
             return self.value
@@ -397,137 +281,33 @@ class LambdaVarsError(Error):
 class Var(Operation):
     sign = 'it'
 
-    def calculate(self, args=None):
-        if args is None:
-            raise LambdaVarsError("Calculating lambda expression with no arguments")
-        return args
+    def __init__(self):
+        super().__init__(None)
+
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        return self.var
 
 
 class Map(Operation):
     sign = 'map'
 
-    def calculate(self, args=None):
-        values = self.ops[1].calculate()[0].ops
-        ress1, ress2 = [], []
-        for i in range(len(values[0])):
-            res1, res2 = self.ops[0].calculate((values[0][i], values[1][i]))
-            ress1.append(res1)
-            ress2.append(res2)
-        result = MultipleVals(*ress1).calculate()
-        return result[0], values[1]
+    def calculate(self, recalculate=False) -> Val | MultipleVals:
+        result = MultipleVals(None, show_value2=True)
+        if not isinstance(self.value2, MultipleVals):
+            return Val(0)
 
-    def __str__(self):
-        return f'checking ({self.ops[0]} for {self.ops[1]}'
+        for i in self.value2.value:
+            val = i.calculate(recalculate=True)
+            self.value.var = val
+            calc = self.value.calculate(recalculate=True)
+            calc.value2 = val
+            result.append(calc)
+
+        return result
 
 
 class CountFunction(Operation):
     sign = 'count'
 
-    def calculate(self, args=None):
+    def calculate(self, recalculate=False) -> Val:
         pass
-
-
-class Val(Operation):
-    sign = 'val'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if self.comment is None:
-            self.comment = ''
-
-    def calculate(self, args=None):
-        if self.verbose is None:
-            self.verbose = self.__str__()
-        return self
-
-    def simplify(self):
-        self.value = round(self.value, 5)
-        if int(self.value) == self.value:
-            self.value = int(self.value)
-
-    @property
-    def answer(self):
-        return f'{self.value} {self.comment}'.strip()
-
-    def __str__(self):
-        if self.verbose:
-            return f'{self.verbose} {self.comment}'.strip()
-        return self.answer
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __add__(self, other):
-        verbose = f'{self} + {other}'
-        if isinstance(other, int):
-            return Val(other + self.value, comment=self.comment, verbose=verbose)
-        if isinstance(other, MultipleVals):
-            return other.__add__(self)
-        if self.comment and other.comment:
-            if self.comment == other.comment:
-                return Val(self.value + other.value, comment=self.comment, verbose=verbose)
-            return MultipleVals(value=self, value2=other)
-        return Val(self.value + other.value, comment=max(self.comment, other.comment), verbose=verbose)
-
-    def __radd__(self, other):
-        return self.__add__(other)
-
-    def __sub__(self, other):
-        verbose = f'{self} - {other}'
-        if isinstance(other, int):
-            return Val(other - self.value, comment=self.comment)
-        if isinstance(other, MultipleVals):
-            return other.__sub__(self)
-        if self.comment and other.comment:
-            if self.comment == other.comment:
-                return Val(self.value - other.value, comment=self.comment, verbose=verbose)
-            raise SyntaxError("как я тебе один тип урона из другого вычту, додик")
-        return Val(self.value - other.value, comment=max(self.comment, other.comment), verbose=verbose)
-
-    def __rsub__(self, other):
-        return self.__sub__(other)
-
-    def __mul__(self, other):
-        verbose = f'{self} * {other}'
-        if len(set('+-,') - set(str(other))) < 3:
-            verbose = f'{self} * ({other})'
-        if isinstance(other, MultipleVals):
-            return other.__mul__(self)
-        if self.comment and other.comment:
-            if self.comment == other.comment:
-                return Val(self.value * other.value, comment=self.comment, verbose=verbose)
-            raise SyntaxError("я не умею перемножать типы урона, додик")
-        return Val(self.value * other.value, comment=max(self.comment, other.comment), verbose=verbose)
-
-    def __truediv__(self, other):
-        verbose = f'{self} / {other}'
-        if len(set('+-,') - set(str(other))) < 3:
-            verbose = f'{self} / ({other})'
-        if isinstance(other, MultipleVals):
-            return other.__truediv__(self)
-        if self.comment and other.comment:
-            if self.comment == other.comment:
-                return Val(self.value / other.value, comment=self.comment, verbose=verbose)
-            raise SyntaxError("я не умею делить типы урона, додик")
-        return Val(self.value / other.value, comment=max(self.comment, other.comment), verbose=verbose)
-
-    def __lt__(self, other):
-        return self.value < other.value
-
-    def __le__(self, other):
-        return self.value <= other.value
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-    def __ne__(self, other):
-        return self.value != other.value
-
-    def __gt__(self, other):
-        return self.value > other.value
-
-    def __ge__(self, other):
-        return self.value >= other.value
-
-    def __bool__(self):
-        return bool(self.value)
