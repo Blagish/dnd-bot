@@ -146,15 +146,9 @@ class Talking(BaseCog, name="Общение со мной :)"):
         """Ку ку?"""
         await ctx.send("быбы")
 
-    @commands.command(name="пикмин", aliases=["pikmin"], hidden=True)
+    @commands.hybrid_command(name="pikmin", aliases=["пикмин"])
     async def pikmin(self, ctx):
-        """Ку ку?"""
-        pikmin1 = None
-        if ctx.guild:
-            pikmin1 = get(ctx.guild.emojis, name="pikmin")
-        if pikmin1 is None:
-            pikmin1 = "<:pikmin:1250191844080357376>"
-        await ctx.send(f"{pikmin1}")
+        await ctx.send(f"<:pikmin:1276865893460086864>")
 
     @commands.command(name="спасибо", aliases=["спс", "thanks", "thx"])
     async def thanks(self, ctx):

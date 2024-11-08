@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 from discord import Embed, Colour
-from fastapi import FastAPI
 
 from app.util.tables import TableParser
 from app.models.pf2Response import Pf2Response
@@ -33,7 +32,7 @@ CARDS_COLORS = {
 FOOTER_URL = "https://cdn.discordapp.com/attachments/778998112819085352/964148715067670588/unknown.png"
 
 
-def parse_content(element: Any, ignore_br=True) -> str:
+def parse_content(element: Any, ignore_br=True, markdown=True) -> str:
     if isinstance(element, str):
         if element.strip(" ") == "":
             return ""
@@ -48,7 +47,9 @@ def parse_content(element: Any, ignore_br=True) -> str:
 
     if element.name == "table":
         table = TableParser(
-            element, parse_string=parse_content, align_left="l", style="ms"
+            element, parse_string=parse_content,
+            parse_kwargs={'ignore_br': False, 'markdown': False},
+            align_left="l", style="ms"
         )
         table_text = table.get_for_embed()
         if table_text == '':
@@ -57,31 +58,35 @@ def parse_content(element: Any, ignore_br=True) -> str:
 
     style1 = style2 = ""
     text = ""
-    if element.name in tags_with_new_strings:
-        style2 = "\n"
-        if element.name == "li":
-            style1 = "- "
-    elif element.attrs.get("data-toggle") is not None:
-        style1 = style2 = "__"
-    elif element.name == "em":
-        style1 = style2 = "*"
-    elif element.name == "strong":
-        style1 = style2 = "**"
+    if markdown:
+        if element.name in tags_with_new_strings:
+            style2 = "\n"
+            if element.name == "li":
+                style1 = "- "
+        elif element.attrs.get("data-toggle") is not None:
+            style1 = style2 = "__"
+        elif element.name == "em":
+            style1 = style2 = "*"
+        elif element.name == "strong":
+            style1 = style2 = "**"
     for child in element.children:
-        text += parse_content(child, ignore_br=ignore_br)
+        text += parse_content(child, ignore_br=ignore_br, markdown=markdown)
     return f"{style1}{text}{style2}"
 
 
-def get_info(name, result_number=0, mention_multiple=False, cut_description=True) -> Pf2Response:
+def get_info(name, trait=None, result_number=0, mention_multiple=False, cut_description=True) -> Pf2Response:
     logger.debug(f"pf: looking for {name}")
     search_url = "https://pf2easy.com/php/search.php"
     action_url = "https://pf2easy.com/php/actionInfo.php"
     year = 2023
     normal_color_key = "NORMAL"
-    name = name.strip()
+    name = name.strip().replace("'", '’')
     response = requests.post(search_url, {"name": name, "year": year})
     soup = BeautifulSoup(response.text, "html.parser")
     results = soup.find_all("button")
+
+    if trait is not None:
+        trait = trait.upper().strip()
 
     if len(results) == 0:
         year = 2022
@@ -89,6 +94,9 @@ def get_info(name, result_number=0, mention_multiple=False, cut_description=True
         response = requests.post(search_url, {"name": name, "year": year})
         soup = BeautifulSoup(response.text, "html.parser")
         results = soup.find_all("button")
+
+    if trait:
+        results = list(filter(lambda x: trait in x.find('small').text, results))
 
     if len(results) == 0:
         logger.debug("no results")
@@ -100,18 +108,27 @@ def get_info(name, result_number=0, mention_multiple=False, cut_description=True
 
     ans = results[result_number]
 
-    if (
-        ans.find("strong").text.lower() != name
-        and mention_multiple
-        and len(results) > 1
-    ):
-        ans_text = "Нашла больше одного варианта ответа. Какой вас больше устраивает?\n"
-        for i in range(min(len(results), 4)):
-            ans_type = results[i].find("small").text or ""
-            ans_name = results[i].find("strong").text or ""
-            ans_text += f"{i+1}. {ans_name} *({ans_type.lower()})*\n"
-        ans_text += "Выберите ответ реакцией с соответствующим числом."
-        return ans_text
+    if len(results) > 1:
+        logger.debug(f'{len(results)=}')
+        s = '\n'.join(map(lambda x: f'{x.find("strong").text}\t`{x.find("small").text}`', results[:5]))
+        return Pf2Response(embed=Embed(
+            title="┗( T﹏T )┛ у меня несколько ответов!",
+            description=f"Повторите запрос и укажите трейт нужного:\n{s}",
+            colour=Colour.dark_gold(),
+        ))
+
+    # if (
+    #     ans.find("strong").text.lower() != name
+    #     and mention_multiple
+    #     and len(results) > 1
+    # ):
+    #     ans_text = "Нашла больше одного варианта ответа. Какой вас больше устраивает?\n"
+    #     for i in range(min(len(results), 4)):
+    #         ans_type = results[i].find("small").text or ""
+    #         ans_name = results[i].find("strong").text or ""
+    #         ans_text += f"{i+1}. {ans_name} *({ans_type.lower()})*\n"
+    #     ans_text += "Выберите ответ реакцией с соответствующим числом."
+    #     return ans_text
 
     res_id = ans.find("input").attrs["value"]
     data = requests.post(action_url, {"id_feature": res_id, "year": year})
@@ -194,6 +211,6 @@ def get_info(name, result_number=0, mention_multiple=False, cut_description=True
 
 
 if __name__ == "__main__":
-    res = get_info("wizard", cut_description=True)
+    res = get_info("earth", trait='CREATURE 1', cut_description=True)
     print(res.embed.description, len(res.embed.description))
     #print(res.other_embeds)

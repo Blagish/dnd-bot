@@ -11,20 +11,24 @@ from prettytable import (
 
 
 class TableParser:
-    parse_string = str
+    parse_string_func = str
+    parse_kwargs = None
     data = None
 
     def __init__(
         self,
         table,
         parse_string=None,
+        parse_kwargs=None,
         style=DEFAULT,
         align_left="c",
         border=False,
         internal=True,
     ):
         if parse_string is not None:
-            self.parse_string = parse_string
+            self.parse_string_func = parse_string
+        if parse_kwargs is not None:
+            self.parse_kwargs = parse_kwargs
 
         self.pretty = PrettyTable()
         if table.tbody:
@@ -41,27 +45,35 @@ class TableParser:
             if child == "\n":
                 continue
             a = []
+            if not hasattr(child, 'children'):
+                continue
             for c in child.children:
                 if c != "\n":
-                    a.append(self.parse_string(c, ignore_br=False))
+                    a.append(self.parse_string(c))
             if len(a) == len(headers):
                 self.pretty.add_row(a)
 
     def find_headers(self):
-        next(self.data)
         header = next(self.data)
+        while header == ' ':
+            header = next(self.data)
         headers = []
         for h in header.children:
             if h != "\n":
-                headers.append(self.parse_string(h, ignore_br=False))
+                headers.append(self.parse_string(h))
         if len(headers) < 2:  # it was a title; maybe next row
             next(self.data)
             header = next(self.data)
             headers = []
             for h in header.children:
                 if h != "\n":
-                    headers.append(self.parse_string(h, ignore_br=False))
+                    headers.append(self.parse_string(h))
         return headers
+
+    def parse_string(self, element):
+        if self.parse_kwargs is None:
+            return self.parse_string_func(element)
+        return self.parse_string_func(element, **self.parse_kwargs)
 
     def set_style(self, style):
         styles = {

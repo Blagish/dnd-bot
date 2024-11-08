@@ -1,7 +1,7 @@
 from app.commands.base import BaseCog
 from discord.ext import commands
 from discord import app_commands, Message
-from typing import Literal
+from typing import Literal, Optional
 from app.game_data import (
     get_spell_dnd_su,
     get_spell_wikidot,
@@ -60,10 +60,10 @@ class Systems(BaseCog, name='Игровые системы'):
     @commands.hybrid_command(name="pf2", aliases=["pf", "пф2", "пф"])
     @app_commands.describe(thing="Заклинание/предмет/что угодно из PF2e")
     @commands.before_invoke(fix_thing)
-    async def info_pf2(self, ctx: commands.Context, thing: str):
+    async def info_pf2(self, ctx: commands.Context, thing: str, trait: Optional[str]):
         """Узнать о любой вещи из Pathfinder 2e. На английском"""
         async with ctx.typing():
-            response: Pf2Response = get_info_pf2(thing)
+            response: Pf2Response = get_info_pf2(thing, trait=trait)
         await ctx.reply(response.message, embed=response.embed, mention_author=False)
 
         if response.other_embeds:
