@@ -15,6 +15,9 @@ class TableParser:
     parse_kwargs = None
     data = None
 
+    caption = ''
+    extra = ''
+
     def __init__(
         self,
         table,
@@ -31,6 +34,8 @@ class TableParser:
             self.parse_kwargs = parse_kwargs
 
         self.pretty = PrettyTable()
+        if table.caption:
+            self.caption = f'### {table.caption.text}\n'
         if table.tbody:
             table = table.tbody
         self.data = table.children
@@ -55,19 +60,29 @@ class TableParser:
 
     def find_headers(self):
         header = next(self.data)
-        while header == ' ':
+        while header.text.strip() == '':
             header = next(self.data)
         headers = []
         for h in header.children:
             if h != "\n":
-                headers.append(self.parse_string(h))
+                poss_header = self.parse_string(h)
+                while poss_header in headers:
+                    poss_header = poss_header + '*'
+                if poss_header == '':
+                    continue
+                headers.append(poss_header)
         if len(headers) < 2:  # it was a title; maybe next row
             next(self.data)
             header = next(self.data)
             headers = []
             for h in header.children:
                 if h != "\n":
-                    headers.append(self.parse_string(h))
+                    poss_header = self.parse_string(h)
+                    while poss_header in headers:
+                        poss_header = poss_header + '*'
+                    if poss_header == '':
+                        continue
+                    headers.append(poss_header)
         return headers
 
     def parse_string(self, element):
@@ -100,4 +115,4 @@ class TableParser:
     def get_for_embed(self):
         if self.get_str() == '':
             return ''
-        return "`" + self.get_str() + "`"
+        return f"{self.caption}`" + self.get_str() + "`"

@@ -39,11 +39,11 @@ def parse_content(element: Any, ignore_br=True, markdown=True) -> str:
         return element
     if not ignore_br and element.name == "br":
         return " "
-    if element.text == "" or element.name in tags_to_ignore_parse:
-        return ""
     if element.name == "i":
         action_class = element.attrs["class"][1]
         return ACTIONS.get(action_class, "")
+    if element.text == "" or element.name in tags_to_ignore_parse:
+        return ""
 
     if element.name == "table":
         table = TableParser(
@@ -74,7 +74,7 @@ def parse_content(element: Any, ignore_br=True, markdown=True) -> str:
     return f"{style1}{text}{style2}"
 
 
-def get_info(name, trait=None, result_number=0, mention_multiple=False, cut_description=True) -> Pf2Response:
+def get_info(name, trait=None, mention_multiple=False, cut_description=True) -> Pf2Response:
     logger.debug(f"pf: looking for {name}")
     search_url = "https://pf2easy.com/php/search.php"
     action_url = "https://pf2easy.com/php/actionInfo.php"
@@ -106,16 +106,24 @@ def get_info(name, trait=None, result_number=0, mention_multiple=False, cut_desc
             colour=Colour.red(),
         ))
 
-    ans = results[result_number]
+    ans = None
+    if len(results) == 1:
+        ans = results[0]
+    else:
+        for i in results:
+            if i.find("strong").text == name:
+                ans = i
 
-    if len(results) > 1:
+    if ans is None and len(results) > 1:
         logger.debug(f'{len(results)=}')
-        s = '\n'.join(map(lambda x: f'{x.find("strong").text}\t`{x.find("small").text}`', results[:5]))
+        choices = []
+        for i in results[:5]:
+            choices.append({"name":i.find("strong").text, "trait":i.find("small").text})
         return Pf2Response(embed=Embed(
             title="┗( T﹏T )┛ у меня несколько ответов!",
-            description=f"Повторите запрос и укажите трейт нужного:\n{s}",
+            description=f"Выберите нужный из списка:",
             colour=Colour.dark_gold(),
-        ))
+        ), choices=choices)
 
     # if (
     #     ans.find("strong").text.lower() != name
@@ -139,13 +147,17 @@ def get_info(name, trait=None, result_number=0, mention_multiple=False, cut_desc
     source = soup.find("div", attrs={"class": "source"}).text
     description = ""
     if len(h1s := soup.find_all("h1")) > 0:  # is a spell/feat with levels most likely
-        title = h1s[0].text.title()
+        title = parse_content(h1s[0], markdown=False).replace("×", "").replace("\n", "").strip()
+        if ':' in title:
+            title = title[:title.find(':')].title()+' '+title[title.find(':'):]
+        else:
+            title = title.title()
         level = (
             soup.find("h2").text.replace("×", "").replace("\n", "").lower()
         )  # not only a level, but feat type, etc.
         description = f"*{level}*\n"
     else:  # most likely a rule or smth
-        title = soup.find_all("h2")[-1].text.title()
+        title = soup.find_all("h2")[-1].text.replace("×", "").replace("\n", "").title()
 
     if (traits := soup.find("section", attrs={"class": "traits"})) is not None:
         traits_text = traits.get_text("|").split("|")
@@ -156,6 +168,7 @@ def get_info(name, trait=None, result_number=0, mention_multiple=False, cut_desc
     if (details := soup.find("section", attrs={"class": "details"})) is not None:
         if "addon" not in details.attrs["class"]:
             details_text = "> " + parse_content(details).replace("\n**", "\n> **")
+            details_text = details_text.replace('Traditions', 'Traditions ')
             description += details_text
         else:
             addon = True  # добавить потом типа таблицы в общем да как в архетипах.
@@ -211,6 +224,8 @@ def get_info(name, trait=None, result_number=0, mention_multiple=False, cut_desc
 
 
 if __name__ == "__main__":
-    res = get_info("earth", trait='CREATURE 1', cut_description=True)
-    print(res.embed.description, len(res.embed.description))
+    #res = get_info("earth", trait='CREATURE 1', cut_description=True)
+    #res = get_info("leaf weave", trait='armor', cut_description=True)
+    res = get_info('howling blizzard', cut_description=True)
+    print(res.embed.title, res.embed.description, len(res.embed.description), sep='\n')
     #print(res.other_embeds)

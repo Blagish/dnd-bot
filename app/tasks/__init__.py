@@ -1,7 +1,7 @@
-from .gaming import Gaming
-import logging
+from app.tasks.gaming import Gaming
+import loguru
 
-logger = logging.getLogger(__name__)
+logger = loguru.logger
 cogs = (Gaming,)
 
 

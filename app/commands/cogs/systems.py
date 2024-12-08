@@ -8,6 +8,7 @@ from app.game_data import (
     get_info_pf2,
     get_english_name,
 )
+from app.util.gamedata_buttons import Buttons
 from app.models.pf2Response import Pf2Response
 import re
 import loguru
@@ -64,7 +65,14 @@ class Systems(BaseCog, name='Игровые системы'):
         """Узнать о любой вещи из Pathfinder 2e. На английском"""
         async with ctx.typing():
             response: Pf2Response = get_info_pf2(thing, trait=trait)
-        await ctx.reply(response.message, embed=response.embed, mention_author=False)
+        buttons = None
+        if response.choices is not None:
+            print('adding choices')
+            buttons = Buttons(choices=response.choices, func=get_info_pf2)
+        try:
+            await ctx.reply(response.message, embed=response.embed, view=buttons, mention_author=False)
+        except Exception as e:
+            print(e)
 
         if response.other_embeds:
             for embed in response.other_embeds:

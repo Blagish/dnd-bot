@@ -81,7 +81,8 @@ def d2(expression):
 
 
 if __name__ == "__main__":
-    expr = "d20+10, d20+8"
+    #expr = "d20 > 5?20:30"
+    expr = 'd20 + d8 + 4 + 1 + 2 * 4'
     # expr = 'sum(map(((it=2)+(it=4)+2*(it=6)):9x(d6)))'
     # expr = 'sum(map(((it=2)+(it=4)+(it=6)):5x(d6)))'
     # expr = '10x(1=d2)'

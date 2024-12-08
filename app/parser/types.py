@@ -17,7 +17,7 @@ class Operation:
             setattr(self, kwarg, kwargs[kwarg])
 
     def __str__(self):
-        return f"{self.value}{self.sign}{self.value2}"
+        return f"{self.value} {self.sign} {self.value2}"
 
     def calculate(self, recalculate=False):
         if recalculate:
@@ -71,10 +71,14 @@ class Val(Operation):
     def answer(self):
         return f"{self.value} {self.comment}".strip()
 
+    @property
+    def answer_short(self):
+        return str(self.value)
+
     def __str__(self):
         if self.verbose:
             return f"{self.verbose} {self.comment}".strip()
-        return self.answer
+        return self.answer_short
 
     def __repr__(self):
         return self.__str__()

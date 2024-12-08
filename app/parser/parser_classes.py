@@ -284,10 +284,10 @@ class IfOperation(Operation):
         super().calculate(recalculate)
         if self.value3.calculate(recalculate):
             s = f"{self.value3} - истинно, результат = "
-            self.value.verbose = s + self.value.verbose
+            self.value.verbose = s + str(self.value)
             return self.value
         s = f"{self.value3} - ложно, результат = "
-        self.value2.verbose = s + self.value2.verbose
+        self.value2.verbose = s + str(self.value2)
         return self.value2
 
 
