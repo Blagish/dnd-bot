@@ -1,3 +1,4 @@
+from app.commands.cogs.ai_talking import AiTalking
 from app.commands.cogs.dice import Dice
 # from app.commands.cogs.macros import Macros
 from app.commands.cogs.talking import Talking

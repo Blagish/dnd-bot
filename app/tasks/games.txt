@@ -1,5 +1,5 @@
-D&D 5e
-One D&D
+D&D 5e (2014)
+D&D 5e (2024)
 Pathfinder 1e
 Pathfinder 2e
 Pathfinder: Kingmaker
@@ -27,3 +27,5 @@ Baldur's Gate 3
 АШПРЕ!
 Dota 2
 Minecraft
+Genshin Impact
+The Elder Scrolls V: Skyrim

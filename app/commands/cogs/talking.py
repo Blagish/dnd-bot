@@ -3,9 +3,9 @@ from datetime import datetime, timezone, timedelta
 from discord.ext import commands
 from discord.utils import get
 from random import choice, randint
-import os
 import loguru
 from app.commands.base import BaseCog
+from app.util.config import config
 
 logger = loguru.logger
 
@@ -31,7 +31,7 @@ class Talking(BaseCog, name="Общение со мной :)"):
             "апчхи",
             "без комментариев",
         ]
-        self.bot_id = os.environ.get("DISCORD_ID")
+        self.bot_id = config.discord_id
         self.yes_or_no = ["Ага", "Неа"]
         self.funny_words = ["пизда :)", "пизда", "пизда!", "сковорода"]
 

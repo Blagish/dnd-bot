@@ -3,6 +3,8 @@ import discord
 from random import choice
 import logging
 
+from app.util.config import config
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,6 +14,8 @@ class Gaming(commands.Cog, name="Гейминг"):
         with open("app/tasks/games.txt", "r", encoding="utf-8") as file:
             games = file.read().split("\n")
             self.games = list(filter(lambda x: x != "", games))
+            if config.beta_test:
+                self.games=['AI TESTING']
         self.start_new_game.start()
 
     def cog_unload(self):

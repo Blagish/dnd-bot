@@ -177,3 +177,22 @@ class Dice(BaseCog, name="Кубы кубы"):
             result=f"Результат: {ans}, {msg}!",
         )
         await ctx.reply(res.to_str(), mention_author=False)
+
+    @commands.hybrid_command(name="ка", aliases=["каин", "ca", "cain"])
+    @app_commands.describe(rolls="Число бросков", hard="True если действие сложное")
+    # @commands.before_invoke(fix_comment)
+    async def cain(self, ctx: commands.Context, rolls: int, hard: Optional[bool] = False):
+        """Бросок системы CAIN."""
+        command = f"sum(map(((it=4)+(it=5)+(it=6)):{rolls}x(d6)))"
+        if hard:
+            command = f"sum(map(((it=6)):{rolls}x(d6)))"
+        print(command)
+        sol, ans = d2(command)
+        print(sol, ans)
+        res = RollResponse(
+            command=f"{rolls}d",
+            comment='сложный бросок' if hard else '',
+            lines=sol[4:-1],
+            result=f"Успехов: {ans}",
+        )
+        await ctx.reply(res.to_str(), mention_author=False)

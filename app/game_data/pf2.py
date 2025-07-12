@@ -102,7 +102,7 @@ def get_info(name, trait=None, mention_multiple=False, cut_description=True) -> 
         logger.debug("no results")
         return Pf2Response(embed=Embed(
             title="OwO, what's this?",
-            description="(по вашему запросу ничего не найдено)",
+            description=f"Я не знаю кто такой {name}...",
             colour=Colour.red(),
         ))
 
@@ -111,7 +111,7 @@ def get_info(name, trait=None, mention_multiple=False, cut_description=True) -> 
         ans = results[0]
     else:
         for i in results:
-            if i.find("strong").text == name:
+            if i.find("strong").text.lower() == name:
                 ans = i
 
     if ans is None and len(results) > 1:
@@ -226,6 +226,6 @@ def get_info(name, trait=None, mention_multiple=False, cut_description=True) -> 
 if __name__ == "__main__":
     #res = get_info("earth", trait='CREATURE 1', cut_description=True)
     #res = get_info("leaf weave", trait='armor', cut_description=True)
-    res = get_info('howling blizzard', cut_description=True)
+    res = get_info('Spellstriker Staff', cut_description=True)
     print(res.embed.title, res.embed.description, len(res.embed.description), sep='\n')
     #print(res.other_embeds)

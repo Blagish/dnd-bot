@@ -3,7 +3,7 @@ from statistics import NormalDist
 from math import sqrt, ceil
 from typing import List
 import json
-import os
+from app.util.config import config
 
 
 class RandomGenerator:
@@ -40,12 +40,8 @@ class RandomGenerator:
         return rolls
 
 
-use_karmic = os.environ.get("USE_KARMIC") == "True"
-kappa = float(os.environ.get("KAPPA"))
-karmic_die_size = json.loads(os.environ.get("KARMIC_DICE"))
-
 rangen = RandomGenerator(
-    use_karmic=use_karmic, kappa=kappa, karmic_die_size=karmic_die_size
+    use_karmic=config.use_karmic, kappa=config.kappa, karmic_die_size=config.karmic_dice
 )
 rangen_orig = RandomGenerator()
 

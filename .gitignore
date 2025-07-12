@@ -4,3 +4,4 @@ config.py
 /beta_whitelist.json
 /app/commands/beta_whitelist.json
 
+/app/ai_client/prompts/

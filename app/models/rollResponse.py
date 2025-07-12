@@ -3,7 +3,7 @@ from typing import List
 
 
 class RollResponse(BaseModel):
-    opening: str = "Кидаю"
+    opening: str = "Считаю"
     command: str = ""
     comment: str = ""
     lines_sep: str = "->"
@@ -16,6 +16,8 @@ class RollResponse(BaseModel):
         if self.comment:
             comment = f" для *{self.comment}*"
         self.lines_to_line()
+        if '[' in self.lines:
+            self.opening = 'Кидаю'
         return f"{self.opening} {command}{comment}\n{self.lines}**{self.result}**"
 
     def lines_to_line(self):
@@ -23,4 +25,4 @@ class RollResponse(BaseModel):
             self.lines = f"{self.lines_sep} {self.lines}\n"
             return
         lines = map(lambda x: f"{self.lines_sep} {x}\n", self.lines)
-        self.lines = list(lines)
+        self.lines = ''.join(lines)
