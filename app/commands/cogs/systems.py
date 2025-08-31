@@ -8,6 +8,8 @@ from app.game_data import (
     get_info_pf2,
     get_english_name,
 )
+from app.game_data.pf2_new.searcher import search_spells
+from app.game_data.pf2_new.pf2 import Spell
 from app.util.gamedata_buttons import Buttons
 from app.models.pf2Response import Pf2Response
 import re
@@ -78,20 +80,44 @@ class Systems(BaseCog, name='Игровые системы'):
             for embed in response.other_embeds:
                 await ctx.reply(embed=embed, mention_author=False)
 
-    async def send_fron_aon(self, message):
-        pattern = r'(https?\:\/\/2e\.aonprd\.com\/\w+\.aspx\?ID=\d+)'
-        if re.match(pattern, message.content):
-            for i in message.embeds:
-                title = i.title
-                thing = title[:title.find('-')].strip()
-                response: Pf2Response = get_info_pf2(thing)
-                await message.reply(response.message, embed=response.embed, mention_author=False)
+    @commands.hybrid_command(name="pf2beta", aliases=["pfb", "пф2б", "пфб"])
+    @app_commands.describe(spell="[БЕТА] Заклинание из PF2e, новая реализация.")
+    @commands.before_invoke(fix_thing)
+    async def info_pf2_beta(self, ctx: commands.Context, spell: str): #, trait: Optional[str]):
+        """[БЕТА] Узнать о заклинании из Pathfinder 2e. На английском. Тест новой реализации"""
+        async with ctx.typing():
+            logger.debug(f'looking for {spell}')
+            spells = search_spells(spell)
+            logger.debug(f'found {spells}')
+            if spells is None:
+                response = Pf2Response(embed=Spell.get_embed_not_found())
+            else:
+                spell_name = spells[0]['path']
+                spell = Spell.from_file(spell_name)
+                if spell:
+                    response = Pf2Response(embed=spell.to_embed())
+                else:
+                    response = Pf2Response(embed=Spell.get_embed_not_found())
+        try:
+            await ctx.reply(response.message, embed=response.embed, mention_author=False)
+        except Exception as e:
+            print(e)
 
 
-    @commands.Cog.listener("on_message")
-    async def send_from_aon_listener1(self, message: Message):
-        await self.send_fron_aon(message)
-
-    @commands.Cog.listener("on_message_edit")
-    async def send_from_aon_listener2(self, before: Message, after: Message):
-        await self.send_fron_aon(after)
+    # async def send_fron_aon(self, message):
+    #     pattern = r'(https?\:\/\/2e\.aonprd\.com\/\w+\.aspx\?ID=\d+)'
+    #     if re.match(pattern, message.content):
+    #         for i in message.embeds:
+    #             title = i.title
+    #             thing = title[:title.find('-')].strip()
+    #             response: Pf2Response = get_info_pf2(thing)
+    #             await message.reply(response.message, embed=response.embed, mention_author=False)
+    #
+    #
+    # @commands.Cog.listener("on_message")
+    # async def send_from_aon_listener1(self, message: Message):
+    #     await self.send_fron_aon(message)
+    #
+    # @commands.Cog.listener("on_message_edit")
+    # async def send_from_aon_listener2(self, before: Message, after: Message):
+    #     await self.send_fron_aon(after)

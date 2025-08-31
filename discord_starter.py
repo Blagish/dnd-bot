@@ -1,20 +1,24 @@
+import os
 import asyncio
 import discord
 from discord.ext import commands
+from discord import app_commands
 from help import MyHelpCommand
 import loguru
-from app.util.config import config
+from app.game_data.pf2_new.searcher import initialize_spell_indexer
 
 logger = loguru.logger
 
 intents = discord.Intents.default()
 intents.message_content = True
 
+
+command_prefix = os.environ.get("COMMAND_PREFIX")
 bot = commands.Bot(
     intents=intents,
-    command_prefix=commands.when_mentioned_or(config.command_prefix),
+    command_prefix=commands.when_mentioned_or(command_prefix),
     activity=discord.Activity(
-        type=discord.ActivityType.listening, name=f"{config.command_prefix}help"
+        type=discord.ActivityType.listening, name=f"{command_prefix}help"
     ),
 )
 bot.remove_command("help")
@@ -38,8 +42,16 @@ async def main():
     async with bot:
         await bot.load_extension("app.commands")
         await bot.load_extension("app.tasks")
+        
+        # Инициализируем индексатор заклинаний при запуске
+        logger.info("Инициализация индексатора заклинаний...")
+        try:
+            initialize_spell_indexer()
+            logger.info("Индексатор заклинаний успешно инициализирован")
+        except Exception as e:
+            logger.error(f"Ошибка при инициализации индексатора заклинаний: {e}")
 
-        await bot.start(config.discord_token)
+        await bot.start(os.environ.get("DISCORD_TOKEN"))
 
 
 if __name__ == "__main__":
