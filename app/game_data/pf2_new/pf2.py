@@ -125,6 +125,7 @@ class Spell:
         # replacement = r'<roll:1275792662754230313 expression:\1> \2'
         # result = re.sub(pattern, replacement, self.description)
         result = self.replace_uuid_strings(self.description)
+        result = self.replace_dice_commands(result)
         return result
 
     @staticmethod
@@ -144,6 +145,20 @@ class Spell:
 
         return re.sub(pattern, replacement_func, text)
 
+    @staticmethod
+    def replace_dice_commands(text):
+        pattern = r'\[\[/r\s+([^\]]+)\]\](?:\{([^}]+)\})?'
+
+        def replacement_func(match):
+            dice_expression = match.group(1)  # The dice expression after "/r"
+            display_name = match.group(2)  # Text in curly brackets (if exists)
+
+            if display_name:
+                return display_name
+            else:
+                return dice_expression
+
+        return re.sub(pattern, replacement_func, text)
 
     def construct_description(self):
         type_ = '*' + self.type + '*'
@@ -202,7 +217,7 @@ if __name__ == '__main__':
     initialize_spell_indexer()
 
     # Демонстрируем поиск заклинаний по фразе
-    query = 'Laughing Fit'
+    query = 'Chromatic Armor'
     print(f"=== Поиск заклинаний по фразе '{query}' ===")
     detect_spells = search_spells(query)
     for result in detect_spells:
