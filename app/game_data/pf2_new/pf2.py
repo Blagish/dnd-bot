@@ -121,16 +121,38 @@ class Spell:
     def parse_raw_description(self):
         roll_command_id = '1275792662754230313'
 
-        pattern = r'\[\[/r\s+([^\]]+)\]\]\{([^}]+)\}'
-        replacement = r'<roll:1275792662754230313 expression:\1> \2'
-        result = re.sub(pattern, replacement, self.description)
+        # pattern = r'\[\[/r\s+([^\]]+)\]\]\{([^}]+)\}'
+        # replacement = r'<roll:1275792662754230313 expression:\1> \2'
+        # result = re.sub(pattern, replacement, self.description)
+        result = self.replace_uuid_strings(self.description)
         return result
+
+    @staticmethod
+    def replace_uuid_strings(text):
+        pattern = r'@UUID\[([^\]]+)\](?:\{([^}]+)\})?'
+
+        def replacement_func(match):
+            uuid_path = match.group(1)  # The UUID path
+            display_name = match.group(2)  # Text in curly brackets (if exists)
+
+            if display_name:
+                res = display_name
+            else:
+                res = uuid_path.split('.')[-1]
+
+            return f'__{res}__'
+
+        return re.sub(pattern, replacement_func, text)
 
 
     def construct_description(self):
         type_ = '*' + self.type + '*'
         traits = '`' + '`, `'.join(self.traits) + '`'
-        basic_info = [f"> **Traditions** {', '.join(self.tags)}"]
+        basic_info = [f"> **Traits** {traits.upper()}", f"> **Traditions** {', '.join(self.tags)}"]
+
+        if not self.casting_time.isdigit():
+            basic_info.append(f"> **Cast** {self.casting_time}")
+
         if self.range is not None:
             if self.area is not None:
                 basic_info.append(f"> **Range** {self.range}; **Area** {self.area}")
@@ -145,16 +167,18 @@ class Spell:
         elif self.target is not None:
             basic_info.append(f"> **Target** {self.target}")
 
-        if not self.casting_time.isdigit():
-            basic_info.append(f"> **Cast** {self.casting_time}")
+        if self.save is not None:
+            if self.duration is not None:
+                basic_info.append(f"> **Defense** {self.save}; **Duration** {self.duration}")
+            else:
+                basic_info.append(f"> **Defense** {self.save}")
 
-        if self.duration is not None:
+        elif self.duration is not None:
             basic_info.append(f"> **Duration** {self.duration}")
 
-        if self.save is not None:
-            basic_info.append(f"> **Defense** {self.save}")
 
-        data = [type_, traits.upper(), '\n'.join(basic_info), self.description]
+
+        data = [type_, '\n'.join(basic_info), self.parse_raw_description()]
         return '\n'.join(data)
 
     def to_embed(self):
@@ -164,6 +188,7 @@ class Spell:
         embed_card = Embed(title=title, description=description, color=color)
         embed_card.set_footer(text=self.source, icon_url=FOOTER_URL)
         return embed_card
+
 
     @staticmethod
     def get_embed_not_found():
@@ -177,7 +202,7 @@ if __name__ == '__main__':
     initialize_spell_indexer()
 
     # Демонстрируем поиск заклинаний по фразе
-    query = 'the artist'
+    query = 'Laughing Fit'
     print(f"=== Поиск заклинаний по фразе '{query}' ===")
     detect_spells = search_spells(query)
     for result in detect_spells:
