@@ -9,7 +9,7 @@ from app.game_data import (
     get_english_name,
 )
 from app.game_data.pf2_new.searcher import search_spells
-from app.game_data.pf2_new.pf2 import Spell
+from app.game_data.pf2_new.classes import Spell
 from app.util.gamedata_buttons import Buttons
 from app.models.pf2Response import Pf2Response
 import re
@@ -95,11 +95,11 @@ class Systems(BaseCog, name='Игровые системы'):
                 spell_name = spells[0]['path']
                 spell = Spell.from_file(spell_name)
                 if spell:
-                    response = Pf2Response(embed=spell.to_embed())
+                    response = spell.to_embed()
                 else:
                     response = Pf2Response(embed=Spell.get_embed_not_found())
         try:
-            await ctx.reply(response.message, embed=response.embed, mention_author=False)
+            await ctx.reply(response.message, embed=response.embed, file=response.file, mention_author=False)
         except Exception as e:
             print(e)
 

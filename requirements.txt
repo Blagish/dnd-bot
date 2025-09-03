@@ -1,4 +1,4 @@
-beautifulsoup4==4.13.0b2
+beautifulsoup4==4.13.5
 discord.py==2.4.0
 ply==3.11
 requests==2.32.3

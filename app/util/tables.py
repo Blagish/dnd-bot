@@ -36,10 +36,16 @@ class TableParser:
         self.pretty = PrettyTable()
         if table.caption:
             self.caption = f'### {table.caption.text}\n'
+
+        headers = None
+        if table.thead:
+            headers = self.find_headers(table.thead.tr)
         if table.tbody:
             table = table.tbody
         self.data = table.children
-        headers = self.find_headers()
+        if not headers:
+            headers = self.find_headers()
+
         self.pretty.field_names = headers
         self.set_style(style)
         self.align_left_column(align_left)
@@ -58,8 +64,9 @@ class TableParser:
             if len(a) == len(headers):
                 self.pretty.add_row(a)
 
-    def find_headers(self):
-        header = next(self.data)
+    def find_headers(self, header=None):
+        if header is None:
+            header = next(self.data)
         while header.text.strip() == '':
             header = next(self.data)
         headers = []
@@ -115,4 +122,4 @@ class TableParser:
     def get_for_embed(self):
         if self.get_str() == '':
             return ''
-        return f"{self.caption}`" + self.get_str() + "`"
+        return f"{self.caption}`" + self.get_str().strip() + "`"
