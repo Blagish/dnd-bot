@@ -1,4 +1,3 @@
-from click import style
 from markdownify import MarkdownConverter
 from app.util.tables import TableParser
 from markdownify import markdownify as md
@@ -12,8 +11,14 @@ def _md_tag(el: Tag, **kwargs):
     return md(el.text, **kwargs)
 
 
-class Pf2Markdown(MarkdownConverter):
+class TableMarkdown(MarkdownConverter):
     pictures = None
+
+    def convert(self, html: str | Tag):
+        if isinstance(html, Tag):
+            html = str(html)
+        return super().convert(html)
+
     def convert_table(self, el, text, parent_tags):
         t = TableParser(
             el, parse_string=_md_tag,
@@ -27,7 +32,7 @@ class Pf2Markdown(MarkdownConverter):
         self._create_table_image(table_text)
         
         return ''
-    
+
     def _create_table_image(self, table_text: str):
         try:
             font_size = 18
@@ -69,13 +74,38 @@ class Pf2Markdown(MarkdownConverter):
             self.pictures.append(uuid)
             img_path = f'temp_images/{uuid}.png'
             img.save(img_path)
-            
+
             print(f"Таблица сохранена как изображение: {img_path}")
-            
+
         except Exception as e:
             print(f"Ошибка при создании изображения таблицы: {e}")
 
+class Pf2Markdown(TableMarkdown):
+    CAST_TIME = {
+        "1": ":one:",
+        "2": ":two:",
+        "3": ":three:",
+        "2 or 3": ":two: or :three:",
+        "free": ":free:",
+        "reaction": ":leftwards_arrow_with_hook:",
+        "long": ":alarm_clock:",
+    }
 
-def markdown(string: str):
+    def convert_span(self, el, text, parent_tags):
+        #print(el, text)
+        if 'action-glyph' in el.attrs['class']:
+            text = el.get_text()
+            return self.CAST_TIME.get(text, self.CAST_TIME['long'])
+        return text
+
+def markdown_pf2(string: str | Tag):
     cls = Pf2Markdown(bullets='-*', newline_style='BACKLASH', strip=['hr'])
+    return MarkdownResponse(text=cls.convert(string), pictures=cls.pictures)
+
+def markdown_dnd_su(string: str | Tag):
+    cls = TableMarkdown(bullets='>-*', newline_style='BACKLASH', strip=['hr', 'a'])
+    return MarkdownResponse(text=cls.convert(string), pictures=cls.pictures)
+
+def markdown_dnd_wikidot(string: str | Tag):
+    cls = TableMarkdown(bullets='>-*', newline_style='BACKLASH', strip=['hr', 'a'])
     return MarkdownResponse(text=cls.convert(string), pictures=cls.pictures)

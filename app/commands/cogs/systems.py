@@ -3,16 +3,14 @@ from discord.ext import commands
 from discord import app_commands, Message
 from typing import Literal, Optional
 from app.game_data import (
-    get_spell_dnd_su,
-    get_spell_wikidot,
-    get_info_pf2,
-    get_english_name,
+    DndRuSiteSearcher,
+    DndEnSiteSearcher,
+    get_info_pf2
 )
 from app.game_data.pf2_new.searcher import search_spells
 from app.game_data.pf2_new.classes import Spell
 from app.util.gamedata_buttons import Buttons
 from app.models.pf2Response import Pf2Response
-import re
 import loguru
 
 logger = loguru.logger
@@ -24,30 +22,25 @@ class Systems(BaseCog, name='Игровые системы'):
             line = content[content.find(" ") + 1 :]
             ctx.args[1] = line
 
-    @commands.command(
+    @commands.hybrid_command(
         name="dnd", aliases=["закл", "спелл", "dnd5", "spell", "днд", "днд5"]
     )
     @app_commands.describe(lang="Язык", spell="Название заклинания")
     async def spell_dnd5(
-        self, ctx: commands.Context, lang: Literal["ru", "en"], spell: str
+        self, ctx: commands.Context, spell: str, lang: Literal["ru", "en"]
     ):
         """Узнать о заклинании из D&D 5e. Как на русском, так и на английском"""
         match lang:
             case "ru":
-                get_from_spell_source = get_spell_dnd_su
+                searcher = DndRuSiteSearcher()
             case "en":
-                get_from_spell_source = get_spell_wikidot
+                searcher = DndEnSiteSearcher()
                 if any(
                     "а" <= c <= "я" for c in spell
                 ):  # если название спелла на русском
                     spell = get_english_name(spell)
                     if not spell:
                         spell = "aaaaaaaaa"
-                await ctx.reply(
-                    embed=self.foreseen_error_message(
-                        "Английский язык временно не поддерживается. Попробуйте позже"
-                    )
-                )
                 return
             case _:
                 await ctx.reply(embed=self.foreseen_error_message("Неизвестный язык"))
@@ -55,10 +48,10 @@ class Systems(BaseCog, name='Игровые системы'):
 
         async with ctx.typing():
             try:
-                message = get_from_spell_source(spell)
+                message = searcher.get_spell(spell)
             except Exception as e:
                 message = self.error_message(str(e))
-        await ctx.reply(embed=message, mention_author=False)
+        await ctx.reply(embed=message.embed, mention_author=False)
 
     @commands.hybrid_command(name="pf2", aliases=["pf", "пф2", "пф"])
     @app_commands.describe(thing="Заклинание/предмет/что угодно из PF2e")
