@@ -5,7 +5,7 @@ from discord.ext import commands
 from discord import app_commands
 from help import MyHelpCommand
 import loguru
-from app.game_data.pf2_new.searcher import initialize_spell_indexer
+from app.game_data.pf2_new.searcher import initialize_pf2_indexer
 
 logger = loguru.logger
 
@@ -43,13 +43,13 @@ async def main():
         await bot.load_extension("app.commands")
         await bot.load_extension("app.tasks")
         
-        # Инициализируем индексатор заклинаний при запуске
-        logger.info("Инициализация индексатора заклинаний...")
+        # Инициализируем индексатор PF2e данных при запуске
+        logger.info("Инициализация индексатора PF2e данных...")
         try:
-            initialize_spell_indexer()
-            logger.info("Индексатор заклинаний успешно инициализирован")
+            initialize_pf2_indexer()
+            logger.info("Индексатор PF2e данных успешно инициализирован")
         except Exception as e:
-            logger.error(f"Ошибка при инициализации индексатора заклинаний: {e}")
+            logger.error(f"Ошибка при инициализации индексатора PF2e данных: {e}")
 
         await bot.start(os.environ.get("DISCORD_TOKEN"))
 

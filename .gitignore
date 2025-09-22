@@ -1,6 +1,14 @@
 __pycache__/
-config.py
 /venv/
+/.venv/
 /beta_whitelist.json
 /app/commands/beta_whitelist.json
-/app/game_data/pf2_new/packs
+/app/ai_client/prompts/
+/app/parser/parser.out
+/app/parser/parsetab.py
+/app/game_data/pf2_new/packs/
+/app/game_data/pf2_new/temp_images/
+/app/game_data/temp_images/
+/temp_images/
+/.idea/
+.env

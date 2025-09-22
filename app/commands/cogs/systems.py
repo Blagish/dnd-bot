@@ -7,10 +7,12 @@ from app.game_data import (
     DndEnSiteSearcher,
     get_info_pf2
 )
-from app.game_data.pf2_new.searcher import search_spells
-from app.game_data.pf2_new.classes import Spell
+from app.game_data.pf2_new.searcher import search_items
+from app.game_data.pf2_new.classes.spells import Spell
+from app.game_data.pf2_new.classes.feats import Feat
 from app.util.gamedata_buttons import Buttons
 from app.models.pf2Response import Pf2Response
+from app.enums.PackType import PackType
 import loguru
 
 logger = loguru.logger
@@ -35,13 +37,13 @@ class Systems(BaseCog, name='Игровые системы'):
                 searcher = DndRuSiteSearcher()
             case "en":
                 searcher = DndEnSiteSearcher()
-                if any(
-                    "а" <= c <= "я" for c in spell
-                ):  # если название спелла на русском
-                    spell = get_english_name(spell)
-                    if not spell:
-                        spell = "aaaaaaaaa"
-                return
+                # if any(
+                #     "а" <= c <= "я" for c in spell
+                # ):  # если название спелла на русском
+                #     spell = get_english_name(spell)
+                #     if not spell:
+                #         spell = "aaaaaaaaa"
+                # return
             case _:
                 await ctx.reply(embed=self.foreseen_error_message("Неизвестный язык"))
                 return
@@ -74,21 +76,26 @@ class Systems(BaseCog, name='Игровые системы'):
                 await ctx.reply(embed=embed, mention_author=False)
 
     @commands.hybrid_command(name="pf2beta", aliases=["pfb", "пф2б", "пфб"])
-    @app_commands.describe(spell="[БЕТА] Заклинание из PF2e, новая реализация.")
+    @app_commands.describe(name="[БЕТА] Заклинание/фит из PF2e, новая реализация.")
     @commands.before_invoke(fix_thing)
-    async def info_pf2_beta(self, ctx: commands.Context, spell: str): #, trait: Optional[str]):
+    async def info_pf2_beta(self, ctx: commands.Context, name: str, type: PackType): #, trait: Optional[str]):
         """[БЕТА] Узнать о заклинании из Pathfinder 2e. На английском. Тест новой реализации"""
         async with ctx.typing():
-            logger.debug(f'looking for {spell}')
-            spells = search_spells(spell)
-            logger.debug(f'found {spells}')
-            if spells is None:
+            logger.debug(f'looking for {name}')
+            things = search_items(name, [type])
+            logger.debug(f'found {things}')
+            if things is None:
                 response = Pf2Response(embed=Spell.get_embed_not_found())
             else:
-                spell_name = spells[0]['path']
-                spell = Spell.from_file(spell_name)
-                if spell:
-                    response = spell.to_embed()
+                thing_name = things[0]['path']
+                match type:
+                    case PackType.spell:
+                        thing_cls = Spell
+                    case PackType.feat:
+                        thing_cls = Feat
+                thing = thing_cls.from_file(thing_name)
+                if thing:
+                    response = thing.to_embed()
                 else:
                     response = Pf2Response(embed=Spell.get_embed_not_found())
         try:

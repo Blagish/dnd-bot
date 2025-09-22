@@ -1,6 +1,6 @@
-import enum
+from app.enums.base import BaseEnum
 
 
-class LangEnum(str, enum.Enum):
+class LangEnum(BaseEnum):
     ru = "ru"
     en = "en"
